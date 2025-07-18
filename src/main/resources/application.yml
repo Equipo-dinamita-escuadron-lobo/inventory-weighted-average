@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: kardex
+
+  profiles:
+    active:
+    - ${PROFILE:dev}
+
+server:
+  error:
+    include-stacktrace: never
