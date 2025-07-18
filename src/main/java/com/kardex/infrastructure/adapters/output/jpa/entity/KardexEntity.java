@@ -27,22 +27,22 @@ public class KardexEntity {
     @Column(nullable = false)
     private Long quantity;
 
-    @Column(name = "valor_unitario", nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 4)
     private BigDecimal unitPrice;
 
     @Column(nullable = false)
     private String details;
 
-    @Column(name = "saldo_cantidad", nullable = false)
+    @Column(nullable = false)
     private Long balanceQuantity;
 
-    @Column(name = "saldo_valor_unitario", nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 4)
     private BigDecimal balanceUnitPrice;
 
     @Column(nullable = false)
     private ZonedDateTime date;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "idproducto", nullable = false)
+    @JoinColumn(name = "idProduct", nullable = false)
     private ProductEntity product;
 }

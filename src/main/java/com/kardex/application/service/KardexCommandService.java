@@ -1,11 +1,14 @@
 package com.kardex.application.service;
 
+import java.math.BigDecimal;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.kardex.application.ports.input.IKardexCommandPort;
 import com.kardex.application.ports.input.IStockClient;
 import com.kardex.domain.model.Kardex;
+import com.kardex.domain.port.IFormatterResultOutputPort;
 import com.kardex.domain.port.IKardexCommandRepositoryPort;
 import com.kardex.infrastructure.adapters.input.rest.dto.ResponseDto;
 import com.kardex.infrastructure.adapters.input.rest.dto.request.StockDtoRequest;
@@ -18,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class KardexCommandService implements IKardexCommandPort{
     private final IStockClient stockClient;
     private final IKardexCommandRepositoryPort kardexCommandRepositoryPort;
+    private final IFormatterResultOutputPort formatterResultOutputPort;
 
     @Override
     public void test(String message) {
@@ -50,13 +54,29 @@ public class KardexCommandService implements IKardexCommandPort{
 
     @Override
     public Kardex registerPurchase(Kardex kardex) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'registerPurchase'");
+        Kardex lastRegisteredKardex = kardexCommandRepositoryPort.getLatestKardexByProductId(kardex.getProduct().getId());
+        if (lastRegisteredKardex == null) {
+            kardex.setBalanceQuantity(kardex.getQuantity());
+            kardex.setBalanceUnitPrice(kardex.getUnitPrice());
+        } else {
+            kardex.addPurchaseBalance(lastRegisteredKardex.getBalanceQuantity(), lastRegisteredKardex.getBalanceUnitPrice());
+        }
+        
+        if(kardex.getBalanceUnitPrice() == BigDecimal.ZERO) {
+            formatterResultOutputPort.returnResponseError(400, "The balance unit price must be greater than zero.");
+        }
+        kardex.addDate();
+        return kardexCommandRepositoryPort.registerPurchase(kardex);
     }
 
     @Override
     public Kardex registerSale(Kardex kardex) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'registerSale'");
+        Kardex lastRegisteredKardex = kardexCommandRepositoryPort.getLatestKardexByProductId(kardex.getProduct().getId());
+        if (lastRegisteredKardex == null) {
+            formatterResultOutputPort.returnResponseError(400, "No previous kardex found for the product.");
+        }
+        kardex.addSaleBalance(lastRegisteredKardex.getQuantity(), lastRegisteredKardex.getUnitPrice());
+        kardex.addDate();
+        return kardexCommandRepositoryPort.registerSale(kardex);
     }
 }

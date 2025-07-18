@@ -1,6 +1,7 @@
 package com.kardex.infrastructure.adapters.output.jpa.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import com.kardex.domain.model.Kardex;
 import com.kardex.infrastructure.adapters.output.jpa.entity.KardexEntity;
@@ -9,5 +10,7 @@ import com.kardex.infrastructure.adapters.output.jpa.entity.KardexEntity;
 public interface KardexEntityMapper {
     
     KardexEntity toEntity(Kardex kardex);
+
+    @Mapping(target = "product", ignore = true)
     Kardex toDomain(KardexEntity kardexEntity);
 }
