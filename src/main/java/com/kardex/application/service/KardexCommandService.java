@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.kardex.application.ports.input.IKardexCommandPort;
 import com.kardex.application.ports.input.IStockClient;
 import com.kardex.domain.model.Kardex;
+import com.kardex.domain.model.MovementType;
 import com.kardex.domain.port.IFormatterResultOutputPort;
 import com.kardex.domain.port.IKardexCommandRepositoryPort;
 import com.kardex.infrastructure.adapters.input.rest.dto.ResponseDto;
@@ -65,6 +66,7 @@ public class KardexCommandService implements IKardexCommandPort{
         if(kardex.getBalanceUnitPrice() == BigDecimal.ZERO) {
             formatterResultOutputPort.returnResponseError(400, "The balance unit price must be greater than zero.");
         }
+        kardex.setType(MovementType.PURCHASE);
         kardex.addDate();
         return kardexCommandRepositoryPort.registerPurchase(kardex);
     }
@@ -75,7 +77,8 @@ public class KardexCommandService implements IKardexCommandPort{
         if (lastRegisteredKardex == null) {
             formatterResultOutputPort.returnResponseError(400, "No previous kardex found for the product.");
         }
-        kardex.addSaleBalance(lastRegisteredKardex.getQuantity(), lastRegisteredKardex.getUnitPrice());
+        kardex.addSaleBalance(lastRegisteredKardex.getBalanceQuantity(), lastRegisteredKardex.getBalanceUnitPrice());
+        kardex.setType(MovementType.SALE);
         kardex.addDate();
         return kardexCommandRepositoryPort.registerSale(kardex);
     }

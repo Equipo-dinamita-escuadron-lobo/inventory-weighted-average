@@ -43,5 +43,5 @@ public class KardexCommandAdapter implements IKardexCommandRepositoryPort{
         KardexEntity kardexEntity = kardexRepository.findTopByProductIdOrderByDateDesc(productId);
         return kardexEntity != null ? kardexEntityMapper.toDomain(kardexEntity) : null;
     }
-    
+
 }

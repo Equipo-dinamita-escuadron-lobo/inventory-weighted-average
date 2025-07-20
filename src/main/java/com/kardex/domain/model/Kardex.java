@@ -21,6 +21,8 @@ public class Kardex {
 
     private String details;
 
+    private MovementType type;
+
     private Long balanceQuantity;
 
     private BigDecimal balanceUnitPrice;
@@ -56,7 +58,7 @@ public class Kardex {
         BigDecimal totalQuantityBigDecimal = BigDecimal.valueOf(this.balanceQuantity);
 
         // 6. Divide el valor total entre la cantidad total para el promedio ponderado
-        this.balanceUnitPrice = totalValue.divide(totalQuantityBigDecimal, 4, RoundingMode.HALF_UP);   
+        this.balanceUnitPrice = totalValue.divide(totalQuantityBigDecimal, 2, RoundingMode.HALF_UP);   
     }
 
     public void addSaleBalance(Long lastQuantity, BigDecimal lastUnitPrice) {
