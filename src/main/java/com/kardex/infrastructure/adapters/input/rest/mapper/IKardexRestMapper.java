@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 
 import com.kardex.domain.model.Kardex;
 import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexPurchaseDtoRequest;
-import com.kardex.infrastructure.adapters.input.rest.dto.response.KardexDtoResponse;
+import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexSaleDtoRequest;
 
 @Mapper(componentModel = "spring")
 public interface IKardexRestMapper {
@@ -14,8 +14,16 @@ public interface IKardexRestMapper {
     @Mapping(target = "balanceQuantity", ignore = true)
     @Mapping(target = "balanceUnitPrice", ignore = true)
     @Mapping(target = "date", ignore = true)
+    @Mapping(target = "type", ignore = true)
     @Mapping(target = "id", ignore = true)
     Kardex toDomain(KardexPurchaseDtoRequest kardexPurchaseDtoRequest);
 
-    KardexDtoResponse toDtoResponse(Kardex kardex);
+    @Mapping(target = "product.id", source = "idProduct")
+    @Mapping(target = "unitPrice", ignore = true)
+    @Mapping(target = "balanceQuantity", ignore = true)
+    @Mapping(target = "balanceUnitPrice", ignore = true)
+    @Mapping(target = "date", ignore = true)
+    @Mapping(target = "type", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    Kardex toDomain(KardexSaleDtoRequest kardexSaleDtoRequest);
 }
