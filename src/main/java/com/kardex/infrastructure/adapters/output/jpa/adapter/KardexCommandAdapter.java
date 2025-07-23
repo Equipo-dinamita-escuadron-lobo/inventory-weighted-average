@@ -6,7 +6,7 @@ import com.kardex.domain.model.Kardex;
 import com.kardex.domain.port.IKardexCommandRepositoryPort;
 import com.kardex.infrastructure.adapters.output.jpa.entity.KardexEntity;
 import com.kardex.infrastructure.adapters.output.jpa.entity.ProductEntity;
-import com.kardex.infrastructure.adapters.output.jpa.mapper.KardexEntityMapper;
+import com.kardex.infrastructure.adapters.output.jpa.mapper.IKardexEntityCommandMapper;
 import com.kardex.infrastructure.adapters.output.jpa.repository.IKardexRepository;
 import com.kardex.infrastructure.adapters.output.jpa.repository.IProductRepository;
 
@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class KardexCommandAdapter implements IKardexCommandRepositoryPort{
 
-    private final KardexEntityMapper kardexEntityMapper;
+    private final IKardexEntityCommandMapper kardexEntityMapper;
     private final IKardexRepository kardexRepository;
     private final IProductRepository productRepository;
 
