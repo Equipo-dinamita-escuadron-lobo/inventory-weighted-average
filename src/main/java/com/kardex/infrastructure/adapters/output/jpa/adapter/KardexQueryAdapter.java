@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import com.kardex.domain.model.Kardex;
 import com.kardex.domain.port.IKardexQueryRepositoryPort;
 import com.kardex.infrastructure.adapters.output.jpa.entity.KardexEntity;
-import com.kardex.infrastructure.adapters.output.jpa.mapper.KardexEntityMapper;
+import com.kardex.infrastructure.adapters.output.jpa.mapper.IKardexEntityQueryMapper;
 import com.kardex.infrastructure.adapters.output.jpa.repository.IKardexRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class KardexQueryAdapter implements IKardexQueryRepositoryPort {
 
-    private final KardexEntityMapper kardexEntityMapper;
+    private final IKardexEntityQueryMapper kardexEntityMapper;
     private final IKardexRepository kardexRepository;
 
     @Override

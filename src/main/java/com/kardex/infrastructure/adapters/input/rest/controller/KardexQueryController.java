@@ -23,7 +23,7 @@ public class KardexQueryController {
     private final IKardexQueryPort kardexQueryPort;
     private final IKardexResponseMapper kardexResponseMapper;
 
-    @GetMapping("/product")
+    @GetMapping("/kardex-by-product")
     public ResponseDto<Page<KardexDtoResponse>> getKardexByProductId(@RequestParam Long productId, Pageable pageable) {
         Page<Kardex> kardexPage = kardexQueryPort.findProductId(productId, pageable);
         Page<KardexDtoResponse> kardexDtoResponses = kardexPage.map(kardexResponseMapper::toDtoResponse);

@@ -3,6 +3,8 @@ package com.kardex.infrastructure.adapters.input.rest.dto.response;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
+import com.kardex.domain.model.MovementType;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +20,8 @@ public class KardexDtoResponse {
     private BigDecimal unitPrice;
 
     private String details;
+
+    private MovementType type;
 
     private Long balanceQuantity;
 

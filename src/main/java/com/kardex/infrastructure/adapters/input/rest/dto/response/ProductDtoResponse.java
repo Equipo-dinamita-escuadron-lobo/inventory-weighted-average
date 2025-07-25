@@ -1,6 +1,4 @@
-package com.kardex.domain.model;
-
-import java.util.List;
+package com.kardex.infrastructure.adapters.input.rest.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +7,7 @@ import lombok.Setter;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
-public class Product {
+public class ProductDtoResponse {
     private Long id;
 
     private Long idProduct;
@@ -23,6 +21,4 @@ public class Product {
     private String manager;
 
     private String enterpriseId;
-
-    private List<Kardex> kardexList;
 }
