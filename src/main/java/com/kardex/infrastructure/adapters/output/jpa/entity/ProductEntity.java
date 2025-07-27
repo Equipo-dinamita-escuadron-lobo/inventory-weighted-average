@@ -24,11 +24,11 @@ public class ProductEntity {
 
     private Long idProduct;
 
-    @Column(nullable = false)
-    private String name;
-
     @Column(nullable = false, unique = true)
     private String reference;
+
+    @Column(nullable = false)
+    private String name;
 
     private String presentation;
 
