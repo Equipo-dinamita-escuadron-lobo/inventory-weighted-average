@@ -39,5 +39,26 @@ public class ProductCommandAdapter implements IProductCommandRepositoryPort {
             return "An error occurred while saving products: " + e.getMessage();
         }
     }
+
+    @Override
+    public String save(Product product) {
+        try {
+            ProductEntity productEntity = new ProductEntity(
+                null,
+                product.getIdProduct(),
+                product.getReference(),
+                product.getName(),
+                product.getPresentation(),
+                product.getManager(),
+                product.getEnterpriseId(),
+                null  // Assuming kardexList is not needed for saving
+            );
+
+            productRepository.save(productEntity);
+            return "Product saved successfully.";
+        } catch (Exception e) {
+            return "An error occurred while saving the product: " + e.getMessage();
+        }
+    }
     
 }
