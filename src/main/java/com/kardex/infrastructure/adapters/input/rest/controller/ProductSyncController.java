@@ -1,10 +1,14 @@
 package com.kardex.infrastructure.adapters.input.rest.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 
-import com.kardex.application.ports.input.IProductCommandPort;
+import com.kardex.infrastructure.adapters.input.rest.dto.ResponseDto;
+
+import com.kardex.application.ports.input.IProductSyncCommandPort;
 
 import lombok.RequiredArgsConstructor;
 
@@ -12,10 +16,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/api/kardex/weighted-average/sync")
 public class ProductSyncController {
-    private final IProductCommandPort productCommandPort;
+    private final IProductSyncCommandPort productCommandPort;
 
-    @GetMapping("/test")
-    public void test() {
-        productCommandPort.test2("Hello from ProductSyncController");
+    @GetMapping("/products/{enterpriseId}")
+    public ResponseEntity<ResponseDto<String>> syncProducts(@PathVariable String enterpriseId) {
+        String result = productCommandPort.syncProductsByEnterpriseId(enterpriseId);
+        ResponseDto<String> responseDto = ResponseDto.<String>builder()
+                .data(result)
+                .status(200)
+                .message("Synchronization completed").build();
+        return ResponseEntity.ok(responseDto);
     }
 }

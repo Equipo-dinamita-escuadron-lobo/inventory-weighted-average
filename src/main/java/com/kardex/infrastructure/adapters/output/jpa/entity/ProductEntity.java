@@ -37,6 +37,9 @@ public class ProductEntity {
     @Column(name = "enterprise_id", nullable = false)
     private String enterpriseId;
 
+    @Column(nullable = false)
+    private boolean state;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<KardexEntity> kardexList;
 }

@@ -26,5 +26,7 @@ public class Product {
 
     private String enterpriseId;
 
+    private boolean state;
+
     private List<Kardex> kardexList;
 }
