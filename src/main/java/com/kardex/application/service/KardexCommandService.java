@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.kardex.application.ports.input.IKardexCommandPort;
-import com.kardex.application.ports.input.IStockClient;
+import com.kardex.application.ports.output.IStockClient;
 import com.kardex.domain.model.Kardex;
 import com.kardex.domain.model.MovementType;
 import com.kardex.domain.port.IFormatterResultOutputPort;
@@ -53,6 +53,7 @@ public class KardexCommandService implements IKardexCommandPort{
         }
     }
 
+
     @Override
     public Kardex registerPurchase(Kardex kardex) {
         Kardex lastRegisteredKardex = kardexCommandRepositoryPort.getLatestKardexByProductId(kardex.getProduct().getId());
@@ -82,4 +83,6 @@ public class KardexCommandService implements IKardexCommandPort{
         kardex.addDate();
         return kardexCommandRepositoryPort.registerSale(kardex);
     }
+
+
 }

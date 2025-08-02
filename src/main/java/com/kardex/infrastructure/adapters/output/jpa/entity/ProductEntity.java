@@ -24,11 +24,11 @@ public class ProductEntity {
 
     private Long idProduct;
 
-    @Column(nullable = false)
-    private String name;
-
     @Column(nullable = false, unique = true)
     private String reference;
+
+    @Column(nullable = false)
+    private String name;
 
     private String presentation;
 
@@ -36,6 +36,9 @@ public class ProductEntity {
 
     @Column(name = "enterprise_id", nullable = false)
     private String enterpriseId;
+
+    @Column(nullable = false)
+    private boolean state;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<KardexEntity> kardexList;
