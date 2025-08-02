@@ -39,7 +39,8 @@ public class ProductCommandService implements IProductSyncCommandPort {
 
         if (lastSync.isEmpty()) {
             // If no previous sync exists, create a new sync state with the current time
-            lastSync = createSyncStateIfNotExists(enterpriseId, Instant.now()); 
+            Instant oldDate = Instant.parse("2000-01-01T00:00:00Z");
+            lastSync = createSyncStateIfNotExists(enterpriseId, oldDate); 
             log.info("No previous sync found for enterprise {}, creating new sync state.", enterpriseId);
         }
 
