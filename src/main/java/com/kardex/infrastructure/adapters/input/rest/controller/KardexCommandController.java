@@ -53,5 +53,27 @@ public class KardexCommandController {
                 .message("Kardex sale registered successfully").build();
         return responseDto.of();    
     }
+
+    @PostMapping("/return-on-sale")
+    public ResponseEntity<ResponseDto<KardexDtoResponse>> returnOnSaleKardex(@RequestBody KardexPurchaseDtoRequest kardexPurchaseDtoRequest) {
+        Kardex response = kardexCommandPort.registerReturnOnSale(kardexRestMapper.toDomain(kardexPurchaseDtoRequest));
+        KardexDtoResponse kardexDtoResponse = kardexResponseMapper.toDtoResponse(response);
+        ResponseDto<KardexDtoResponse> responseDto = ResponseDto.<KardexDtoResponse>builder()
+                .data(kardexDtoResponse)
+                .status(200)
+                .message("Kardex return on sale registered successfully").build();
+        return responseDto.of();    
+    }
+
+    @PostMapping("/return-on-purchase")
+    public ResponseEntity<ResponseDto<KardexDtoResponse>> returnOnPurchaseKardex(@RequestBody KardexPurchaseDtoRequest kardexPurchaseDtoRequest) {
+        Kardex response = kardexCommandPort.registerReturnOnPurchase(kardexRestMapper.toDomain(kardexPurchaseDtoRequest));
+        KardexDtoResponse kardexDtoResponse = kardexResponseMapper.toDtoResponse(response);
+        ResponseDto<KardexDtoResponse> responseDto = ResponseDto.<KardexDtoResponse>builder()
+                .data(kardexDtoResponse)
+                .status(200)
+                .message("Kardex return on purchase registered successfully").build();
+        return responseDto.of();    
+    }
     
 }

@@ -10,7 +10,7 @@ import com.kardex.infrastructure.adapters.output.jpa.entity.KardexEntity;
 public interface IKardexEntityCommandMapper {
     
     KardexEntity toEntity(Kardex kardex);
-
+    
     @Mapping(target = "product", ignore = true)
     Kardex toDomain(KardexEntity kardexEntity);
 }

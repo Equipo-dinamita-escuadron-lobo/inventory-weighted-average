@@ -29,6 +29,9 @@ public class KardexEntity {
     private Long id;
 
     @Column(nullable = false)
+    private Long factCode;
+
+    @Column(nullable = false)
     private Long quantity;
 
     @Column(nullable = false, precision = 10, scale = 2)
@@ -46,6 +49,9 @@ public class KardexEntity {
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal balanceUnitPrice;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalBalance;
 
     @Column(nullable = false)
     private ZonedDateTime date;

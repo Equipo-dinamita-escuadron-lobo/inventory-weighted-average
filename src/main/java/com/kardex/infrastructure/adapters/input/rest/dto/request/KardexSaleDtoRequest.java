@@ -10,6 +10,8 @@ import lombok.Setter;
 public class KardexSaleDtoRequest {
     private Long quantity;
 
+    private Long factCode;
+
     private String details;
 
     private Long idProduct;

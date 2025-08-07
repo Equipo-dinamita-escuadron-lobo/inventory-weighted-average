@@ -27,6 +27,8 @@ public class KardexDtoResponse {
 
     private BigDecimal balanceUnitPrice;
 
+    private BigDecimal totalBalance;
+
     private ZonedDateTime date;
     
 } 

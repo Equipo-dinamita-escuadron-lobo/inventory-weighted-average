@@ -11,6 +11,8 @@ import lombok.Setter;
 public class KardexPurchaseDtoRequest {
     private Long quantity;
 
+    private Long factCode;
+
     private BigDecimal unitPrice;
 
     private String details;

@@ -39,9 +39,21 @@ public class KardexCommandAdapter implements IKardexCommandRepositoryPort{
     }
 
     @Override
-    public Kardex getLatestKardexByProductId(Long productId) {
-        KardexEntity kardexEntity = kardexRepository.findTopByProductIdOrderByDateDesc(productId);
-        return kardexEntity != null ? kardexEntityMapper.toDomain(kardexEntity) : null;
+    public Kardex registerReturnOnPurchase(Kardex kardex) {
+        ProductEntity productEntity = productRepository.getReferenceById(kardex.getProduct().getId());
+        KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);
+        kardexEntity.setProduct(productEntity);
+        
+        return kardexEntityMapper.toDomain(kardexRepository.save(kardexEntity));
+    }
+
+    @Override
+    public Kardex registerReturnOnSale(Kardex kardex) {
+        ProductEntity productEntity = productRepository.getReferenceById(kardex.getProduct().getId());
+        KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);
+        kardexEntity.setProduct(productEntity);
+        
+        return kardexEntityMapper.toDomain(kardexRepository.save(kardexEntity));
     }
 
 }
