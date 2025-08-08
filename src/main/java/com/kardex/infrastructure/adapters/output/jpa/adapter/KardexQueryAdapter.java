@@ -1,5 +1,8 @@
 package com.kardex.infrastructure.adapters.output.jpa.adapter;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -20,6 +23,14 @@ public class KardexQueryAdapter implements IKardexQueryRepositoryPort {
 
     private final IKardexEntityQueryMapper kardexEntityMapper;
     private final IKardexRepository kardexRepository;
+
+    @Override
+    public Page<Kardex> findProductIdAndDate(Long productId, Pageable pageable, LocalDate startDate, LocalDate endDate) {
+        ZonedDateTime startDateTime = startDate.atStartOfDay(ZoneId.systemDefault());
+        ZonedDateTime endDateTime = endDate.plusDays(1).atStartOfDay(ZoneId.systemDefault());
+        Page<KardexEntity> kardexEntities = kardexRepository.findByProductIdAndDateBetween(productId, startDateTime, endDateTime, pageable);
+        return kardexEntities.map(kardexEntityMapper::toDomain);
+    }
 
     @Override
     public Page<Kardex> findProductId(Long productId, Pageable pageable) {

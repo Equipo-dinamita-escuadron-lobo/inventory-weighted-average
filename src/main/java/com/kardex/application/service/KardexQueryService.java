@@ -1,5 +1,7 @@
 package com.kardex.application.service;
 
+import java.time.LocalDate;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,7 +19,10 @@ public class KardexQueryService implements IKardexQueryPort {
     private final IKardexQueryRepositoryPort kardexQueryRepositoryPort;
 
     @Override
-    public Page<Kardex> findProductId(Long productId, Pageable pageable) {
+    public Page<Kardex> findProductId(Long productId, Pageable pageable, LocalDate startDate, LocalDate endDate) {
+        if (startDate != null && endDate != null) {
+            return kardexQueryRepositoryPort.findProductIdAndDate(productId, pageable, startDate, endDate);
+        }
         return kardexQueryRepositoryPort.findProductId(productId, pageable);
     }
     

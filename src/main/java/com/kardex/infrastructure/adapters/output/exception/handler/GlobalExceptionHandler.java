@@ -153,5 +153,15 @@ public class GlobalExceptionHandler {
         .of();
   }
 
+   @ExceptionHandler(IllegalArgumentException.class)
+   @ResponseBody
+   @ResponseStatus(HttpStatus.BAD_REQUEST)
+   public ResponseEntity<ErrorResponseDto<Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
+       return ErrorResponseDto.builder()
+           .errorCode(HttpStatus.BAD_REQUEST.value())
+           .message(ex.getMessage())
+           .build()
+           .of();
+   }
 
 }

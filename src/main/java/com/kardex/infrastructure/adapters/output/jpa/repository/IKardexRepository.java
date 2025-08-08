@@ -1,5 +1,6 @@
 package com.kardex.infrastructure.adapters.output.jpa.repository;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -13,6 +14,13 @@ public interface IKardexRepository extends JpaRepository<KardexEntity, Long> {
     KardexEntity findTopByProductIdOrderByDateDesc(Long productId);
 
     Page<KardexEntity> findByProductId(Long productId, Pageable pageable);
+
+    Page<KardexEntity> findByProductIdAndDateBetween(
+        Long productId, 
+        ZonedDateTime startDate, 
+        ZonedDateTime endDate,
+        Pageable pageable
+    );
 
     List<KardexEntity> findByFactCodeOrderByDateDesc(Long factCode);
 
