@@ -19,9 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 public class ProductListener{
     private final IProductCommandRepositoryPort productCommandPort;
 
-    @RabbitListener(queues = RabbitConfig.PRODUCT_STOCK_QUEUE)
+    @RabbitListener(queues = RabbitConfig.PRODUCT_KARDEX_QUEUE)
     public void handleStockEvent(EventDto<ProductSyncDto> event, Message message) {
-        log.info("Received stock event: {}", event.getData());
+        log.info("Received stock event: {}", event.getData().getName());
 
         switch (event.getType()) {
             case CREATED:

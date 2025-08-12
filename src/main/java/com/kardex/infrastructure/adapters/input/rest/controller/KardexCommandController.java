@@ -1,6 +1,7 @@
 package com.kardex.infrastructure.adapters.input.rest.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,11 +16,13 @@ import com.kardex.infrastructure.adapters.input.rest.dto.response.KardexDtoRespo
 import com.kardex.infrastructure.adapters.input.rest.mapper.IKardexResponseMapper;
 import com.kardex.infrastructure.adapters.input.rest.mapper.IKardexRestMapper;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/kardex/weighted-average")
+@Validated
 public class KardexCommandController {
 
     private final IKardexCommandPort kardexCommandPort;
@@ -33,7 +36,7 @@ public class KardexCommandController {
     }
 
     @PostMapping("/purchase")
-    public ResponseEntity<ResponseDto<KardexDtoResponse>> purchaseKardex(@RequestBody KardexPurchaseDtoRequest kardexPurchaseDtoRequest) {
+    public ResponseEntity<ResponseDto<KardexDtoResponse>> purchaseKardex(@Valid @RequestBody KardexPurchaseDtoRequest kardexPurchaseDtoRequest) {
         Kardex response = kardexCommandPort.registerPurchase(kardexRestMapper.toDomain(kardexPurchaseDtoRequest));
         KardexDtoResponse kardexDtoResponse = kardexResponseMapper.toDtoResponse(response);
         ResponseDto<KardexDtoResponse> responseDto = ResponseDto.<KardexDtoResponse>builder()
