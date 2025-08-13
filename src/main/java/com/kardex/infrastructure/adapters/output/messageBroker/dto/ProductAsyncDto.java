@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductSyncDto {
+public class ProductAsyncDto {
     private Long productId;
     private String name;
     private String reference;
@@ -16,4 +16,5 @@ public class ProductSyncDto {
     private String presentation;
     private Integer quantity;
     private double cost;
+    private boolean state;
 }

@@ -18,7 +18,8 @@ import com.kardex.domain.model.Product;
 import com.kardex.domain.port.IProductCommandRepositoryPort;
 import com.kardex.infrastructure.adapters.config.RabbitConfig;
 import com.kardex.infrastructure.adapters.output.messageBroker.dto.EventDto;
-import com.kardex.infrastructure.adapters.output.messageBroker.dto.ProductSyncDto;
+import com.kardex.infrastructure.adapters.output.messageBroker.dto.ProductAsyncDto;
+import com.kardex.infrastructure.adapters.output.messageBroker.mapper.ProductBrokerMapper;
 import com.rabbitmq.client.Channel;
 
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProductListener {
     private final IProductCommandRepositoryPort productCommandPort;
+    private final ProductBrokerMapper productBrokerMapper;
 
     @RabbitListener(queues = RabbitConfig.PRODUCT_KARDEX_QUEUE)
     @Retryable(
@@ -37,7 +39,7 @@ public class ProductListener {
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
     public void handleStockEvent(
-            EventDto<ProductSyncDto> event, 
+            EventDto<ProductAsyncDto> event, 
             Message message, 
             Channel channel,
             @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
@@ -86,24 +88,19 @@ public class ProductListener {
         }
     }
 
-    private void processEvent(EventDto<ProductSyncDto> event) {
+    private void processEvent(EventDto<ProductAsyncDto> event) {
         // This validation is already done before, but being defensive is a good practice
         if (event == null || event.getData() == null) {
             throw new IllegalArgumentException("Event or event data cannot be null");
         }
 
-        ProductSyncDto data = event.getData();
+        ProductAsyncDto data = event.getData();
         String productName = data.getName() != null ? data.getName() : "unnamed";
         
         switch (event.getType()) {
             case CREATED:
                 log.info("Creating new product: {}", productName);
-                Product product = Product.builder()
-                        .idProduct(data.getProductId())
-                        .reference(data.getReference())
-                        .name(data.getName())
-                        .enterpriseId(data.getEnterpriseId())
-                        .build();
+                Product product = productBrokerMapper.toDomain(data);
 
                 productCommandPort.save(product);
                 log.info("Product created successfully: {}", product.getName());
@@ -112,29 +109,14 @@ public class ProductListener {
             case UPDATED:
                 log.info("Updating product: {}", productName);
                 // Create updated product
-                Product updatedProduct = Product.builder()
-                        .idProduct(data.getProductId())
-                        .reference(data.getReference())
-                        .name(data.getName())
-                        .enterpriseId(data.getEnterpriseId())
-                        .build();
+                Product updatedProduct = productBrokerMapper.toDomain(data);
                 
                 productCommandPort.save(updatedProduct);
                 log.info("Product updated successfully: {}", updatedProduct.getName());
                 break;
                 
             case DELETED:
-                log.info("Deleting product: {}", productName);
-                // For deletion, create product with the ID to delete
-                Product productToDelete = Product.builder()
-                        .idProduct(data.getProductId())
-                        .build();
-
-                System.out.println(productToDelete);
-                
-                // Assume there is a method to delete or mark as deleted
-                // productCommandPort.delete(productToDelete);
-                log.info("Product deletion processed: {}", data.getProductId());
+                log.info("Deleting product: {}", productName);            
                 break;
                 
             default:
@@ -163,7 +145,7 @@ public class ProductListener {
     }
 
     // Helper method to get the product name safely
-    private String getProductNameSafely(EventDto<ProductSyncDto> event) {
+    private String getProductNameSafely(EventDto<ProductAsyncDto> event) {
         if (event == null || event.getData() == null) {
             return "unknown";
         }
