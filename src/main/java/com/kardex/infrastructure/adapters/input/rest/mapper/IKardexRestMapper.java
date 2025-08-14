@@ -10,7 +10,6 @@ import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexSaleDtoRe
 @Mapper(componentModel = "spring")
 public interface IKardexRestMapper {
 
-    @Mapping(target = "product.id", source = "idProduct")
     @Mapping(target = "balanceQuantity", ignore = true)
     @Mapping(target = "balanceUnitPrice", ignore = true)
     @Mapping(target = "totalBalance", ignore = true)
@@ -19,7 +18,6 @@ public interface IKardexRestMapper {
     @Mapping(target = "id", ignore = true)
     Kardex toDomain(KardexPurchaseDtoRequest kardexPurchaseDtoRequest);
 
-    @Mapping(target = "product.id", source = "idProduct")
     @Mapping(target = "unitPrice", ignore = true)
     @Mapping(target = "balanceQuantity", ignore = true)
     @Mapping(target = "balanceUnitPrice", ignore = true)

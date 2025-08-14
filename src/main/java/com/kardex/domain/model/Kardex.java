@@ -31,7 +31,7 @@ public class Kardex {
 
     private ZonedDateTime date;
 
-    private Product product;
+    private Long idProduct;
 
     private BigDecimal totalBalance;
 

@@ -9,7 +9,6 @@ import com.kardex.infrastructure.adapters.output.messageBroker.dto.ProductAsyncD
 @Mapper(componentModel = "spring")
 public interface ProductBrokerMapper {
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "kardexList", ignore = true)
     @Mapping(target = "manager", ignore = true)
     @Mapping(target = "idProduct", source = "productId")
     Product toDomain(ProductAsyncDto productSyncDto);

@@ -5,10 +5,8 @@ import org.springframework.stereotype.Component;
 import com.kardex.domain.model.Kardex;
 import com.kardex.domain.port.IKardexCommandRepositoryPort;
 import com.kardex.infrastructure.adapters.output.jpa.entity.KardexEntity;
-import com.kardex.infrastructure.adapters.output.jpa.entity.ProductEntity;
 import com.kardex.infrastructure.adapters.output.jpa.mapper.IKardexEntityCommandMapper;
 import com.kardex.infrastructure.adapters.output.jpa.repository.IKardexRepository;
-import com.kardex.infrastructure.adapters.output.jpa.repository.IProductRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,40 +16,31 @@ public class KardexCommandAdapter implements IKardexCommandRepositoryPort{
 
     private final IKardexEntityCommandMapper kardexEntityMapper;
     private final IKardexRepository kardexRepository;
-    private final IProductRepository productRepository;
 
     @Override
     public Kardex registerPurchase(Kardex kardex) {
-        ProductEntity productEntity = productRepository.getReferenceById(kardex.getProduct().getId());
         KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);
-        kardexEntity.setProduct(productEntity);
 
         return kardexEntityMapper.toDomain(kardexRepository.save(kardexEntity));
     }
 
     @Override
     public Kardex registerSale(Kardex kardex) {
-        ProductEntity productEntity = productRepository.getReferenceById(kardex.getProduct().getId());
         KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);
-        kardexEntity.setProduct(productEntity);
 
         return kardexEntityMapper.toDomain(kardexRepository.save(kardexEntity));
     }
 
     @Override
     public Kardex registerReturnOnPurchase(Kardex kardex) {
-        ProductEntity productEntity = productRepository.getReferenceById(kardex.getProduct().getId());
         KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);
-        kardexEntity.setProduct(productEntity);
         
         return kardexEntityMapper.toDomain(kardexRepository.save(kardexEntity));
     }
 
     @Override
     public Kardex registerReturnOnSale(Kardex kardex) {
-        ProductEntity productEntity = productRepository.getReferenceById(kardex.getProduct().getId());
         KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);
-        kardexEntity.setProduct(productEntity);
         
         return kardexEntityMapper.toDomain(kardexRepository.save(kardexEntity));
     }
