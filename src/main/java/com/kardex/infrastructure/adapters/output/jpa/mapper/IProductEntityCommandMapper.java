@@ -17,6 +17,5 @@ public interface IProductEntityCommandMapper {
     List<ProductEntity> toEntity(List<Product> products);
     
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "kardexList", ignore = true)
     void updateEntityFromProduct(Product product, @MappingTarget ProductEntity entity);
 }

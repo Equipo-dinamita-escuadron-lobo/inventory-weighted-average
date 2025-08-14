@@ -24,6 +24,11 @@ public class ProductQueryAdapter implements IProductQueryRepositoryPort {
                 .map(productEntityMapper::toDomain)
                 .toList();  
     }
+
+    @Override
+    public boolean existsByIdProduct(Long id) {
+        return productRepository.existsByIdProduct(id);
+    }
     
     
 }

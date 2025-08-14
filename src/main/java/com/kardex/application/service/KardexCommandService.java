@@ -13,6 +13,7 @@ import com.kardex.domain.model.MovementType;
 import com.kardex.domain.port.IFormatterResultOutputPort;
 import com.kardex.domain.port.IKardexCommandRepositoryPort;
 import com.kardex.domain.port.IKardexQueryRepositoryPort;
+import com.kardex.domain.port.IProductQueryRepositoryPort;
 import com.kardex.infrastructure.adapters.input.rest.dto.ResponseDto;
 import com.kardex.infrastructure.adapters.input.rest.dto.request.StockDtoRequest;
 import com.kardex.infrastructure.adapters.input.rest.dto.response.StockDtoResponse;
@@ -26,6 +27,7 @@ public class KardexCommandService implements IKardexCommandPort{
     private final IKardexCommandRepositoryPort kardexCommandRepositoryPort;
     private final IKardexQueryRepositoryPort kardexQueryRepositoryPort;
     private final IFormatterResultOutputPort formatterResultOutputPort;
+    private final IProductQueryRepositoryPort productQueryRepositoryPort;
 
     @Override
     public void test(String message) {
@@ -59,7 +61,8 @@ public class KardexCommandService implements IKardexCommandPort{
 
     @Override
     public Kardex registerPurchase(Kardex kardex) {
-        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProduct().getId());
+        existsProductById(kardex.getIdProduct());
+        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getIdProduct());
         if (lastRegisteredKardex == null) {
             kardex.setBalanceQuantity(kardex.getQuantity());
             kardex.setBalanceUnitPrice(kardex.getUnitPrice());
@@ -78,7 +81,8 @@ public class KardexCommandService implements IKardexCommandPort{
 
     @Override
     public Kardex registerSale(Kardex kardex) {
-        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProduct().getId());
+        existsProductById(kardex.getIdProduct());
+        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getIdProduct());
         if (lastRegisteredKardex == null) {
             formatterResultOutputPort.returnResponseError(400, "No previous kardex found for the product.");
         }
@@ -91,8 +95,9 @@ public class KardexCommandService implements IKardexCommandPort{
 
     @Override
     public Kardex registerReturnOnPurchase(Kardex kardex) {
+        existsProductById(kardex.getIdProduct());
         checkReturn(kardex.getFactCode(), kardex.getQuantity());
-        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProduct().getId());
+        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getIdProduct());
       
         if (lastRegisteredKardex == null) {
             formatterResultOutputPort.returnResponseError(400, "No previous kardex found for the product.");
@@ -105,8 +110,9 @@ public class KardexCommandService implements IKardexCommandPort{
 
     @Override
     public Kardex registerReturnOnSale(Kardex kardex) {
+        existsProductById(kardex.getIdProduct());
         checkReturn(kardex.getFactCode(), kardex.getQuantity());
-        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProduct().getId());
+        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getIdProduct());
         if (lastRegisteredKardex == null) {
             formatterResultOutputPort.returnResponseError(400, "No previous kardex found for the product.");
         }
@@ -130,5 +136,11 @@ public class KardexCommandService implements IKardexCommandPort{
             return;
         }
         formatterResultOutputPort.returnResponseError(400, "The quantity refunded exceeds the original quantity on the invoice.");
+    }
+
+    private void existsProductById(Long productId) {
+        if (!productQueryRepositoryPort.existsByIdProduct(productId)) {
+            formatterResultOutputPort.returnResponseError(404, "Product not found.");
+        }
     }
 }

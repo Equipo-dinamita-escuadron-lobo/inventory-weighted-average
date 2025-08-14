@@ -6,4 +6,5 @@ import com.kardex.domain.model.Product;
 
 public interface IProductQueryRepositoryPort {
     List<Product> findAll(String enterpriseId);
+    boolean existsByIdProduct(Long id);
 }
