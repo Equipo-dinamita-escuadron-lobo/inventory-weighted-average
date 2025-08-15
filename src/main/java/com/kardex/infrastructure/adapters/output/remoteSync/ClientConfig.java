@@ -13,6 +13,8 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 import com.kardex.application.ports.output.IProductClient;
 import com.kardex.application.ports.output.IStockClient;
 
+
+
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
@@ -77,7 +79,7 @@ public class ClientConfig {
                 
                 // Clona la petición original y le añade el encabezado de autorización
                 ClientRequest newRequest = ClientRequest.from(clientRequest)
-                        .header("Authorization", "Bearer " + tokenValue)
+                        .headers(headers -> headers.setBearerAuth(tokenValue))
                         .build();
 
                 log.info("JWT Token Propagated: {}", tokenValue);
