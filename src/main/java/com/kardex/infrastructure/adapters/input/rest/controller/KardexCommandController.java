@@ -2,7 +2,6 @@ package com.kardex.infrastructure.adapters.input.rest.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,12 +27,6 @@ public class KardexCommandController {
     private final IKardexCommandPort kardexCommandPort;
     private final IKardexRestMapper kardexRestMapper;
     private final IKardexResponseMapper kardexResponseMapper;
-
-    @GetMapping
-    public ResponseEntity<?> test(){
-        kardexCommandPort.test("Hola");
-        return ResponseEntity.ok("Hola");
-    }
 
     @PostMapping("/purchase")
     public ResponseEntity<ResponseDto<KardexDtoResponse>> purchaseKardex(@Valid @RequestBody KardexPurchaseDtoRequest kardexPurchaseDtoRequest) {
