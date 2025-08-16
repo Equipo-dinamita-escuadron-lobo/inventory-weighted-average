@@ -11,6 +11,7 @@ import com.kardex.application.ports.input.IKardexCommandPort;
 import com.kardex.domain.model.Kardex;
 import com.kardex.infrastructure.adapters.input.rest.dto.ResponseDto;
 import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexPurchaseDtoRequest;
+import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexSaleDtoRequest;
 import com.kardex.infrastructure.adapters.input.rest.dto.response.KardexDtoResponse;
 import com.kardex.infrastructure.adapters.input.rest.mapper.IKardexResponseMapper;
 import com.kardex.infrastructure.adapters.input.rest.mapper.IKardexRestMapper;
@@ -40,8 +41,8 @@ public class KardexCommandController {
     }
 
     @PostMapping("/sale")
-    public ResponseEntity<ResponseDto<KardexDtoResponse>> saleKardex(@RequestBody KardexPurchaseDtoRequest kardexPurchaseDtoRequest) {
-        Kardex response = kardexCommandPort.registerSale(kardexRestMapper.toDomain(kardexPurchaseDtoRequest));
+    public ResponseEntity<ResponseDto<KardexDtoResponse>> saleKardex(@Valid @RequestBody KardexSaleDtoRequest kardexSaleDtoRequest) {
+        Kardex response = kardexCommandPort.registerSale(kardexRestMapper.toDomain(kardexSaleDtoRequest));
         KardexDtoResponse kardexDtoResponse = kardexResponseMapper.toDtoResponse(response);
         ResponseDto<KardexDtoResponse> responseDto = ResponseDto.<KardexDtoResponse>builder()
                 .data(kardexDtoResponse)
@@ -51,8 +52,8 @@ public class KardexCommandController {
     }
 
     @PostMapping("/return-on-sale")
-    public ResponseEntity<ResponseDto<KardexDtoResponse>> returnOnSaleKardex(@RequestBody KardexPurchaseDtoRequest kardexPurchaseDtoRequest) {
-        Kardex response = kardexCommandPort.registerReturnOnSale(kardexRestMapper.toDomain(kardexPurchaseDtoRequest));
+    public ResponseEntity<ResponseDto<KardexDtoResponse>> returnOnSaleKardex(@Valid @RequestBody KardexSaleDtoRequest kardexSaleDtoRequest) {
+        Kardex response = kardexCommandPort.registerReturnOnSale(kardexRestMapper.toDomain(kardexSaleDtoRequest));
         KardexDtoResponse kardexDtoResponse = kardexResponseMapper.toDtoResponse(response);
         ResponseDto<KardexDtoResponse> responseDto = ResponseDto.<KardexDtoResponse>builder()
                 .data(kardexDtoResponse)
@@ -62,8 +63,8 @@ public class KardexCommandController {
     }
 
     @PostMapping("/return-on-purchase")
-    public ResponseEntity<ResponseDto<KardexDtoResponse>> returnOnPurchaseKardex(@RequestBody KardexPurchaseDtoRequest kardexPurchaseDtoRequest) {
-        Kardex response = kardexCommandPort.registerReturnOnPurchase(kardexRestMapper.toDomain(kardexPurchaseDtoRequest));
+    public ResponseEntity<ResponseDto<KardexDtoResponse>> returnOnPurchaseKardex(@Valid @RequestBody KardexSaleDtoRequest kardexSaleDtoRequest) {
+        Kardex response = kardexCommandPort.registerReturnOnPurchase(kardexRestMapper.toDomain(kardexSaleDtoRequest));
         KardexDtoResponse kardexDtoResponse = kardexResponseMapper.toDtoResponse(response);
         ResponseDto<KardexDtoResponse> responseDto = ResponseDto.<KardexDtoResponse>builder()
                 .data(kardexDtoResponse)
