@@ -13,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.kardex.domain.model.Kardex;
+import com.kardex.domain.model.MovementType;
 
 public class KardexTest {
     
@@ -46,6 +47,7 @@ public class KardexTest {
         // Arrange
         kardex.setQuantity(10L);
         kardex.setUnitPrice(new BigDecimal("25.50"));
+        kardex.setType(MovementType.PURCHASE);
         Long lastQuantity = 5L;
         BigDecimal lastTotalBalance = new BigDecimal("100.00");
         
@@ -84,6 +86,7 @@ public class KardexTest {
     void testAddSale() {
         // Arrange
         kardex.setQuantity(5L);
+        kardex.setType(MovementType.SALE);
         Long lastQuantity = 20L;
         BigDecimal lastUnitPrice = new BigDecimal("15.00");
         BigDecimal lastTotalBalance = new BigDecimal("300.00");
@@ -140,6 +143,7 @@ public class KardexTest {
     void testReturnOnSale() {
         // Arrange
         kardex.setQuantity(5L);
+        kardex.setType(MovementType.SALESRETURN);
         Long lastQuantity = 15L;
         BigDecimal lastUnitPrice = new BigDecimal("20.00");
         BigDecimal lastTotalBalance = new BigDecimal("300.00");
@@ -179,6 +183,7 @@ public class KardexTest {
         // Arrange
         kardex.setQuantity(5L);
         kardex.setUnitPrice(new BigDecimal("20.00"));
+        kardex.setType(MovementType.PURCHASERETURN);
         Long lastQuantity = 25L;
         BigDecimal lastTotalBalance = new BigDecimal("500.00");
         
@@ -245,4 +250,34 @@ public class KardexTest {
         assertEquals(BigDecimal.ZERO, kardex.getBalanceUnitPrice());
         assertEquals(BigDecimal.ZERO, kardex.getTotalBalance());
     }
-}
+
+    @Test
+    @DisplayName("Should update details if not null")
+    void testUpdateDetailIfNotNull() {
+        // Arrange
+        kardex.setType(MovementType.SALE);
+        kardex.setFactCode(500L);
+        kardex.setDetails("Venta - Factura: 500");
+
+        // Act
+        kardex.updateDetailIfNotNull();
+
+        // Assert
+        assertEquals("Venta - Factura: 500", kardex.getDetails());
+    }
+
+    @Test
+    @DisplayName("Should update details if null")
+    void testUpdateDetailIfNull() {
+        // Arrange
+        kardex.setType(MovementType.SALE);
+        kardex.setFactCode(500L);
+        kardex.setDetails(null);
+
+        // Act
+        kardex.updateDetailIfNotNull();
+
+        // Assert
+        assertEquals("Venta - Factura: 500", kardex.getDetails());
+    }
+}   

@@ -51,21 +51,23 @@ public class Kardex {
         
         // 2. Calcula el valor total de la compra actual
         BigDecimal currentTotalValue = this.unitPrice.multiply(BigDecimal.valueOf(this.quantity));
-
+        
         // 3. Suma ambos valores para obtener el nuevo valor total del inventario
         this.totalBalance = lastTotalBalance.add(currentTotalValue);
-
+        
         // 4. Convierte la cantidad total a BigDecimal para la división
         BigDecimal totalQuantityBigDecimal = BigDecimal.valueOf(this.balanceQuantity);
-
+        
         // 5. Divide el valor total entre la cantidad total para el promedio ponderado
         this.balanceUnitPrice = this.totalBalance.divide(totalQuantityBigDecimal, 2, RoundingMode.HALF_UP);
+        this.addDate();
+        this.updateDetailIfNotNull();
     }
 
     public void addSale(Long lastQuantity, BigDecimal lastUnitPrice, BigDecimal lastTotalBalance) {
         // 1. Calcula la nueva cantidad total en el balance
         this.balanceQuantity = lastQuantity - this.quantity;
-
+        
         if (this.balanceQuantity < 0) {
             this.balanceUnitPrice = BigDecimal.ZERO;
             return;
@@ -74,39 +76,41 @@ public class Kardex {
             resetBalancesIfZero();
             return;
         }
-
+        
         // 2. se mantiene el último precio unitario para el balance
         this.balanceUnitPrice = lastUnitPrice;
-
+        
         // 3. El precio unitario es el mismo que el del último balance
         this.unitPrice = lastUnitPrice;
 
         // 4. Calcula el valor total
         this.totalBalance = lastTotalBalance.subtract(this.unitPrice.multiply(BigDecimal.valueOf(this.quantity)) );
-
+        this.addDate();
+        this.updateDetailIfNotNull();   
     }
 
     public void returnOnSale(Long lastQuantity, BigDecimal lastUnitPrice, BigDecimal lastTotalBalance) {
         // 1. Calcula la nueva cantidad total en el balance
         this.balanceQuantity = lastQuantity + this.quantity;
-
+        
         if (this.balanceQuantity == 0) {
             this.balanceUnitPrice = BigDecimal.ZERO;
             return;
         }
-
+        
         // 2. el balance total se aumenta
         this.totalBalance = lastUnitPrice.multiply(BigDecimal.valueOf(this.quantity)).add(lastTotalBalance);
-
+        
         // 3. se calcula el nuevo precio unitario
         this.balanceUnitPrice = this.totalBalance.divide(BigDecimal.valueOf(this.balanceQuantity), 2, RoundingMode.HALF_UP);
-        
+        this.addDate();
+        this.updateDetailIfNotNull();      
     }
 
     public void returnOnPurchase(Long lastQuantity, BigDecimal lastTotalBalance) {
         // 1. Calcula la nueva cantidad total en el balance
         this.balanceQuantity = lastQuantity - this.quantity;
-
+        
         // 
         if (this.balanceQuantity < 0) {
             this.balanceUnitPrice = BigDecimal.ZERO;
@@ -116,15 +120,17 @@ public class Kardex {
             resetBalancesIfZero();
             return;
         }
-
+        
         // 2. Calcula el valor total
         this.totalBalance = lastTotalBalance.subtract(this.unitPrice.multiply(BigDecimal.valueOf(this.quantity)) );
-
+        
         // 4. Convierte la cantidad total a BigDecimal para la división
         BigDecimal totalQuantityBigDecimal = BigDecimal.valueOf(this.balanceQuantity);
-
+        
         // 5. Divide el valor total entre la cantidad total para el promedio ponderado
         this.balanceUnitPrice = this.totalBalance.divide(totalQuantityBigDecimal, 2, RoundingMode.HALF_UP);
+        this.addDate();
+        this.updateDetailIfNotNull();
     }
 
 
@@ -132,6 +138,13 @@ public class Kardex {
             this.totalBalance = BigDecimal.ZERO;
             this.balanceUnitPrice = BigDecimal.ZERO;
             this.balanceQuantity = 0L;     
+    }
+
+    public void updateDetailIfNotNull() {
+        if (this.details == null) {
+            // Formar el detalle con el tipo de movimiento y el código.  Venta - Factura: 500
+            this.details = String.format("%s - Factura: %d", this.type.getDescription(), this.factCode);
+        }
     }
 
 }

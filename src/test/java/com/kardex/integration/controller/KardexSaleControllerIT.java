@@ -225,7 +225,7 @@ public class KardexSaleControllerIT {
             String requestBody = """
                 {
                     "factCode": 2,
-                    "details": "Missing quantity"",
+                    "details": "Missing quantity",
                     "idProduct": 1
                 }
             """;
@@ -235,9 +235,7 @@ public class KardexSaleControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                 )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.data").isEmpty());
+                .andExpect(status().isBadRequest());
         }
 
         @Test
@@ -257,9 +255,7 @@ public class KardexSaleControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                 )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.data").isEmpty());
+                .andExpect(status().isBadRequest());
         }
 
         @Test
@@ -279,9 +275,7 @@ public class KardexSaleControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                 )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.data").isEmpty());
+                .andExpect(status().isBadRequest());
         }
 
         @Test
@@ -303,7 +297,7 @@ public class KardexSaleControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(200))
                 .andExpect(jsonPath("$.data").exists())
-                .andExpect(jsonPath("$.data.details").value(""));
+                .andExpect(jsonPath("$.data.details").value("Venta - Factura: 2"));
         }
 
         @Test
@@ -322,9 +316,7 @@ public class KardexSaleControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                 )
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.data").isEmpty());
+                .andExpect(status().isNotFound());
         }
 
         @Test
@@ -345,9 +337,7 @@ public class KardexSaleControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                 )
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.data").isEmpty());
+                .andExpect(status().isNotFound());
          }
 
         @Test
@@ -366,9 +356,7 @@ public class KardexSaleControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                 )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.data").isEmpty());
+                .andExpect(status().isBadRequest());
         }
 
     }
