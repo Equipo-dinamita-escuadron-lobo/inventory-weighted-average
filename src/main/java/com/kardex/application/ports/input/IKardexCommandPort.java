@@ -7,5 +7,4 @@ public interface IKardexCommandPort {
     Kardex registerSale(Kardex kardex);
     Kardex registerReturnOnPurchase(Kardex kardex);
     Kardex registerReturnOnSale(Kardex kardex);
-    void test(String message);
 }

@@ -66,7 +66,7 @@ public class ProductCommandService implements IProductSyncCommandPort {
 
         } catch (Exception e) {
             log.error("Error in product synchronization for company {}", enterpriseId, e);
-            formatterResultOutputPort.returnResponseError(500, "Error synchronizing products: " + e.getMessage());
+            formatterResultOutputPort.returnBusinessRuleErrorResponse(500, "Error synchronizing products: " + e.getMessage());
             throw e;
         }
     }

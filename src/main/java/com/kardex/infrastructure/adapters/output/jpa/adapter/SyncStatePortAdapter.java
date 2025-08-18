@@ -3,7 +3,7 @@ package com.kardex.infrastructure.adapters.output.jpa.adapter;
 import java.time.Instant;
 import java.util.Optional;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import com.kardex.domain.model.SyncState;
 import com.kardex.domain.port.ISyncStateRepositoryPort;
@@ -13,7 +13,7 @@ import com.kardex.infrastructure.adapters.output.jpa.repository.ISyncStateReposi
 
 import lombok.RequiredArgsConstructor;
 
-@Component
+@Repository
 @RequiredArgsConstructor
 public class SyncStatePortAdapter implements ISyncStateRepositoryPort{
 

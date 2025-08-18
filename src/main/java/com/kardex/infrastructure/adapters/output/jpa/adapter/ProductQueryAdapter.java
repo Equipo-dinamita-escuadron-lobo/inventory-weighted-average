@@ -2,7 +2,7 @@ package com.kardex.infrastructure.adapters.output.jpa.adapter;
 
 import java.util.List;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import com.kardex.domain.model.Product;
 import com.kardex.domain.port.IProductQueryRepositoryPort;
@@ -11,7 +11,7 @@ import com.kardex.infrastructure.adapters.output.jpa.repository.IProductReposito
 
 import lombok.RequiredArgsConstructor;
 
-@Component
+@Repository
 @RequiredArgsConstructor
 public class ProductQueryAdapter implements IProductQueryRepositoryPort {
 

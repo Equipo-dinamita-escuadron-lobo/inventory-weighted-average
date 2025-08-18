@@ -4,6 +4,7 @@ import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,6 +21,7 @@ import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainer
 
 @Configuration
 @Slf4j
+@Profile("!test")
 public class RabbitConfig {
     public static final String PRODUCT_EXCHANGE = "product.exchange";
     public static final String PRODUCT_KARDEX_QUEUE = "product.kardex.queue";

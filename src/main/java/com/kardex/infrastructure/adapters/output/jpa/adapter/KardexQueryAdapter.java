@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import com.kardex.domain.model.Kardex;
 import com.kardex.domain.port.IKardexQueryRepositoryPort;
@@ -17,7 +17,7 @@ import com.kardex.infrastructure.adapters.output.jpa.repository.IKardexRepositor
 
 import lombok.RequiredArgsConstructor;
 
-@Component
+@Repository
 @RequiredArgsConstructor
 public class KardexQueryAdapter implements IKardexQueryRepositoryPort {
 

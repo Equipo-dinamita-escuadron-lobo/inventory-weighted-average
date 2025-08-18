@@ -13,12 +13,7 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 import com.kardex.application.ports.output.IProductClient;
 import com.kardex.application.ports.output.IStockClient;
 
-
-
-import lombok.extern.slf4j.Slf4j;
-
 @Configuration
-@Slf4j
 public class ClientConfig {
     /**
      * Crea y configura el proxy para la interfaz StockClient.
@@ -81,8 +76,6 @@ public class ClientConfig {
                 ClientRequest newRequest = ClientRequest.from(clientRequest)
                         .headers(headers -> headers.setBearerAuth(tokenValue))
                         .build();
-
-                log.info("JWT Token Propagated: {}", tokenValue);
 
                 // Continúa la cadena de filtros con la nueva petición
                 return next.exchange(newRequest);
