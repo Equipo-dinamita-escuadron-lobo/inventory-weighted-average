@@ -25,7 +25,7 @@ public interface IKardexRepository extends JpaRepository<KardexEntity, Long> {
         Pageable pageable
     );
 
-    // Find all Kardex entries by fact code
-    List<KardexEntity> findByFactCodeOrderByDateDesc(Long factCode);
+    // Find all Kardex entries by fact code and product ID
+    List<KardexEntity> findByFactCodeAndIdProduct(Long factCode, Long idProduct);
 
 }

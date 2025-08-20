@@ -61,7 +61,8 @@ public class KardexCommandService implements IKardexCommandPort{
     @Override
     public Kardex registerReturnOnPurchase(Kardex kardex) {
         existsProductById(kardex.getIdProduct());
-        checkReturn(kardex.getFactCode(), kardex.getQuantity());
+        BigDecimal unitPrice = getUnitPriceIfReturnAllowed(kardex.getFactCode(), kardex.getQuantity(), kardex.getIdProduct());
+        kardex.setUnitPrice(unitPrice);
         Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getIdProduct());
         kardex.setType(MovementType.PURCHASERETURN);
 
@@ -75,7 +76,8 @@ public class KardexCommandService implements IKardexCommandPort{
     @Override
     public Kardex registerReturnOnSale(Kardex kardex) {
         existsProductById(kardex.getIdProduct());
-        checkReturn(kardex.getFactCode(), kardex.getQuantity());
+        BigDecimal unitPrice = getUnitPriceIfReturnAllowed(kardex.getFactCode(), kardex.getQuantity(), kardex.getIdProduct());
+        kardex.setUnitPrice(unitPrice);
         Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getIdProduct());
         kardex.setType(MovementType.SALESRETURN);
 
@@ -87,20 +89,22 @@ public class KardexCommandService implements IKardexCommandPort{
         return kardexCommandRepositoryPort.registerReturnOnSale(kardex);
     }
 
-    private void checkReturn(Long factCode, Long quantity) {
-        List<Kardex> kardexList = kardexQueryRepositoryPort.findByFactCode(factCode);
+    private BigDecimal getUnitPriceIfReturnAllowed(Long factCode, Long quantity, Long productId) {
+        List<Kardex> kardexList = kardexQueryRepositoryPort.findByFactCodeAndProductId(factCode, productId);
         if (kardexList.isEmpty()) {
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "No kardex found for the provided fact code.");
         }
 
         Long initialInvoceQuantity = kardexList.get(0).getQuantity();
+        BigDecimal unitPrice = kardexList.get(0).getUnitPrice();
 
         // The sum of the rest of the list cannot exceed this quantity
         Long totalReturnQuantity = kardexList.stream().skip(1).mapToLong(Kardex::getQuantity).sum() + quantity;
         if (totalReturnQuantity < initialInvoceQuantity) {         
-            return;
+            return unitPrice;
         }
         formatterResultOutputPort.returnBusinessRuleErrorResponse(400, "The quantity refunded exceeds the original quantity on the invoice.");
+        return BigDecimal.ZERO;
     }
 
     private void existsProductById(Long productId) {

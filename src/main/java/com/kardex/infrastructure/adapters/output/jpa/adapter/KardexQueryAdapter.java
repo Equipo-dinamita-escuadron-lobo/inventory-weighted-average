@@ -39,8 +39,8 @@ public class KardexQueryAdapter implements IKardexQueryRepositoryPort {
     }
 
     @Override
-    public List<Kardex> findByFactCode(Long factCode) {
-        List<KardexEntity> kardexEntities = kardexRepository.findByFactCodeOrderByDateDesc(factCode);
+    public List<Kardex> findByFactCodeAndProductId(Long factCode, Long productId) {
+        List<KardexEntity> kardexEntities = kardexRepository.findByFactCodeAndIdProduct(factCode, productId);
         return kardexEntityMapper.toDomainList(kardexEntities);
     }
 
