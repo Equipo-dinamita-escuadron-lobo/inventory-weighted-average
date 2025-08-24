@@ -86,11 +86,11 @@ public class KardexSaleControllerIT {
 
         KardexEntity kardexEntry = new KardexEntity();
         kardexEntry.setFactCode(1L);
-        kardexEntry.setQuantity(10L);
+        kardexEntry.setQuantity(10);
         kardexEntry.setUnitPrice(BigDecimal.valueOf(10.0));
         kardexEntry.setDetails("Initial stock");
         kardexEntry.setType(MovementType.PURCHASE);
-        kardexEntry.setBalanceQuantity(10L);
+        kardexEntry.setBalanceQuantity(10);
         kardexEntry.setBalanceUnitPrice(BigDecimal.valueOf(10.0));
         kardexEntry.setTotalBalance(BigDecimal.valueOf(100.0));
         kardexEntry.setDate(java.time.ZonedDateTime.now());

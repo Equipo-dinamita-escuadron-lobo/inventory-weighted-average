@@ -8,22 +8,27 @@ import org.springframework.stereotype.Service;
 import com.kardex.application.ports.input.IKardexCommandPort;
 import com.kardex.domain.model.Kardex;
 import com.kardex.domain.model.MovementType;
+import com.kardex.domain.model.Stock;
 import com.kardex.domain.port.IFormatterResultOutputPort;
 import com.kardex.domain.port.IKardexCommandRepositoryPort;
 import com.kardex.domain.port.IKardexQueryRepositoryPort;
 import com.kardex.domain.port.IProductQueryRepositoryPort;
+import com.kardex.domain.port.IStockClientPort;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class KardexCommandService implements IKardexCommandPort{
     private final IKardexCommandRepositoryPort kardexCommandRepositoryPort;
     private final IKardexQueryRepositoryPort kardexQueryRepositoryPort;
     private final IFormatterResultOutputPort formatterResultOutputPort;
     private final IProductQueryRepositoryPort productQueryRepositoryPort;
+    private final IStockClientPort stockClient;
 
     @Override
     public Kardex registerPurchase(Kardex kardex) {
@@ -42,6 +47,15 @@ public class KardexCommandService implements IKardexCommandPort{
         if(kardex.getBalanceUnitPrice() == BigDecimal.ZERO) {
             formatterResultOutputPort.returnBusinessRuleErrorResponse(400, "The balance unit price must be greater than zero.");
         }
+
+        Stock stock= Stock.builder()
+            .productId(kardex.getIdProduct())
+            .quantity(kardex.getQuantity())
+            .price(kardex.getUnitPrice())
+            .build();
+
+        callApiStockService(stock);
+
         return kardexCommandRepositoryPort.registerPurchase(kardex);
     }
 
@@ -89,18 +103,18 @@ public class KardexCommandService implements IKardexCommandPort{
         return kardexCommandRepositoryPort.registerReturnOnSale(kardex);
     }
 
-    private BigDecimal getUnitPriceIfReturnAllowed(Long factCode, Long quantity, Long productId) {
+    private BigDecimal getUnitPriceIfReturnAllowed(Long factCode, int quantity, Long productId) {
         List<Kardex> kardexList = kardexQueryRepositoryPort.findByFactCodeAndProductId(factCode, productId);
         if (kardexList.isEmpty()) {
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "No kardex found for the provided fact code.");
         }
 
-        Long initialInvoceQuantity = kardexList.get(0).getQuantity();
+        int initialInvoceQuantity = kardexList.get(0).getQuantity();
         BigDecimal unitPrice = kardexList.get(0).getUnitPrice();
 
         // The sum of the rest of the list cannot exceed this quantity
-        Long totalReturnQuantity = kardexList.stream().skip(1).mapToLong(Kardex::getQuantity).sum() + quantity;
-        if (totalReturnQuantity < initialInvoceQuantity) {         
+        int totalReturnQuantity = kardexList.stream().skip(1).mapToInt(Kardex::getQuantity).sum() + quantity;
+        if (totalReturnQuantity < initialInvoceQuantity) {
             return unitPrice;
         }
         formatterResultOutputPort.returnBusinessRuleErrorResponse(400, "The quantity refunded exceeds the original quantity on the invoice.");
@@ -110,6 +124,15 @@ public class KardexCommandService implements IKardexCommandPort{
     private void existsProductById(Long productId) {
         if (!productQueryRepositoryPort.existsByIdProduct(productId)) {
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "Product not found.");
+        }
+    }
+
+    private void callApiStockService(Stock stock) {
+        try {
+            stockClient.buyStock(stock);
+            log.info("Stock purchase request sent successfully.");
+        } catch (Exception e) {
+            log.error("Error sending stock purchase request: {}", e.getMessage());
         }
     }
 }

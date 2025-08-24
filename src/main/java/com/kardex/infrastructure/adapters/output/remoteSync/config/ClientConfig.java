@@ -1,4 +1,4 @@
-package com.kardex.infrastructure.adapters.output.remoteSync;
+package com.kardex.infrastructure.adapters.output.remoteSync.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,9 +9,6 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
-
-import com.kardex.application.ports.output.IProductClient;
-import com.kardex.application.ports.output.IStockClient;
 
 @Configuration
 public class ClientConfig {

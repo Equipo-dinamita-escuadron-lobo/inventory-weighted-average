@@ -32,7 +32,7 @@ public class KardexEntity {
     private Long factCode;
 
     @Column(nullable = false)
-    private Long quantity;
+    private int quantity;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
@@ -45,7 +45,7 @@ public class KardexEntity {
     private MovementType type;
 
     @Column(nullable = false)
-    private Long balanceQuantity;
+    private int balanceQuantity;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal balanceUnitPrice;

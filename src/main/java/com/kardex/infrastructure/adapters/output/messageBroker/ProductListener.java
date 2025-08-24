@@ -19,6 +19,7 @@ import com.kardex.domain.port.IProductCommandRepositoryPort;
 import com.kardex.infrastructure.adapters.config.RabbitConfig;
 import com.kardex.infrastructure.adapters.output.messageBroker.dto.EventDto;
 import com.kardex.infrastructure.adapters.output.messageBroker.dto.ProductAsyncDto;
+import com.kardex.infrastructure.adapters.output.messageBroker.enums.EventProductType;
 import com.kardex.infrastructure.adapters.output.messageBroker.mapper.ProductBrokerMapper;
 import com.rabbitmq.client.Channel;
 
@@ -39,7 +40,7 @@ public class ProductListener {
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
     public void handleStockEvent(
-            EventDto<ProductAsyncDto> event, 
+            EventDto<ProductAsyncDto, EventProductType> event, 
             Message message, 
             Channel channel,
             @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
@@ -88,7 +89,7 @@ public class ProductListener {
         }
     }
 
-    private void processEvent(EventDto<ProductAsyncDto> event) {
+    private void processEvent(EventDto<ProductAsyncDto, EventProductType> event) {
         // This validation is already done before, but being defensive is a good practice
         if (event == null || event.getData() == null) {
             throw new IllegalArgumentException("Event or event data cannot be null");
@@ -145,7 +146,7 @@ public class ProductListener {
     }
 
     // Helper method to get the product name safely
-    private String getProductNameSafely(EventDto<ProductAsyncDto> event) {
+    private String getProductNameSafely(EventDto<ProductAsyncDto,EventProductType> event) {
         if (event == null || event.getData() == null) {
             return "unknown";
         }

@@ -1,4 +1,6 @@
-package com.kardex.infrastructure.adapters.input.rest.dto.response;
+package com.kardex.infrastructure.adapters.output.remoteSync.dto;
+
+import java.math.BigDecimal;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,9 +15,9 @@ public class StockDtoResponse {
 
     private Long productId;
 
-    private Integer quantity;
+    private int quantity;
 
-    private Double price;
+    private BigDecimal price;
 
     private boolean status;   
 }
