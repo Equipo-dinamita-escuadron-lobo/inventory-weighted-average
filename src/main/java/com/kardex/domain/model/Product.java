@@ -12,7 +12,7 @@ import lombok.Setter;
 public class Product {
     private Long id;
 
-    private Long idProduct;
+    private Long productId;
 
     private String reference;
 

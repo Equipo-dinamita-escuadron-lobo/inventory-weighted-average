@@ -31,7 +31,7 @@ public class Kardex {
 
     private ZonedDateTime date;
 
-    private Long idProduct;
+    private Long productId;
 
     private BigDecimal totalBalance;
 
@@ -141,7 +141,7 @@ public class Kardex {
     }
 
     public void updateDetailIfNotNull() {
-        if (this.details == null) {
+        if (this.details == null || this.details.isEmpty()) {
             // Formar el detalle con el tipo de movimiento y el código.  Venta - Factura: 500
             this.details = String.format("%s - Factura: %d", this.type.getDescription(), this.factCode);
         }

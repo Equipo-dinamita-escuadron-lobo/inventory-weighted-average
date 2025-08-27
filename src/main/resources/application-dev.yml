@@ -79,3 +79,10 @@ management:
     health:
       probes:
         enabled: true
+
+app:
+  clients:
+    stock:
+      base-url: ${STOCK_SERVICE_URL:lb://STOCK}
+    products:
+      base-url: ${PRODUCTS_SERVICE_URL:lb://PRODUCTS}

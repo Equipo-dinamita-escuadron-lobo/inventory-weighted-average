@@ -280,4 +280,19 @@ public class KardexUnitTest {
         // Assert
         assertEquals("Venta - Factura: 500", kardex.getDetails());
     }
-}   
+
+    @Test
+    @DisplayName("Should update details if empty")
+    void testUpdateDetailIfEmpty() {
+        // Arrange
+        kardex.setType(MovementType.SALE);
+        kardex.setFactCode(500L);
+        kardex.setDetails("");
+
+        // Act
+        kardex.updateDetailIfNotNull();
+
+        // Assert
+        assertEquals("Venta - Factura: 500", kardex.getDetails());
+    }
+}

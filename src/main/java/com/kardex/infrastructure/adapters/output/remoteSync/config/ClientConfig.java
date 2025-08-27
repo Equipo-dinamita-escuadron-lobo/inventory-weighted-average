@@ -1,84 +1,75 @@
 package com.kardex.infrastructure.adapters.output.remoteSync.config;
 
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
+import com.kardex.infrastructure.adapters.output.messageBroker.aspect.JwtRabbitUtils;
+
+import lombok.extern.slf4j.Slf4j;
+
 @Configuration
+@EnableConfigurationProperties(ClientProperties.class)
+@Slf4j
 public class ClientConfig {
+    
     /**
-     * Crea y configura el proxy para la interfaz StockClient.
-     * Este es el bean que inyectarás en tus servicios para hacer las llamadas.
-     *
-     * @param webClientBuilder El constructor de WebClient configurado con @LoadBalanced.
-     * @return una instancia del cliente para el microservicio de Stock.
+     * Método factory privado y genérico para crear cualquier cliente proxy.
+     * Centraliza la lógica de construcción del WebClient y el HttpServiceProxyFactory.
      */
-    @Bean
-    IStockClient stockClient(WebClient.Builder webClientBuilder) {
-        // Construye una instancia de WebClient
+    private <T> T createWebClientProxy(WebClient.Builder webClientBuilder, String baseUrl, Class<T> clientInterface) {
+        // Validar que baseUrl no sea null o vacío
+        if (baseUrl == null || baseUrl.trim().isEmpty()) {
+            throw new IllegalArgumentException("BaseURL cannot be null or empty for client: " + clientInterface.getSimpleName());
+        }
+        
+        log.info("Creating WebClient proxy for {} with baseUrl: {}", clientInterface.getSimpleName(), baseUrl);
+        
+        // 1. Construye una instancia de WebClient específica para este cliente
         WebClient webClient = webClientBuilder
-                .baseUrl("lb://STOCK")
+                .baseUrl(baseUrl)
                 .filter(jwtPropagationFilter())
                 .build();
 
+        // 2. Crea el adaptador y la fábrica del proxy
         WebClientAdapter adapter = WebClientAdapter.create(webClient);
-
         HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
 
-        IStockClient service = factory.createClient(IStockClient.class);
-        return service;
+        // 3. Crea y devuelve el cliente
+        return factory.createClient(clientInterface);
     }
 
     @Bean
-    IProductClient productClient(WebClient.Builder webClientBuilder) {
-        // Construye una instancia de WebClient
-        WebClient webClient = webClientBuilder
-                .baseUrl("lb://PRODUCTS")
-                .filter(jwtPropagationFilter())
-                .build();
-
-        WebClientAdapter adapter = WebClientAdapter.create(webClient);
-
-        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
-
-        IProductClient service = factory.createClient(IProductClient.class);
-        return service;
+    IStockClient stockClient(WebClient.Builder webClientBuilder, ClientProperties properties) {
+        String baseUrl = properties.getStock().getBaseUrl();
+        return createWebClientProxy(webClientBuilder, baseUrl, IStockClient.class);
     }
 
-    /**
-     * Define un filtro para WebClient que propaga el token JWT.
-     * Este filtro se ejecutará en cada petición saliente.
-     * Extrae el token JWT del contexto de seguridad de la petición entrante
-     * y lo añade como un encabezado "Authorization" a la petición saliente.
-     *
-     * @return Un ExchangeFilterFunction que añade el header de autorización.
-     */
+    @Bean
+    IProductClient productClient(WebClient.Builder webClientBuilder, ClientProperties properties) {
+        String baseUrl = properties.getProducts().getBaseUrl();
+        return createWebClientProxy(webClientBuilder, baseUrl, IProductClient.class);
+    }
+
     private ExchangeFilterFunction jwtPropagationFilter() {
         return (clientRequest, next) -> {
-            // Obtiene la autenticación actual del contexto de seguridad
-            var authentication = SecurityContextHolder.getContext().getAuthentication();
-
-            // Verifica si la autenticación es de tipo JWT
-            if (authentication instanceof JwtAuthenticationToken jwtAuth) {
-                // Extrae el valor del token (el string)
-                String tokenValue = jwtAuth.getToken().getTokenValue();
+            if (JwtRabbitUtils.getJwtToken() != null) {
+                final String tokenValue = JwtRabbitUtils.getJwtToken();
+                log.debug("Using JWT token from custom context");
                 
-                // Clona la petición original y le añade el encabezado de autorización
                 ClientRequest newRequest = ClientRequest.from(clientRequest)
                         .headers(headers -> headers.setBearerAuth(tokenValue))
                         .build();
 
-                // Continúa la cadena de filtros con la nueva petición
                 return next.exchange(newRequest);
             }
             
-            // Si no hay token, continúa con la petición original
+            log.debug("No JWT token available for propagation");
             return next.exchange(clientRequest);
         };
     }

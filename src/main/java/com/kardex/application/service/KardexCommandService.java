@@ -32,14 +32,15 @@ public class KardexCommandService implements IKardexCommandPort{
 
     @Override
     public Kardex registerPurchase(Kardex kardex) {
-        existsProductById(kardex.getIdProduct());
-        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getIdProduct());
+        existsProductById(kardex.getProductId());
+        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
         kardex.setType(MovementType.PURCHASE);
         if (lastRegisteredKardex == null) {
             kardex.setBalanceQuantity(kardex.getQuantity());
             kardex.setBalanceUnitPrice(kardex.getUnitPrice());
             kardex.setTotalBalance(kardex.getUnitPrice().multiply(BigDecimal.valueOf(kardex.getQuantity())));
             kardex.addDate();
+            kardex.updateDetailIfNotNull();
         } else {
             kardex.addPurchase(lastRegisteredKardex.getBalanceQuantity(), lastRegisteredKardex.getTotalBalance());
         }
@@ -49,7 +50,7 @@ public class KardexCommandService implements IKardexCommandPort{
         }
 
         Stock stock= Stock.builder()
-            .productId(kardex.getIdProduct())
+            .productId(kardex.getProductId())
             .quantity(kardex.getQuantity())
             .price(kardex.getUnitPrice())
             .build();
@@ -61,8 +62,8 @@ public class KardexCommandService implements IKardexCommandPort{
 
     @Override
     public Kardex registerSale(Kardex kardex) {
-        existsProductById(kardex.getIdProduct());
-        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getIdProduct());
+        existsProductById(kardex.getProductId());
+        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
         if (lastRegisteredKardex == null) {
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "No previous kardex found for the product.");
         }
@@ -74,10 +75,10 @@ public class KardexCommandService implements IKardexCommandPort{
 
     @Override
     public Kardex registerReturnOnPurchase(Kardex kardex) {
-        existsProductById(kardex.getIdProduct());
-        BigDecimal unitPrice = getUnitPriceIfReturnAllowed(kardex.getFactCode(), kardex.getQuantity(), kardex.getIdProduct());
+        existsProductById(kardex.getProductId());
+        BigDecimal unitPrice = getUnitPriceIfReturnAllowed(kardex.getFactCode(), kardex.getQuantity(), kardex.getProductId());
         kardex.setUnitPrice(unitPrice);
-        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getIdProduct());
+        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
         kardex.setType(MovementType.PURCHASERETURN);
 
         if (lastRegisteredKardex == null) {
@@ -89,10 +90,10 @@ public class KardexCommandService implements IKardexCommandPort{
 
     @Override
     public Kardex registerReturnOnSale(Kardex kardex) {
-        existsProductById(kardex.getIdProduct());
-        BigDecimal unitPrice = getUnitPriceIfReturnAllowed(kardex.getFactCode(), kardex.getQuantity(), kardex.getIdProduct());
+        existsProductById(kardex.getProductId());
+        BigDecimal unitPrice = getUnitPriceIfReturnAllowed(kardex.getFactCode(), kardex.getQuantity(), kardex.getProductId());
         kardex.setUnitPrice(unitPrice);
-        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getIdProduct());
+        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
         kardex.setType(MovementType.SALESRETURN);
 
         if (lastRegisteredKardex == null) {
@@ -122,7 +123,7 @@ public class KardexCommandService implements IKardexCommandPort{
     }
 
     private void existsProductById(Long productId) {
-        if (!productQueryRepositoryPort.existsByIdProduct(productId)) {
+        if (!productQueryRepositoryPort.existsByProductId(productId)) {
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "Product not found.");
         }
     }

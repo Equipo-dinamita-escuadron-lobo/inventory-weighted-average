@@ -15,6 +15,8 @@ public class StockDtoResponse {
 
     private Long productId;
 
+    private String enterpriseId;
+
     private int quantity;
 
     private BigDecimal price;

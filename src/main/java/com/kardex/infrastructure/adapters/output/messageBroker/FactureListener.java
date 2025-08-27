@@ -94,7 +94,7 @@ public class FactureListener {
             case PURCHASE:
                 Kardex kardex = kardexRestMapper.toDomain(event.getData());
                 kardexCommandPort.registerPurchase(kardex);
-                log.info("Registering purchase in Kardex for product ID: {}", kardex.getIdProduct());
+                log.info("Registering purchase in Kardex for product ID: {}", kardex.getProductId());
                 break;
             case SALE:
                 // Handle sale event

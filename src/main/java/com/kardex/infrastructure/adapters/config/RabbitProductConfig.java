@@ -15,7 +15,7 @@ import org.springframework.amqp.core.BindingBuilder;
 @Configuration
 @Slf4j
 @Profile("!test")
-public class RabbitConfig {
+public class RabbitProductConfig {
     public static final String PRODUCT_EXCHANGE = "product.exchange";
     public static final String PRODUCT_KARDEX_QUEUE = "product.kardex.queue";
     

@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-
 public class StockClientAdapter implements IStockClientPort {
 
     private final IStockClient stockClient;

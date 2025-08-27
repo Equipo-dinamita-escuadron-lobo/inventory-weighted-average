@@ -90,7 +90,7 @@ public class ProductCommandService implements IProductSyncCommandPort {
     private List<Product> getProductsFromDto(List<Product> products, String enterpriseId) {
         return products.stream()
             .map(dto -> Product.builder()
-                .idProduct(dto.getIdProduct())
+                .productId(dto.getProductId())
                 .reference(dto.getReference())
                 .name(dto.getName())
                 .presentation(dto.getPresentation())

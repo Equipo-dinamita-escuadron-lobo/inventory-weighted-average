@@ -12,20 +12,20 @@ import com.kardex.infrastructure.adapters.output.jpa.entity.KardexEntity;
 public interface IKardexRepository extends JpaRepository<KardexEntity, Long> {
 
     // Find the latest Kardex entry by product ID
-    KardexEntity findTopByIdProductOrderByDateDesc(Long idProduct);
+    KardexEntity findTopByProductIdOrderByDateDesc(Long productId);
 
     // Find all Kardex entries by product ID
-    Page<KardexEntity> findByIdProduct(Long idProduct, Pageable pageable);
+    Page<KardexEntity> findByProductId(Long productId, Pageable pageable);
 
     // Find all Kardex entries by product ID and date range
-    Page<KardexEntity> findByIdProductAndDateBetween(
-        Long idProduct, 
-        ZonedDateTime startDate, 
+    Page<KardexEntity> findByProductIdAndDateBetween(
+        Long productId,
+        ZonedDateTime startDate,
         ZonedDateTime endDate,
         Pageable pageable
     );
 
     // Find all Kardex entries by fact code and product ID
-    List<KardexEntity> findByFactCodeAndIdProduct(Long factCode, Long idProduct);
+    List<KardexEntity> findByFactCodeAndProductId(Long factCode, Long productId);
 
 }

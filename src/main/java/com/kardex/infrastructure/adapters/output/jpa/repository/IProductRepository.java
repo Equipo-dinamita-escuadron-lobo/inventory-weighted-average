@@ -15,14 +15,14 @@ public interface IProductRepository extends JpaRepository<ProductEntity, Long> {
     Collection<ProductEntity> findAllByEnterpriseId(String enterpriseId);
 
     // Find all products by ID
-    List<ProductEntity> findByIdProductIn(List<Long> list);
+    List<ProductEntity> findByProductIdIn(List<Long> list);
 
     // Return a list of product IDs
-    @Query("SELECT p.idProduct FROM ProductEntity p WHERE p.idProduct IN :ids")
-    List<Long> findIdProductsByIdProductIn(@Param("ids") List<Long> ids);
+    @Query("SELECT p.productId FROM ProductEntity p WHERE p.productId IN :ids")
+    List<Long> findProductsIdByProductIdIn(@Param("ids") List<Long> ids);
 
-    ProductEntity getReferenceByIdProduct(Long idProduct);
+    ProductEntity getReferenceByProductId(Long productId);
 
-    boolean existsByIdProduct(Long id);
+    boolean existsByProductId(Long id);
 
 }

@@ -9,7 +9,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter @Setter
 public class ProductSyncDto {
-    private Long idProduct;
+    private Long productId;
     private String name;
     private String reference;
     private String enterpriseId;

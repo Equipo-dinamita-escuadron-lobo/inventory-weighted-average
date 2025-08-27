@@ -59,7 +59,7 @@ public class KardexSaleControllerIT {
         productRepository.deleteAll();
 
         ProductEntity product = new ProductEntity();
-        product.setIdProduct(1L);
+        product.setProductId(1L);
         product.setReference("REF001");
         product.setName("Test Product");
         product.setPresentation("Box");
@@ -69,7 +69,7 @@ public class KardexSaleControllerIT {
         productRepository.save(product);
 
         ProductEntity secondProduct = new ProductEntity();
-        secondProduct.setIdProduct(2L);
+        secondProduct.setProductId(2L);
         secondProduct.setReference("REF002");
         secondProduct.setName("Second Product");
         secondProduct.setPresentation("Unit");
@@ -94,7 +94,7 @@ public class KardexSaleControllerIT {
         kardexEntry.setBalanceUnitPrice(BigDecimal.valueOf(10.0));
         kardexEntry.setTotalBalance(BigDecimal.valueOf(100.0));
         kardexEntry.setDate(java.time.ZonedDateTime.now());
-        kardexEntry.setIdProduct(1L);
+        kardexEntry.setProductId(1L);
         kardexRepository.save(kardexEntry);
     }
 
@@ -111,7 +111,7 @@ public class KardexSaleControllerIT {
                     "quantity": 5,
                     "factCode": 2,
                     "details": "Sale of 5 units",
-                    "idProduct": 1
+                    "productId": 1
                 }
             """;
 
@@ -146,7 +146,7 @@ public class KardexSaleControllerIT {
                     "quantity": 5,
                     "factCode": 2,
                     "details": "Sale of 5 units",
-                    "idProduct": 1
+                    "productId": 1
                 }
             """;
 
@@ -181,7 +181,7 @@ public class KardexSaleControllerIT {
                     "quantity": 5,
                     "factCode": 11111,
                     "details": "First sale",
-                    "idProduct": 1
+                    "productId": 1
                 }
                 """;
 
@@ -203,7 +203,7 @@ public class KardexSaleControllerIT {
                     "quantity": 2,
                     "factCode": 22222,
                     "details": "Second sale",
-                    "idProduct": 1
+                    "productId": 1
                 }
                 """;
 
@@ -227,7 +227,7 @@ public class KardexSaleControllerIT {
                 {
                     "factCode": 2,
                     "details": "Missing quantity",
-                    "idProduct": 1
+                    "productId": 1
                 }
             """;
 
@@ -247,7 +247,7 @@ public class KardexSaleControllerIT {
                 {
                     "quantity": 5,
                     "details": "Missing factCode",
-                    "idProduct": 1
+                    "productId": 1
                 }
             """;
 
@@ -260,14 +260,14 @@ public class KardexSaleControllerIT {
         }
 
         @Test
-        @DisplayName("Should reject request when idProduct is missing")
-        void shouldRejectWhenIdProductMissing() throws Exception {
+        @DisplayName("Should reject request when productId is missing")
+        void shouldRejectWhenproductIdMissing() throws Exception {
 
             String requestBody = """
                 {
                     "quantity": 5,
                     "factCode": 2,
-                    "details": "Missing idProduct"
+                    "details": "Missing productId"
                 }
             """;
 
@@ -286,7 +286,7 @@ public class KardexSaleControllerIT {
                 {
                     "quantity": 5,
                     "factCode": 2,
-                    "idProduct": 1
+                    "productId": 1
                 }
             """;
 
@@ -308,7 +308,7 @@ public class KardexSaleControllerIT {
                 {
                     "quantity": 5,
                     "factCode": 2,
-                    "idProduct": 9999
+                    "productId": 9999
                 }
             """;
 
@@ -330,7 +330,7 @@ public class KardexSaleControllerIT {
                 {
                     "quantity": 5,
                     "factCode": 2,
-                    "idProduct": 1
+                    "productId": 1
                 }
             """;
             mockMvc.perform(
@@ -348,7 +348,7 @@ public class KardexSaleControllerIT {
                 {
                     "quantity": -5,
                     "factCode": 2,
-                    "idProduct": 1
+                    "productId": 1
                 }
             """;
 

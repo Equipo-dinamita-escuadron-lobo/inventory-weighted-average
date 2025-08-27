@@ -16,7 +16,7 @@ import org.springframework.transaction.TransactionException;
 
 import com.kardex.domain.model.Product;
 import com.kardex.domain.port.IProductCommandRepositoryPort;
-import com.kardex.infrastructure.adapters.config.RabbitConfig;
+import com.kardex.infrastructure.adapters.config.RabbitProductConfig;
 import com.kardex.infrastructure.adapters.output.messageBroker.dto.EventDto;
 import com.kardex.infrastructure.adapters.output.messageBroker.dto.ProductAsyncDto;
 import com.kardex.infrastructure.adapters.output.messageBroker.enums.EventProductType;
@@ -33,7 +33,7 @@ public class ProductListener {
     private final IProductCommandRepositoryPort productCommandPort;
     private final ProductBrokerMapper productBrokerMapper;
 
-    @RabbitListener(queues = RabbitConfig.PRODUCT_KARDEX_QUEUE)
+    @RabbitListener(queues = RabbitProductConfig.PRODUCT_KARDEX_QUEUE)
     @Retryable(
         value = {Exception.class},
         maxAttempts = 3,
@@ -134,7 +134,7 @@ public class ProductListener {
     }
 
     // Listener for the Dead Letter Queue - for monitoring
-    @RabbitListener(queues = RabbitConfig.PRODUCT_KARDEX_DLQ)
+    @RabbitListener(queues = RabbitProductConfig.PRODUCT_KARDEX_DLQ)
     public void handleDeadLetterQueue(Message message) {
         try {
             String messageBody = new String(message.getBody());

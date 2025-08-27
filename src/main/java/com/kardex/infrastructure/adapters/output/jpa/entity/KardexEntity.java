@@ -56,6 +56,6 @@ public class KardexEntity {
     @Column(nullable = false)
     private ZonedDateTime date;
 
-    @Column(name = "idProduct", nullable = false)
-    private Long idProduct;
+    @Column(name = "product_id", nullable = false)
+    private Long productId;
 }

@@ -57,7 +57,7 @@ class KardexPurchaseControllerIT {
         productRepository.deleteAll();
 
         ProductEntity product = new ProductEntity();
-        product.setIdProduct(1L);
+        product.setProductId(1L);
         product.setReference("REF001");
         product.setName("Test Product");
         product.setPresentation("Box");
@@ -67,7 +67,7 @@ class KardexPurchaseControllerIT {
         productRepository.save(product);
 
         ProductEntity secondProduct = new ProductEntity();
-        secondProduct.setIdProduct(2L);
+        secondProduct.setProductId(2L);
         secondProduct.setReference("REF002");
         secondProduct.setName("Second Product");
         secondProduct.setPresentation("Unit");
@@ -97,7 +97,7 @@ class KardexPurchaseControllerIT {
                     "factCode": 12345,
                     "unitPrice": 100.0,
                     "details": "Purchase details",
-                    "idProduct": 1
+                    "productId": 1
                 }
                 """;
 
@@ -133,7 +133,7 @@ class KardexPurchaseControllerIT {
                     "factCode": 54321,
                     "unitPrice": 50.75,
                     "details": "Bulk purchase",
-                    "idProduct": 1
+                    "productId": 1
                 }
                 """;
 
@@ -161,7 +161,7 @@ class KardexPurchaseControllerIT {
                     "factCode": 11111,
                     "unitPrice": 10.0,
                     "details": "First purchase",
-                    "idProduct": 1
+                    "productId": 1
                 }
                 """;
 
@@ -184,7 +184,7 @@ class KardexPurchaseControllerIT {
                     "factCode": 22222,
                     "unitPrice": 20.0,
                     "details": "Second purchase",
-                    "idProduct": 1
+                    "productId": 1
                 }
                 """;
 
@@ -210,7 +210,7 @@ class KardexPurchaseControllerIT {
                     "factCode": 12345,
                     "unitPrice": 100.0,
                     "details": "Missing quantity",
-                    "idProduct": 1
+                    "productId": 1
                 }
                 """;
 
@@ -229,7 +229,7 @@ class KardexPurchaseControllerIT {
                     "quantity": 10,
                     "unitPrice": 100.0,
                     "details": "Missing factCode",
-                    "idProduct": 1
+                    "productId": 1
                 }
                 """;
 
@@ -248,7 +248,7 @@ class KardexPurchaseControllerIT {
                     "quantity": 10,
                     "factCode": 12345,
                     "details": "Missing unitPrice",
-                    "idProduct": 1
+                    "productId": 1
                 }
                 """;
 
@@ -259,15 +259,15 @@ class KardexPurchaseControllerIT {
         }
 
         @Test
-        @DisplayName("Should reject request when idProduct is missing")
-        void shouldFailWhenIdProductMissing() throws Exception {
-            // Test for specific required field - idProduct
+        @DisplayName("Should reject request when productId is missing")
+        void shouldFailWhenproductIdMissing() throws Exception {
+            // Test for specific required field - productId
             String body = """
                 {
                     "quantity": 10,
                     "factCode": 12345,
                     "unitPrice": 100.0,
-                    "details": "Missing idProduct"
+                    "details": "Missing productId"
                 }
                 """;
 
@@ -287,7 +287,7 @@ class KardexPurchaseControllerIT {
                     "factCode": 12345,
                     "unitPrice": 85.50,
                     "details": "",
-                    "idProduct": 1
+                    "productId": 1
                 }
                 """;
 
@@ -311,7 +311,7 @@ class KardexPurchaseControllerIT {
                     "factCode": 12345,
                     "unitPrice": 100.0,
                     "details": "Non-existent product",
-                    "idProduct": 9999
+                    "productId": 9999
                 }
                 """;
 
@@ -334,7 +334,7 @@ class KardexPurchaseControllerIT {
                     "factCode": 12345,
                     "unitPrice": 100.0,
                     "details": "Negative quantity",
-                    "idProduct": 1
+                    "productId": 1
                 }
                 """;
 
@@ -357,7 +357,7 @@ class KardexPurchaseControllerIT {
                     "factCode": 12345,
                     "unitPrice": -50.0,
                     "details": "Negative unit price",
-                    "idProduct": 1
+                    "productId": 1
                 }
                 """;
 
