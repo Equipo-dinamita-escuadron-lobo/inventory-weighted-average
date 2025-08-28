@@ -80,8 +80,7 @@ management:
       probes:
         enabled: true
 
-app:
-  clients:
+services:
     stock:
       base-url: ${STOCK_SERVICE_URL:lb://STOCK}
     products:

@@ -10,13 +10,13 @@
     "description": "A description for 'jwt.auth.converter.resource-id'"
   },
   {
-    "name": "app.clients.stock.base-url",
+    "name": "services.stock.base-url",
     "type": "java.lang.String",
-    "description": "A description for 'app.clients.stock.base-url'"
+    "description": "A description for 'services.stock.base-url'"
   },
   {
-    "name": "app.clients.products.base-url",
+    "name": "services.products.base-url",
     "type": "java.lang.String",
-    "description": "A description for 'app.clients.products.base-url'"
+    "description": "A description for 'services.products.base-url'"
   }
 ]}

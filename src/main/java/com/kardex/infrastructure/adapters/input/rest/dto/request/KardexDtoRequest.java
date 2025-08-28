@@ -25,8 +25,6 @@ public class KardexDtoRequest {
     @Positive(message = "The factCode must be positive")
     private Long factCode;
 
-    @NotNull(message = "The field 'unitPrice' cannot be null")
-    @Positive(message = "The unitPrice must be positive")
     private BigDecimal unitPrice;
 
     @NotNull(message = "The field 'productId' cannot be null")

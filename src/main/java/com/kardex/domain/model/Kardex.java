@@ -74,6 +74,8 @@ public class Kardex {
         }
         if (this.balanceQuantity == 0) {
             resetBalancesIfZero();
+            this.addDate();
+            this.updateDetailIfNotNull(); 
             return;
         }
         
@@ -137,7 +139,8 @@ public class Kardex {
     public void resetBalancesIfZero(){
             this.totalBalance = BigDecimal.ZERO;
             this.balanceUnitPrice = BigDecimal.ZERO;
-            this.balanceQuantity = 0;     
+            this.balanceQuantity = 0;   
+            this.unitPrice = BigDecimal.ZERO;  
     }
 
     public void updateDetailIfNotNull() {
