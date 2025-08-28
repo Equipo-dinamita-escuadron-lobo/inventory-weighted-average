@@ -28,25 +28,25 @@ public class KardexQueryAdapter implements IKardexQueryRepositoryPort {
     public Page<Kardex> findProductIdAndDate(Long productId, Pageable pageable, LocalDate startDate, LocalDate endDate) {
         ZonedDateTime startDateTime = startDate.atStartOfDay(ZoneId.systemDefault());
         ZonedDateTime endDateTime = endDate.plusDays(1).atStartOfDay(ZoneId.systemDefault());
-        Page<KardexEntity> kardexEntities = kardexRepository.findByIdProductAndDateBetween(productId, startDateTime, endDateTime, pageable);
+        Page<KardexEntity> kardexEntities = kardexRepository.findByProductIdAndDateBetween(productId, startDateTime, endDateTime, pageable);
         return kardexEntities.map(kardexEntityMapper::toDomain);
     }
 
     @Override
     public Page<Kardex> findProductId(Long productId, Pageable pageable) {
-        Page<KardexEntity> kardexEntities = kardexRepository.findByIdProduct(productId, pageable);
+        Page<KardexEntity> kardexEntities = kardexRepository.findByProductId(productId, pageable);
         return kardexEntities.map(kardexEntityMapper::toDomain);
     }
 
     @Override
     public List<Kardex> findByFactCodeAndProductId(Long factCode, Long productId) {
-        List<KardexEntity> kardexEntities = kardexRepository.findByFactCodeAndIdProduct(factCode, productId);
+        List<KardexEntity> kardexEntities = kardexRepository.findByFactCodeAndProductId(factCode, productId);
         return kardexEntityMapper.toDomainList(kardexEntities);
     }
 
     @Override
     public Kardex getLatestKardexByProductId(Long productId) {
-        KardexEntity kardexEntity = kardexRepository.findTopByIdProductOrderByDateDesc(productId);
+        KardexEntity kardexEntity = kardexRepository.findTopByProductIdOrderByDateDesc(productId);
         return kardexEntity != null ? kardexEntityMapper.toDomain(kardexEntity) : null;
     }
     

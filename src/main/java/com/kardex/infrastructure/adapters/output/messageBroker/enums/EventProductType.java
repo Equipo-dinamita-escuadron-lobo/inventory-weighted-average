@@ -1,5 +1,5 @@
 package com.kardex.infrastructure.adapters.output.messageBroker.enums;
 
-public enum EventType {
+public enum EventProductType {
     CREATED, UPDATED, DELETED  
 }

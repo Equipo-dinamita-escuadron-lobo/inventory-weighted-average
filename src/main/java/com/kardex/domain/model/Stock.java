@@ -1,21 +1,26 @@
-package com.kardex.infrastructure.adapters.input.rest.dto.response;
+package com.kardex.domain.model;
+
+import java.math.BigDecimal;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter @Setter
-public class StockDtoResponse {
+@Getter @Setter @Builder
+public class Stock {
     private Long id;
 
     private Long productId;
 
-    private Integer quantity;
+    private String enterpriseId;
 
-    private Double price;
+    private int quantity;
+
+    private BigDecimal price;
 
     private boolean status;   
 }

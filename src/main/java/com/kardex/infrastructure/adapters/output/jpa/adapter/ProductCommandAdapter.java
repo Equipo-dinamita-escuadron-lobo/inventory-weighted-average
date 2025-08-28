@@ -68,12 +68,12 @@ public class ProductCommandAdapter implements IProductCommandRepositoryPort {
 
     // Separate new products from existing ones
     private ProductPartition separateNewAndExistingProducts(List<Product> products) {
-        List<Long> productIds = products.stream().map(Product::getIdProduct).toList();
-        Set<Long> existingIds = new HashSet<>(productRepository.findIdProductsByIdProductIn(productIds));
+        List<Long> productIds = products.stream().map(Product::getProductId).toList();
+        Set<Long> existingIds = new HashSet<>(productRepository.findProductsIdByProductIdIn(productIds));
         
         Map<Boolean, List<Product>> partitionedProducts = products.stream()
-            .collect(Collectors.partitioningBy(p -> existingIds.contains(p.getIdProduct())));
-        
+            .collect(Collectors.partitioningBy(p -> existingIds.contains(p.getProductId())));
+
         return new ProductPartition(
             partitionedProducts.get(false), 
             partitionedProducts.get(true)   
@@ -99,14 +99,14 @@ public class ProductCommandAdapter implements IProductCommandRepositoryPort {
             return 0;
         }
 
-        List<Long> existingIds = existingProducts.stream().map(Product::getIdProduct).toList();
-        List<ProductEntity> existingEntities = productRepository.findByIdProductIn(existingIds);
-        
+        List<Long> existingIds = existingProducts.stream().map(Product::getProductId).toList();
+        List<ProductEntity> existingEntities = productRepository.findByProductIdIn(existingIds);
+
         Map<Long, Product> updateMap = existingProducts.stream()
-            .collect(Collectors.toMap(Product::getIdProduct, Function.identity()));
+            .collect(Collectors.toMap(Product::getProductId, Function.identity()));
 
         existingEntities.forEach(entity -> {
-            Product product = updateMap.get(entity.getIdProduct());
+            Product product = updateMap.get(entity.getProductId());
             if (product != null) {
                 productEntityCommandMapper.updateEntityFromProduct(product, entity);
             }     

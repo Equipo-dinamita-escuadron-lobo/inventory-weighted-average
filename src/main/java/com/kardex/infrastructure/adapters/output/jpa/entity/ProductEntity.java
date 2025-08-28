@@ -21,7 +21,7 @@ public class ProductEntity {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private Long idProduct;
+    private Long productId;
 
     @Column(nullable = false, unique = true)
     private String reference;

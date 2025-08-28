@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import com.kardex.domain.model.Kardex;
 import com.kardex.domain.model.MovementType;
 
-public class KardexTest {
+public class KardexUnitTest {
     
     private Kardex kardex;
     
@@ -45,10 +45,10 @@ public class KardexTest {
     @DisplayName("Should correctly calculate the balance when adding a purchase")
     void testAddPurchase() {
         // Arrange
-        kardex.setQuantity(10L);
+        kardex.setQuantity(10);
         kardex.setUnitPrice(new BigDecimal("25.50"));
         kardex.setType(MovementType.PURCHASE);
-        Long lastQuantity = 5L;
+        int lastQuantity = 5;
         BigDecimal lastTotalBalance = new BigDecimal("100.00");
         
         // Act
@@ -68,9 +68,9 @@ public class KardexTest {
     @DisplayName("Should handle a purchase with zero balance quantity correctly")
     void testAddPurchaseWithZeroBalanceQuantity() {
         // Arrange
-        kardex.setQuantity(10L);
+        kardex.setQuantity(10);
         kardex.setUnitPrice(new BigDecimal("25.50"));
-        Long lastQuantity = -10L; // To make the resulting balance zero
+        int lastQuantity = -10; // To make the resulting balance zero
         BigDecimal lastTotalBalance = new BigDecimal("100.00");
         
         // Act
@@ -85,9 +85,9 @@ public class KardexTest {
     @DisplayName("Should correctly calculate the balance when adding a sale")
     void testAddSale() {
         // Arrange
-        kardex.setQuantity(5L);
+        kardex.setQuantity(5);
         kardex.setType(MovementType.SALE);
-        Long lastQuantity = 20L;
+        int lastQuantity = 20;
         BigDecimal lastUnitPrice = new BigDecimal("15.00");
         BigDecimal lastTotalBalance = new BigDecimal("300.00");
         
@@ -107,8 +107,8 @@ public class KardexTest {
     @DisplayName("Should handle a sale with negative balance correctly")
     void testAddSaleWithNegativeBalance() {
         // Arrange
-        kardex.setQuantity(25L);
-        Long lastQuantity = 20L; // To make the resulting balance negative
+        kardex.setQuantity(25);
+        int lastQuantity = 20; // To make the resulting balance negative
         BigDecimal lastUnitPrice = new BigDecimal("15.00");
         BigDecimal lastTotalBalance = new BigDecimal("300.00");
         
@@ -124,8 +124,8 @@ public class KardexTest {
     @DisplayName("Should handle a sale with zero balance correctly")
     void testAddSaleWithZeroBalance() {
         // Arrange
-        kardex.setQuantity(20L);
-        Long lastQuantity = 20L; // To make the resulting balance zero
+        kardex.setQuantity(20);
+        int lastQuantity = 20; // To make the resulting balance zero
         BigDecimal lastUnitPrice = new BigDecimal("15.00");
         BigDecimal lastTotalBalance = new BigDecimal("300.00");
         
@@ -142,9 +142,9 @@ public class KardexTest {
     @DisplayName("Should correctly calculate the balance when returning a sale")
     void testReturnOnSale() {
         // Arrange
-        kardex.setQuantity(5L);
+        kardex.setQuantity(5);
         kardex.setType(MovementType.SALESRETURN);
-        Long lastQuantity = 15L;
+        int lastQuantity = 15;
         BigDecimal lastUnitPrice = new BigDecimal("20.00");
         BigDecimal lastTotalBalance = new BigDecimal("300.00");
         
@@ -164,8 +164,8 @@ public class KardexTest {
     @DisplayName("Should handle a sale return with zero balance correctly")
     void testReturnOnSaleWithZeroBalance() {
         // Arrange
-        kardex.setQuantity(5L);
-        Long lastQuantity = -5L; // To make the resulting balance zero
+        kardex.setQuantity(5);
+        int lastQuantity = -5; // To make the resulting balance zero
         BigDecimal lastUnitPrice = new BigDecimal("20.00");
         BigDecimal lastTotalBalance = new BigDecimal("0.00");
         
@@ -181,10 +181,10 @@ public class KardexTest {
     @DisplayName("Should correctly calculate the balance when returning a purchase")
     void testReturnOnPurchase() {
         // Arrange
-        kardex.setQuantity(5L);
+        kardex.setQuantity(5);
         kardex.setUnitPrice(new BigDecimal("20.00"));
         kardex.setType(MovementType.PURCHASERETURN);
-        Long lastQuantity = 25L;
+        int lastQuantity = 25;
         BigDecimal lastTotalBalance = new BigDecimal("500.00");
         
         // Act
@@ -203,9 +203,9 @@ public class KardexTest {
     @DisplayName("Should handle a purchase return with negative balance correctly")
     void testReturnOnPurchaseWithNegativeBalance() {
         // Arrange
-        kardex.setQuantity(30L);
+        kardex.setQuantity(30);
         kardex.setUnitPrice(new BigDecimal("20.00"));
-        Long lastQuantity = 25L; // To make the resulting balance negative
+        int lastQuantity = 25; // To make the resulting balance negative
         BigDecimal lastTotalBalance = new BigDecimal("500.00");
         
         // Act
@@ -220,9 +220,9 @@ public class KardexTest {
     @DisplayName("Should handle a purchase return with zero balance correctly")
     void testReturnOnPurchaseWithZeroBalance() {
         // Arrange
-        kardex.setQuantity(25L);
+        kardex.setQuantity(25);
         kardex.setUnitPrice(new BigDecimal("20.00"));
-        Long lastQuantity = 25L; // To make the resulting balance zero
+        int lastQuantity = 25; // To make the resulting balance zero
         BigDecimal lastTotalBalance = new BigDecimal("500.00");
         
         // Act
@@ -238,7 +238,7 @@ public class KardexTest {
     @DisplayName("Should reset balances when calling resetBalancesIfZero")
     void testResetBalancesIfZero() {
         // Arrange
-        kardex.setBalanceQuantity(10L);
+        kardex.setBalanceQuantity(10);
         kardex.setBalanceUnitPrice(new BigDecimal("25.00"));
         kardex.setTotalBalance(new BigDecimal("250.00"));
         
@@ -280,4 +280,19 @@ public class KardexTest {
         // Assert
         assertEquals("Venta - Factura: 500", kardex.getDetails());
     }
-}   
+
+    @Test
+    @DisplayName("Should update details if empty")
+    void testUpdateDetailIfEmpty() {
+        // Arrange
+        kardex.setType(MovementType.SALE);
+        kardex.setFactCode(500L);
+        kardex.setDetails("");
+
+        // Act
+        kardex.updateDetailIfNotNull();
+
+        // Assert
+        assertEquals("Venta - Factura: 500", kardex.getDetails());
+    }
+}

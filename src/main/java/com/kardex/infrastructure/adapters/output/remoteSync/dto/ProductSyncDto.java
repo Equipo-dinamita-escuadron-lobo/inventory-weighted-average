@@ -1,4 +1,4 @@
-package com.kardex.infrastructure.adapters.input.rest.dto.response;
+package com.kardex.infrastructure.adapters.output.remoteSync.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,8 +14,6 @@ public class ProductSyncDto {
     private String reference;
     private String enterpriseId;
     private String presentation;
-    private Integer quantity;
-    private double cost;
     private boolean state;
 
 }

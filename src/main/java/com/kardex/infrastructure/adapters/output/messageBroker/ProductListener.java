@@ -16,9 +16,10 @@ import org.springframework.transaction.TransactionException;
 
 import com.kardex.domain.model.Product;
 import com.kardex.domain.port.IProductCommandRepositoryPort;
-import com.kardex.infrastructure.adapters.config.RabbitConfig;
+import com.kardex.infrastructure.adapters.config.RabbitProductConfig;
 import com.kardex.infrastructure.adapters.output.messageBroker.dto.EventDto;
 import com.kardex.infrastructure.adapters.output.messageBroker.dto.ProductAsyncDto;
+import com.kardex.infrastructure.adapters.output.messageBroker.enums.EventProductType;
 import com.kardex.infrastructure.adapters.output.messageBroker.mapper.ProductBrokerMapper;
 import com.rabbitmq.client.Channel;
 
@@ -32,14 +33,14 @@ public class ProductListener {
     private final IProductCommandRepositoryPort productCommandPort;
     private final ProductBrokerMapper productBrokerMapper;
 
-    @RabbitListener(queues = RabbitConfig.PRODUCT_KARDEX_QUEUE)
+    @RabbitListener(queues = RabbitProductConfig.PRODUCT_KARDEX_QUEUE)
     @Retryable(
         value = {Exception.class},
         maxAttempts = 3,
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
     public void handleStockEvent(
-            EventDto<ProductAsyncDto> event, 
+            EventDto<ProductAsyncDto, EventProductType> event, 
             Message message, 
             Channel channel,
             @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
@@ -88,7 +89,7 @@ public class ProductListener {
         }
     }
 
-    private void processEvent(EventDto<ProductAsyncDto> event) {
+    private void processEvent(EventDto<ProductAsyncDto, EventProductType> event) {
         // This validation is already done before, but being defensive is a good practice
         if (event == null || event.getData() == null) {
             throw new IllegalArgumentException("Event or event data cannot be null");
@@ -133,7 +134,7 @@ public class ProductListener {
     }
 
     // Listener for the Dead Letter Queue - for monitoring
-    @RabbitListener(queues = RabbitConfig.PRODUCT_KARDEX_DLQ)
+    @RabbitListener(queues = RabbitProductConfig.PRODUCT_KARDEX_DLQ)
     public void handleDeadLetterQueue(Message message) {
         try {
             String messageBody = new String(message.getBody());
@@ -145,7 +146,7 @@ public class ProductListener {
     }
 
     // Helper method to get the product name safely
-    private String getProductNameSafely(EventDto<ProductAsyncDto> event) {
+    private String getProductNameSafely(EventDto<ProductAsyncDto,EventProductType> event) {
         if (event == null || event.getData() == null) {
             return "unknown";
         }

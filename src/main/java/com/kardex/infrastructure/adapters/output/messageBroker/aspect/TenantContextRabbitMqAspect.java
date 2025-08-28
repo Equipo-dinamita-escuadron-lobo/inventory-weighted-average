@@ -9,6 +9,7 @@ import org.springframework.amqp.core.Message;
 import org.springframework.stereotype.Component;
 
 import com.kardex.infrastructure.adapters.output.multitenancy.utils.TenantContext;
+import com.rabbitmq.client.LongString;
 
 @Aspect
 @Component
@@ -16,6 +17,7 @@ public class TenantContextRabbitMqAspect {
 
     private static final Logger logger = LoggerFactory.getLogger(TenantContextRabbitMqAspect.class);
     private static final String TENANT_HEADER = "x-tenant-id";
+    private static final String JWT_TOKEN_HEADER = "x-jwt-token";
 
     /**
      * Este "advice" se ejecuta alrededor de cualquier método anotado con @RabbitListener.
@@ -38,6 +40,18 @@ public class TenantContextRabbitMqAspect {
         if (tenantId == null || tenantId.isEmpty()) {
             logger.error("Mensaje recibido sin la cabecera '{}'. Se procesará sin contexto de tenant.", TENANT_HEADER);
             return joinPoint.proceed(); // Ejecutar sin contexto
+        }
+
+        Object tokenObject = message.getMessageProperties().getHeaders().get(JWT_TOKEN_HEADER);
+        String jwtToken = null;
+
+        if (tokenObject instanceof LongString) {
+            jwtToken = tokenObject.toString();
+        } else if (tokenObject instanceof String) {
+            jwtToken = (String) tokenObject;
+        }
+        if (jwtToken != null && !jwtToken.isEmpty()) {
+            JwtRabbitUtils.setJwtToken(jwtToken);
         }
 
         try {

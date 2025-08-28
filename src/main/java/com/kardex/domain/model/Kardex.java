@@ -17,7 +17,7 @@ public class Kardex {
 
     private Long factCode;
 
-    private Long quantity;
+    private int quantity;
 
     private BigDecimal unitPrice;
 
@@ -25,13 +25,13 @@ public class Kardex {
 
     private MovementType type;
 
-    private Long balanceQuantity;
+    private int balanceQuantity;
 
     private BigDecimal balanceUnitPrice;
 
     private ZonedDateTime date;
 
-    private Long idProduct;
+    private Long productId;
 
     private BigDecimal totalBalance;
 
@@ -39,7 +39,7 @@ public class Kardex {
         this.date = ZonedDateTime.now(ZoneId.of("America/Bogota"));
     }
 
-    public void addPurchase(Long lastQuantity, BigDecimal lastTotalBalance) {
+    public void addPurchase(int lastQuantity, BigDecimal lastTotalBalance) {
         // 1. Calcula la nueva cantidad total en el balance
         this.balanceQuantity = lastQuantity + this.quantity;
 
@@ -64,7 +64,7 @@ public class Kardex {
         this.updateDetailIfNotNull();
     }
 
-    public void addSale(Long lastQuantity, BigDecimal lastUnitPrice, BigDecimal lastTotalBalance) {
+    public void addSale(int lastQuantity, BigDecimal lastUnitPrice, BigDecimal lastTotalBalance) {
         // 1. Calcula la nueva cantidad total en el balance
         this.balanceQuantity = lastQuantity - this.quantity;
         
@@ -74,6 +74,8 @@ public class Kardex {
         }
         if (this.balanceQuantity == 0) {
             resetBalancesIfZero();
+            this.addDate();
+            this.updateDetailIfNotNull(); 
             return;
         }
         
@@ -89,7 +91,7 @@ public class Kardex {
         this.updateDetailIfNotNull();   
     }
 
-    public void returnOnSale(Long lastQuantity, BigDecimal lastUnitPrice, BigDecimal lastTotalBalance) {
+    public void returnOnSale(int lastQuantity, BigDecimal lastUnitPrice, BigDecimal lastTotalBalance) {
         // 1. Calcula la nueva cantidad total en el balance
         this.balanceQuantity = lastQuantity + this.quantity;
         
@@ -107,7 +109,7 @@ public class Kardex {
         this.updateDetailIfNotNull();      
     }
 
-    public void returnOnPurchase(Long lastQuantity, BigDecimal lastTotalBalance) {
+    public void returnOnPurchase(int lastQuantity, BigDecimal lastTotalBalance) {
         // 1. Calcula la nueva cantidad total en el balance
         this.balanceQuantity = lastQuantity - this.quantity;
         
@@ -137,11 +139,12 @@ public class Kardex {
     public void resetBalancesIfZero(){
             this.totalBalance = BigDecimal.ZERO;
             this.balanceUnitPrice = BigDecimal.ZERO;
-            this.balanceQuantity = 0L;     
+            this.balanceQuantity = 0;   
+            this.unitPrice = BigDecimal.ZERO;  
     }
 
     public void updateDetailIfNotNull() {
-        if (this.details == null) {
+        if (this.details == null || this.details.isEmpty()) {
             // Formar el detalle con el tipo de movimiento y el código.  Venta - Factura: 500
             this.details = String.format("%s - Factura: %d", this.type.getDescription(), this.factCode);
         }

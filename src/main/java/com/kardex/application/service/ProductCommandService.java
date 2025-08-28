@@ -7,12 +7,11 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.kardex.application.ports.input.IProductSyncCommandPort;
-import com.kardex.application.ports.output.IProductClient;
 import com.kardex.domain.model.Product;
 import com.kardex.domain.port.IFormatterResultOutputPort;
+import com.kardex.domain.port.IProductClientPort;
 import com.kardex.domain.port.IProductCommandRepositoryPort;
 import com.kardex.domain.port.ISyncStateRepositoryPort;
-import com.kardex.infrastructure.adapters.input.rest.dto.response.ProductSyncDto;
 import com.kardex.domain.model.SyncState;
 
 import jakarta.transaction.Transactional;
@@ -26,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ProductCommandService implements IProductSyncCommandPort {
 
     private final IProductCommandRepositoryPort productCommandRepositoryPort;
-    private final IProductClient productClient;
+    private final IProductClientPort productClient;
     private final ISyncStateRepositoryPort syncStateRepository;
     private final IFormatterResultOutputPort formatterResultOutputPort;
 
@@ -51,7 +50,7 @@ public class ProductCommandService implements IProductSyncCommandPort {
 
         try {
             // 3. Call the API
-            List<ProductSyncDto> updatedProducts = productClient
+            List<Product> updatedProducts = productClient
                 .findAllProductsByEnterpriseId(enterpriseId, lastSync.get());
 
             // 4. Process the received products
@@ -71,7 +70,7 @@ public class ProductCommandService implements IProductSyncCommandPort {
         }
     }
 
-    private void processUpdatedProducts(List<ProductSyncDto> products, String enterpriseId) {
+    private void processUpdatedProducts(List<Product> products, String enterpriseId) {
         try {
             if (products == null || products.isEmpty()) {
                 log.info("No products to process for enterprise {}", enterpriseId);
@@ -88,10 +87,10 @@ public class ProductCommandService implements IProductSyncCommandPort {
         }
     }
 
-    private List<Product> getProductsFromDto(List<ProductSyncDto> products, String enterpriseId) {
+    private List<Product> getProductsFromDto(List<Product> products, String enterpriseId) {
         return products.stream()
             .map(dto -> Product.builder()
-                .idProduct(dto.getProductId())
+                .productId(dto.getProductId())
                 .reference(dto.getReference())
                 .name(dto.getName())
                 .presentation(dto.getPresentation())
@@ -107,12 +106,12 @@ public class ProductCommandService implements IProductSyncCommandPort {
             .findBySyncTypeAndEnterpriseId(SYNC_TYPE_PRODUCTS, enterpriseId);
         
         if (existingState.isPresent()) {
-            // Actualizar fecha existente
+            // Update existing record
             SyncState state = existingState.get();
             state.setLastSyncDate(syncDate);
             syncStateRepository.save(state);
         } else {
-            // Crear nuevo registro
+            // Create new record
             SyncState newState = new SyncState();
             newState.setSyncType(SYNC_TYPE_PRODUCTS);
             newState.setEnterpriseId(enterpriseId);

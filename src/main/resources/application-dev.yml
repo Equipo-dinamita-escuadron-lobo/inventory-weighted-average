@@ -8,9 +8,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: ${DB_HIBERNATE_DDL_AUTO:create-drop}
-    properties:
-      hibernate:
-        dialect: ${DB_HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQLDialect}
+      
   h2:
     console:
       enabled: false
@@ -81,3 +79,9 @@ management:
     health:
       probes:
         enabled: true
+
+services:
+    stock:
+      base-url: ${STOCK_SERVICE_URL:lb://STOCK}
+    products:
+      base-url: ${PRODUCTS_SERVICE_URL:lb://PRODUCTS}

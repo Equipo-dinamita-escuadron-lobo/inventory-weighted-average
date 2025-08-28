@@ -23,7 +23,7 @@ public class KardexCommandAdapter implements IKardexCommandRepositoryPort{
     public Kardex registerPurchase(Kardex kardex) {
         KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);
         KardexEntity savedEntity = kardexRepository.save(kardexEntity);
-        log.info("Registered purchase for product: {}", kardex.getIdProduct());
+        log.info("Registered purchase for product: {}", kardex.getProductId());
         return kardexEntityMapper.toDomain(savedEntity);
     }
 
@@ -31,7 +31,7 @@ public class KardexCommandAdapter implements IKardexCommandRepositoryPort{
     public Kardex registerSale(Kardex kardex) {
         KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);
         KardexEntity savedEntity = kardexRepository.save(kardexEntity);
-        log.info("Registered sale for product: {}", kardex.getIdProduct());
+        log.info("Registered sale for product: {}", kardex.getProductId());
         return kardexEntityMapper.toDomain(savedEntity);
     }
 
@@ -39,7 +39,7 @@ public class KardexCommandAdapter implements IKardexCommandRepositoryPort{
     public Kardex registerReturnOnPurchase(Kardex kardex) {
         KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);
         KardexEntity savedEntity = kardexRepository.save(kardexEntity);
-        log.info("Registered return on purchase for product: {}", kardex.getIdProduct());
+        log.info("Registered return on purchase for product: {}", kardex.getProductId());
         return kardexEntityMapper.toDomain(savedEntity);
     }
 
@@ -47,7 +47,7 @@ public class KardexCommandAdapter implements IKardexCommandRepositoryPort{
     public Kardex registerReturnOnSale(Kardex kardex) {
         KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);
         KardexEntity savedEntity = kardexRepository.save(kardexEntity);
-        log.info("Registered return on sale for product: {}", kardex.getIdProduct());
+        log.info("Registered return on sale for product: {}", kardex.getProductId());
         return kardexEntityMapper.toDomain(savedEntity);
     }
 

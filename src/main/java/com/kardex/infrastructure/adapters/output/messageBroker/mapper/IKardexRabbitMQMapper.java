@@ -1,13 +1,13 @@
-package com.kardex.infrastructure.adapters.input.rest.mapper;
+package com.kardex.infrastructure.adapters.output.messageBroker.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.kardex.domain.model.Kardex;
-import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexDtoRequest;
+import com.kardex.infrastructure.adapters.output.messageBroker.dto.KardexRabbitDto;
 
 @Mapper(componentModel = "spring")
-public interface IKardexRestMapper {
+public interface IKardexRabbitMQMapper {
 
     @Mapping(target = "balanceQuantity", ignore = true)
     @Mapping(target = "balanceUnitPrice", ignore = true)
@@ -15,6 +15,7 @@ public interface IKardexRestMapper {
     @Mapping(target = "date", ignore = true)
     @Mapping(target = "type", ignore = true)
     @Mapping(target = "id", ignore = true)
-    Kardex toDomain(KardexDtoRequest kardexPurchaseDtoRequest);
+    Kardex toDomain(KardexRabbitDto kardexPurchaseDtoRequest);
+
 
 }

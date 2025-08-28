@@ -26,8 +26,8 @@ public class ProductQueryAdapter implements IProductQueryRepositoryPort {
     }
 
     @Override
-    public boolean existsByIdProduct(Long id) {
-        return productRepository.existsByIdProduct(id);
+    public boolean existsByProductId(Long id) {
+        return productRepository.existsByProductId(id);
     }
     
     
