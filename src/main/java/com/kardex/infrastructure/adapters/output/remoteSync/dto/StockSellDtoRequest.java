@@ -1,7 +1,5 @@
 package com.kardex.infrastructure.adapters.output.remoteSync.dto;
 
-import java.math.BigDecimal;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,13 +10,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter @Setter
 @Builder
-public class StockDtoRequest {
+public class StockSellDtoRequest {
 
     private Long productId;
 
     private String enterpriseId;
 
     private int quantity;
-
-    private BigDecimal price;
 }
