@@ -22,10 +22,6 @@ public class RabbitProductConfig {
     // Dead Letter Queue configuration
     public static final String PRODUCT_KARDEX_DLQ = "product.kardex.dlq";
     public static final String PRODUCT_KARDEX_DLX = "product.kardex.dlx";
-    
-    // Retry configuration
-    public static final String PRODUCT_KARDEX_RETRY_QUEUE = "product.kardex.retry.queue";
-    
 
     // Dead Letter Exchange
     @Bean
@@ -33,28 +29,20 @@ public class RabbitProductConfig {
         return new FanoutExchange(PRODUCT_KARDEX_DLX, true, false);
     }
 
-    // Dead Letter Queue
+    // Dead Letter Queue - for domain/business rule violations (no retry)
     @Bean
     Queue productKardexDlq() {
         return QueueBuilder.durable(PRODUCT_KARDEX_DLQ).build();
     }
 
-    // Retry Queue
-    @Bean
-    Queue productKardexRetryQueue() {
-        return QueueBuilder.durable(PRODUCT_KARDEX_RETRY_QUEUE)
-                .withArgument("x-message-ttl", 60000) // 1 minuto TTL
-                .withArgument("x-dead-letter-exchange", PRODUCT_EXCHANGE)
-                .withArgument("x-dead-letter-routing-key", "")
-                .build();
-    }
-
-    // Main Queue with DLQ configuration
+    // Main Queue with DLQ configuration - for product synchronization
     @Bean
     Queue productKardexQueue() {
         return QueueBuilder.durable(PRODUCT_KARDEX_QUEUE)
                 .withArgument("x-dead-letter-exchange", PRODUCT_KARDEX_DLX)
                 .withArgument("x-dead-letter-routing-key", "")
+                // TTL for product events - can be higher as order is less critical
+                .withArgument("x-message-ttl", 600000) // 10 minutes TTL
                 .build();
     }
 
@@ -72,10 +60,4 @@ public class RabbitProductConfig {
     Binding productKardexDlqBinding() {
         return BindingBuilder.bind(productKardexDlq()).to(productKardexDlx());
     }
-
-    @Bean
-    Binding productKardexRetryQueueBinding() {
-        return BindingBuilder.bind(productKardexRetryQueue()).to(productKardexDlx());
-    }
-
 }

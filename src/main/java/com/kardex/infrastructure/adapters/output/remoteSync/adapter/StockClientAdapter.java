@@ -27,4 +27,13 @@ public class StockClientAdapter implements IStockClientPort {
         }
         throw new RuntimeException("Failed to buy stock");
     }
+
+    @Override
+    public void sellStock(Stock stock) {
+        ResponseEntity<ResponseDto<StockDtoResponse>> response = stockClient.sellStock(stockClientMapper.toSellDtoRequest(stock));
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return;
+        }
+        throw new RuntimeException("Failed to sell stock");
+    }
 }

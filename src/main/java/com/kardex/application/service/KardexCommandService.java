@@ -55,7 +55,7 @@ public class KardexCommandService implements IKardexCommandPort{
             .price(kardex.getUnitPrice())
             .build();
 
-        callApiStockService(stock);
+        callApiStockService(stock, true);
 
         return kardexCommandRepositoryPort.registerPurchase(kardex);
     }
@@ -69,6 +69,15 @@ public class KardexCommandService implements IKardexCommandPort{
         }
         kardex.setType(MovementType.SALE);
         kardex.addSale(lastRegisteredKardex.getBalanceQuantity(), lastRegisteredKardex.getBalanceUnitPrice(), lastRegisteredKardex.getTotalBalance());
+
+        Stock stock = Stock.builder()
+            .productId(kardex.getProductId())
+            .quantity(kardex.getQuantity())
+            .price(kardex.getUnitPrice())
+            .build();
+
+        callApiStockService(stock, false);
+
         return kardexCommandRepositoryPort.registerSale(kardex);
     }
 
@@ -85,6 +94,15 @@ public class KardexCommandService implements IKardexCommandPort{
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "No previous kardex found for the product.");
         }
         kardex.returnOnPurchase(lastRegisteredKardex.getBalanceQuantity(), lastRegisteredKardex.getTotalBalance());
+
+        Stock stock = Stock.builder()
+            .productId(kardex.getProductId())
+            .quantity(kardex.getQuantity())
+            .price(kardex.getUnitPrice())
+            .build();
+
+        callApiStockService(stock, false);
+
         return kardexCommandRepositoryPort.registerReturnOnPurchase(kardex);
     }
 
@@ -101,6 +119,15 @@ public class KardexCommandService implements IKardexCommandPort{
         }
 
         kardex.returnOnSale(lastRegisteredKardex.getBalanceQuantity(), lastRegisteredKardex.getBalanceUnitPrice(), lastRegisteredKardex.getTotalBalance());
+
+        Stock stock = Stock.builder()
+            .productId(kardex.getProductId())
+            .quantity(kardex.getQuantity())
+            .price(kardex.getUnitPrice())
+            .build();
+
+        callApiStockService(stock, true);
+
         return kardexCommandRepositoryPort.registerReturnOnSale(kardex);
     }
 
@@ -128,12 +155,16 @@ public class KardexCommandService implements IKardexCommandPort{
         }
     }
 
-    private void callApiStockService(Stock stock) {
+    private void callApiStockService(Stock stock, boolean isBuy) {
         try {
-            stockClient.buyStock(stock);
-            log.info("Stock purchase request sent successfully.");
+            if (isBuy) {
+                stockClient.buyStock(stock);
+            } else {
+                stockClient.sellStock(stock);
+            }
+            log.info("Stock {} request sent successfully.", isBuy ? "purchase" : "sale");
         } catch (Exception e) {
-            log.error("Error sending stock purchase request: {}", e.getMessage());
+            log.error("Error sending stock {} request: {}", isBuy ? "purchase" : "sale", e.getMessage());
         }
     }
 }

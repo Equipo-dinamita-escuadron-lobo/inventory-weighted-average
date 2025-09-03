@@ -4,4 +4,5 @@ import com.kardex.domain.model.Stock;
 
 public interface IStockClientPort {
     void buyStock(Stock stock);
+    void sellStock(Stock stock);
 }
