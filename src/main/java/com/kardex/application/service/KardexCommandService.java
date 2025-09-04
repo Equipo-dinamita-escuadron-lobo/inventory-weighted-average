@@ -142,7 +142,7 @@ public class KardexCommandService implements IKardexCommandPort{
 
         // The sum of the rest of the list cannot exceed this quantity
         int totalReturnQuantity = kardexList.stream().skip(1).mapToInt(Kardex::getQuantity).sum() + quantity;
-        if (totalReturnQuantity < initialInvoceQuantity) {
+        if (totalReturnQuantity <= initialInvoceQuantity) {
             return unitPrice;
         }
         formatterResultOutputPort.returnBusinessRuleErrorResponse(400, "The quantity refunded exceeds the original quantity on the invoice.");
