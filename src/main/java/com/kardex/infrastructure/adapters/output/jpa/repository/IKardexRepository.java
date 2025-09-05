@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.kardex.domain.model.MovementType;
 import com.kardex.infrastructure.adapters.output.jpa.entity.KardexEntity;
 
 public interface IKardexRepository extends JpaRepository<KardexEntity, Long> {
@@ -25,7 +26,10 @@ public interface IKardexRepository extends JpaRepository<KardexEntity, Long> {
         Pageable pageable
     );
 
-    // Find all Kardex entries by fact code and product ID
-    List<KardexEntity> findByFactCodeAndProductId(Long factCode, Long productId);
+    // Find all Kardex entries by fact code, product ID and movement type
+    List<KardexEntity> findByFactCodeAndProductIdAndType(Long factCode, Long productId, MovementType type);
+
+    // Check if exists by fact code, product ID and movement type
+    boolean existsByFactCodeAndProductIdAndType(Long factCode, Long productId, MovementType type);
 
 }

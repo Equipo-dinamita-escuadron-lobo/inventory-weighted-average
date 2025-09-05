@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.kardex.domain.model.Kardex;
+import com.kardex.domain.model.MovementType;
 import com.kardex.domain.port.IKardexQueryRepositoryPort;
 import com.kardex.infrastructure.adapters.output.jpa.entity.KardexEntity;
 import com.kardex.infrastructure.adapters.output.jpa.mapper.IKardexEntityQueryMapper;
@@ -39,8 +40,8 @@ public class KardexQueryAdapter implements IKardexQueryRepositoryPort {
     }
 
     @Override
-    public List<Kardex> findByFactCodeAndProductId(Long factCode, Long productId) {
-        List<KardexEntity> kardexEntities = kardexRepository.findByFactCodeAndProductId(factCode, productId);
+    public List<Kardex> findByFactCodeAndProductIdAndType(Long factCode, Long productId, MovementType type) {
+        List<KardexEntity> kardexEntities = kardexRepository.findByFactCodeAndProductIdAndType(factCode, productId, type);
         return kardexEntityMapper.toDomainList(kardexEntities);
     }
 
@@ -48,6 +49,11 @@ public class KardexQueryAdapter implements IKardexQueryRepositoryPort {
     public Kardex getLatestKardexByProductId(Long productId) {
         KardexEntity kardexEntity = kardexRepository.findTopByProductIdOrderByDateDesc(productId);
         return kardexEntity != null ? kardexEntityMapper.toDomain(kardexEntity) : null;
+    }
+
+    @Override
+    public boolean existsByFactCodeAndProductIdAndType(Long factCode, Long productId, MovementType type) {
+        return kardexRepository.existsByFactCodeAndProductIdAndType(factCode, productId, type);
     }
     
 }
