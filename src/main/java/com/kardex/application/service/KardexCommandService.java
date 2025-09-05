@@ -33,6 +33,8 @@ public class KardexCommandService implements IKardexCommandPort{
     @Override
     public Kardex registerPurchase(Kardex kardex) {
         existsProductById(kardex.getProductId());
+        validateBusinessRules(kardex.getFactCode(), kardex.getProductId(), MovementType.PURCHASE);
+        
         Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
         kardex.setType(MovementType.PURCHASE);
         if (lastRegisteredKardex == null) {
@@ -63,6 +65,8 @@ public class KardexCommandService implements IKardexCommandPort{
     @Override
     public Kardex registerSale(Kardex kardex) {
         existsProductById(kardex.getProductId());
+        validateBusinessRules(kardex.getFactCode(), kardex.getProductId(), MovementType.SALE);
+        
         Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
         if (lastRegisteredKardex == null) {
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "No previous kardex found for the product.");
@@ -85,7 +89,7 @@ public class KardexCommandService implements IKardexCommandPort{
     @Override
     public Kardex registerReturnOnPurchase(Kardex kardex) {
         existsProductById(kardex.getProductId());
-        BigDecimal unitPrice = getUnitPriceIfReturnAllowed(kardex.getFactCode(), kardex.getQuantity(), kardex.getProductId());
+        BigDecimal unitPrice = getUnitPriceIfReturnAllowed(kardex.getFactCode(), kardex.getQuantity(), kardex.getProductId(), MovementType.PURCHASE);
         kardex.setUnitPrice(unitPrice);
         Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
         kardex.setType(MovementType.PURCHASERETURN);
@@ -109,7 +113,7 @@ public class KardexCommandService implements IKardexCommandPort{
     @Override
     public Kardex registerReturnOnSale(Kardex kardex) {
         existsProductById(kardex.getProductId());
-        BigDecimal unitPrice = getUnitPriceIfReturnAllowed(kardex.getFactCode(), kardex.getQuantity(), kardex.getProductId());
+        BigDecimal unitPrice = getUnitPriceIfReturnAllowed(kardex.getFactCode(), kardex.getQuantity(), kardex.getProductId(), MovementType.SALE);
         kardex.setUnitPrice(unitPrice);
         Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
         kardex.setType(MovementType.SALESRETURN);
@@ -131,22 +135,44 @@ public class KardexCommandService implements IKardexCommandPort{
         return kardexCommandRepositoryPort.registerReturnOnSale(kardex);
     }
 
-    private BigDecimal getUnitPriceIfReturnAllowed(Long factCode, int quantity, Long productId) {
-        List<Kardex> kardexList = kardexQueryRepositoryPort.findByFactCodeAndProductId(factCode, productId);
-        if (kardexList.isEmpty()) {
-            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "No kardex found for the provided fact code.");
+    private BigDecimal getUnitPriceIfReturnAllowed(Long factCode, int quantity, Long productId, MovementType originalMovementType) {
+        // Buscar específicamente por el tipo de movimiento original
+        List<Kardex> originalKardexList = kardexQueryRepositoryPort.findByFactCodeAndProductIdAndType(factCode, productId, originalMovementType);
+        if (originalKardexList.isEmpty()) {
+            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
+                String.format("No se encontró un registro de %s para el factCode y productId proporcionados.", 
+                    originalMovementType.getDescription()));
         }
 
-        int initialInvoceQuantity = kardexList.get(0).getQuantity();
-        BigDecimal unitPrice = kardexList.get(0).getUnitPrice();
+        // El primer registro debe ser la operación original
+        Kardex originalKardex = originalKardexList.get(0);
+        int initialInvoiceQuantity = originalKardex.getQuantity();
+        BigDecimal unitPrice = originalKardex.getUnitPrice();
 
-        // The sum of the rest of the list cannot exceed this quantity
-        int totalReturnQuantity = kardexList.stream().skip(1).mapToInt(Kardex::getQuantity).sum() + quantity;
-        if (totalReturnQuantity <= initialInvoceQuantity) {
+        // Ahora buscar todas las devoluciones previas de este mismo factCode y productId
+        MovementType returnType = getReturnType(originalMovementType);
+        List<Kardex> returnKardexList = kardexQueryRepositoryPort.findByFactCodeAndProductIdAndType(factCode, productId, returnType);
+        
+        // Calcular el total de devoluciones previas más la cantidad actual
+        int totalReturnQuantity = returnKardexList.stream().mapToInt(Kardex::getQuantity).sum() + quantity;
+        
+        if (totalReturnQuantity <= initialInvoiceQuantity) {
             return unitPrice;
         }
-        formatterResultOutputPort.returnBusinessRuleErrorResponse(400, "The quantity refunded exceeds the original quantity on the invoice.");
+        formatterResultOutputPort.returnBusinessRuleErrorResponse(400, 
+            "La cantidad devuelta excede la cantidad original en la factura.");
         return BigDecimal.ZERO;
+    }
+
+    private MovementType getReturnType(MovementType originalType) {
+        switch (originalType) {
+            case PURCHASE:
+                return MovementType.PURCHASERETURN;
+            case SALE:
+                return MovementType.SALESRETURN;
+            default:
+                throw new IllegalArgumentException("Tipo de movimiento no válido para devolución: " + originalType);
+        }
     }
 
     private void existsProductById(Long productId) {
@@ -165,6 +191,19 @@ public class KardexCommandService implements IKardexCommandPort{
             log.info("Stock {} request sent successfully.", isBuy ? "purchase" : "sale");
         } catch (Exception e) {
             log.error("Error sending stock {} request: {}", isBuy ? "purchase" : "sale", e.getMessage());
+        }
+    }
+
+    private void validateBusinessRules(Long factCode, Long productId, MovementType movementType) {
+        // Verificar si ya existe el mismo factCode, productId y tipo de movimiento
+        boolean exists = kardexQueryRepositoryPort.existsByFactCodeAndProductIdAndType(factCode, productId, movementType);
+        
+        if (exists) {
+            String movementDescription = movementType.getDescription();
+            formatterResultOutputPort.returnBusinessRuleErrorResponse(400, 
+                String.format("Ya existe un registro de %s con factCode=%d y productId=%d. " +
+                    "No se permite registrar el mismo factCode y productId con el mismo tipo de movimiento.", 
+                    movementDescription, factCode, productId));
         }
     }
 }
