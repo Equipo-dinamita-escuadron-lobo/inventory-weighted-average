@@ -16,8 +16,6 @@ public class StockBuyDtoRequest {
 
     private Long productId;
 
-    private String enterpriseId;
-
     private int quantity;
 
     private BigDecimal price;

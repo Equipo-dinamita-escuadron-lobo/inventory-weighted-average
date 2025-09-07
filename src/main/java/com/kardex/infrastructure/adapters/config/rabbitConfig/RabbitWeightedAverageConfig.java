@@ -1,4 +1,4 @@
-package com.kardex.infrastructure.adapters.config;
+package com.kardex.infrastructure.adapters.config.rabbitConfig;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;

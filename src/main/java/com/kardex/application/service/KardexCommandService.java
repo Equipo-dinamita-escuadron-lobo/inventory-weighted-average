@@ -14,6 +14,8 @@ import com.kardex.domain.port.IKardexCommandRepositoryPort;
 import com.kardex.domain.port.IKardexQueryRepositoryPort;
 import com.kardex.domain.port.IProductQueryRepositoryPort;
 import com.kardex.domain.port.IStockClientPort;
+import com.kardex.infrastructure.adapters.config.i18n.MessageKeys;
+import com.kardex.infrastructure.adapters.config.i18n.MessageService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +26,13 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 @Slf4j
 public class KardexCommandService implements IKardexCommandPort{
+    
     private final IKardexCommandRepositoryPort kardexCommandRepositoryPort;
     private final IKardexQueryRepositoryPort kardexQueryRepositoryPort;
     private final IFormatterResultOutputPort formatterResultOutputPort;
     private final IProductQueryRepositoryPort productQueryRepositoryPort;
     private final IStockClientPort stockClient;
+    private final MessageService messageService;
 
     @Override
     public Kardex registerPurchase(Kardex kardex) {
@@ -47,16 +51,12 @@ public class KardexCommandService implements IKardexCommandPort{
             kardex.addPurchase(lastRegisteredKardex.getBalanceQuantity(), lastRegisteredKardex.getTotalBalance());
         }
         
-        if(kardex.getBalanceUnitPrice() == BigDecimal.ZERO) {
-            formatterResultOutputPort.returnBusinessRuleErrorResponse(400, "The balance unit price must be greater than zero.");
+        if(kardex.getBalanceUnitPrice().compareTo(BigDecimal.ZERO) == 0) {
+            formatterResultOutputPort.returnBusinessRuleErrorResponse(400, 
+                messageService.getMessage(MessageKeys.ERROR_BALANCE_UNIT_PRICE_ZERO));
         }
 
-        Stock stock= Stock.builder()
-            .productId(kardex.getProductId())
-            .quantity(kardex.getQuantity())
-            .price(kardex.getUnitPrice())
-            .build();
-
+        Stock stock = createStock(kardex);
         callApiStockService(stock, true);
 
         return kardexCommandRepositoryPort.registerPurchase(kardex);
@@ -68,18 +68,12 @@ public class KardexCommandService implements IKardexCommandPort{
         validateBusinessRules(kardex.getFactCode(), kardex.getProductId(), MovementType.SALE);
         
         Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
-        if (lastRegisteredKardex == null) {
-            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "No previous kardex found for the product.");
-        }
+        validatePreviousKardexExists(lastRegisteredKardex, "sale");
+        
         kardex.setType(MovementType.SALE);
         kardex.addSale(lastRegisteredKardex.getBalanceQuantity(), lastRegisteredKardex.getBalanceUnitPrice(), lastRegisteredKardex.getTotalBalance());
 
-        Stock stock = Stock.builder()
-            .productId(kardex.getProductId())
-            .quantity(kardex.getQuantity())
-            .price(kardex.getUnitPrice())
-            .build();
-
+        Stock stock = createStock(kardex);
         callApiStockService(stock, false);
 
         return kardexCommandRepositoryPort.registerSale(kardex);
@@ -94,17 +88,10 @@ public class KardexCommandService implements IKardexCommandPort{
         Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
         kardex.setType(MovementType.PURCHASERETURN);
 
-        if (lastRegisteredKardex == null) {
-            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "No previous kardex found for the product.");
-        }
+        validatePreviousKardexExists(lastRegisteredKardex, "purchase return");
         kardex.returnOnPurchase(lastRegisteredKardex.getBalanceQuantity(), lastRegisteredKardex.getTotalBalance());
 
-        Stock stock = Stock.builder()
-            .productId(kardex.getProductId())
-            .quantity(kardex.getQuantity())
-            .price(kardex.getUnitPrice())
-            .build();
-
+        Stock stock = createStock(kardex);
         callApiStockService(stock, false);
 
         return kardexCommandRepositoryPort.registerReturnOnPurchase(kardex);
@@ -118,21 +105,35 @@ public class KardexCommandService implements IKardexCommandPort{
         Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
         kardex.setType(MovementType.SALESRETURN);
 
-        if (lastRegisteredKardex == null) {
-            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "No previous kardex found for the product.");
-        }
+        validatePreviousKardexExists(lastRegisteredKardex, "sale return");
 
         kardex.returnOnSale(lastRegisteredKardex.getBalanceQuantity(), lastRegisteredKardex.getBalanceUnitPrice(), lastRegisteredKardex.getTotalBalance());
 
-        Stock stock = Stock.builder()
-            .productId(kardex.getProductId())
-            .quantity(kardex.getQuantity())
-            .price(kardex.getUnitPrice())
-            .build();
-
+        Stock stock = createStock(kardex);
         callApiStockService(stock, true);
 
         return kardexCommandRepositoryPort.registerReturnOnSale(kardex);
+    }
+
+    /**
+     * Crea un objeto Stock basado en los datos del Kardex
+     */
+    private Stock createStock(Kardex kardex) {
+        return Stock.builder()
+            .productId(kardex.getProductId())
+            .quantity(kardex.getQuantity())
+            .price(kardex.getBalanceUnitPrice())
+            .build();
+    }
+
+    /**
+     * Valida que el Kardex anterior exista para operaciones que lo requieren
+     */
+    private void validatePreviousKardexExists(Kardex lastRegisteredKardex, String operation) {
+        if (lastRegisteredKardex == null) {
+            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
+                messageService.getMessage(MessageKeys.ERROR_NO_PREVIOUS_KARDEX, operation));
+        }
     }
 
     private BigDecimal getUnitPriceIfReturnAllowed(Long factCode, int quantity, Long productId, MovementType originalMovementType) {
@@ -140,8 +141,7 @@ public class KardexCommandService implements IKardexCommandPort{
         List<Kardex> originalKardexList = kardexQueryRepositoryPort.findByFactCodeAndProductIdAndType(factCode, productId, originalMovementType);
         if (originalKardexList.isEmpty()) {
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
-                String.format("No se encontró un registro de %s para el factCode y productId proporcionados.", 
-                    originalMovementType.getDescription()));
+                messageService.getMessage(MessageKeys.ERROR_NO_ORIGINAL_MOVEMENT, originalMovementType.getDescription()));
         }
 
         // El primer registro debe ser la operación original
@@ -160,7 +160,7 @@ public class KardexCommandService implements IKardexCommandPort{
             return unitPrice;
         }
         formatterResultOutputPort.returnBusinessRuleErrorResponse(400, 
-            "La cantidad devuelta excede la cantidad original en la factura.");
+            messageService.getMessage(MessageKeys.ERROR_RETURN_QUANTITY_EXCEEDED));
         return BigDecimal.ZERO;
     }
 
@@ -171,13 +171,15 @@ public class KardexCommandService implements IKardexCommandPort{
             case SALE:
                 return MovementType.SALESRETURN;
             default:
-                throw new IllegalArgumentException("Tipo de movimiento no válido para devolución: " + originalType);
+                throw new IllegalArgumentException(
+                    messageService.getMessage(MessageKeys.ERROR_INVALID_MOVEMENT_TYPE, originalType));
         }
     }
 
     private void existsProductById(Long productId) {
         if (!productQueryRepositoryPort.existsByProductId(productId)) {
-            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "Product not found.");
+            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
+                messageService.getMessage(MessageKeys.ERROR_PRODUCT_NOT_FOUND));
         }
     }
 
@@ -188,9 +190,11 @@ public class KardexCommandService implements IKardexCommandPort{
             } else {
                 stockClient.sellStock(stock);
             }
-            log.info("Stock {} request sent successfully.", isBuy ? "purchase" : "sale");
+            log.info(messageService.getMessage(MessageKeys.LOG_STOCK_REQUEST_SUCCESS, 
+                isBuy ? "purchase" : "sale"));
         } catch (Exception e) {
-            log.error("Error sending stock {} request: {}", isBuy ? "purchase" : "sale", e.getMessage());
+            log.error(messageService.getMessage(MessageKeys.LOG_STOCK_REQUEST_ERROR, 
+                isBuy ? "purchase" : "sale", e.getMessage()));
         }
     }
 
@@ -201,8 +205,7 @@ public class KardexCommandService implements IKardexCommandPort{
         if (exists) {
             String movementDescription = movementType.getDescription();
             formatterResultOutputPort.returnBusinessRuleErrorResponse(400, 
-                String.format("Ya existe un registro de %s con factCode=%d y productId=%d. " +
-                    "No se permite registrar el mismo factCode y productId con el mismo tipo de movimiento.", 
+                messageService.getMessage(MessageKeys.ERROR_DUPLICATE_MOVEMENT, 
                     movementDescription, factCode, productId));
         }
     }

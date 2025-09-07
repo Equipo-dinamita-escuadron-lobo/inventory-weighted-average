@@ -1,4 +1,4 @@
-package com.kardex.infrastructure.adapters.config;
+package com.kardex.infrastructure.adapters.config.rabbitConfig;
 
 import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.context.annotation.Bean;

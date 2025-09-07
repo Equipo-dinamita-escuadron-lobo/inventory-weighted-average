@@ -14,7 +14,5 @@ public class StockSellDtoRequest {
 
     private Long productId;
 
-    private String enterpriseId;
-
     private int quantity;
 }

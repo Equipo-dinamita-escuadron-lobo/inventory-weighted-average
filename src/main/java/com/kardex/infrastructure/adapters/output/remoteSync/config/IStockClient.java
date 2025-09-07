@@ -14,5 +14,6 @@ public interface IStockClient {
     @PutExchange("/api/stock/buy")
     ResponseEntity<ResponseDto<StockDtoResponse>> buyStock(@RequestBody StockBuyDtoRequest stockDtoRequest);
 
+    @PutExchange("/api/stock/sell")
     ResponseEntity<ResponseDto<StockDtoResponse>> sellStock(@RequestBody StockSellDtoRequest stockDtoRequest);
 }

@@ -9,14 +9,18 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
-import com.kardex.infrastructure.adapters.output.messageBroker.aspect.JwtRabbitUtils;
+import com.kardex.infrastructure.adapters.output.messageBroker.aspect.JwtTokenService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableConfigurationProperties(ClientProperties.class)
+@RequiredArgsConstructor
 @Slf4j
 public class ClientConfig {
+    
+    private final JwtTokenService jwtTokenService;
     
     /**
      * Método factory privado y genérico para crear cualquier cliente proxy.
@@ -56,21 +60,30 @@ public class ClientConfig {
         return createWebClientProxy(webClientBuilder, baseUrl, IProductClient.class);
     }
 
+    /**
+     * Filtro para propagar el token JWT en las peticiones HTTP.
+     * Funciona tanto para contexto HTTP como para contexto RabbitMQ.
+     */
     private ExchangeFilterFunction jwtPropagationFilter() {
         return (clientRequest, next) -> {
-            if (JwtRabbitUtils.getJwtToken() != null) {
-                final String tokenValue = JwtRabbitUtils.getJwtToken();
-                log.debug("Using JWT token from custom context");
+            try {
+                String tokenValue = jwtTokenService.getToken();
+                
+                // Remover prefijo "Bearer " si ya existe en el token
+                final String finalTokenValue = tokenValue.startsWith("Bearer ") 
+                    ? tokenValue.substring(7) 
+                    : tokenValue;
                 
                 ClientRequest newRequest = ClientRequest.from(clientRequest)
-                        .headers(headers -> headers.setBearerAuth(tokenValue))
+                        .headers(headers -> headers.setBearerAuth(finalTokenValue))
                         .build();
 
                 return next.exchange(newRequest);
+                
+            } catch (Exception e) {
+                log.error("Error al obtener token JWT para propagación: {}", e.getMessage());
+                throw new IllegalStateException("No JWT token available for propagation", e);
             }
-            
-            log.debug("No JWT token available for propagation");
-            return next.exchange(clientRequest);
         };
     }
 }
