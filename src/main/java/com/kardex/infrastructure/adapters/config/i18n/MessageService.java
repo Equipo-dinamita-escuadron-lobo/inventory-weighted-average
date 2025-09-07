@@ -4,6 +4,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.kardex.domain.port.IMessageServicePort;
+
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -12,7 +14,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Service
 @RequiredArgsConstructor
-public class MessageService {
+public class MessageService implements IMessageServicePort {
     
     private final MessageSource messageSource;
 
@@ -22,6 +24,7 @@ public class MessageService {
      * @param args argumentos para formatear el mensaje
      * @return el mensaje formateado
      */
+    @Override
     public String getMessage(String key, Object... args) {
         return messageSource.getMessage(key, args, LocaleContextHolder.getLocale());
     }
@@ -33,6 +36,7 @@ public class MessageService {
      * @param args argumentos para formatear el mensaje
      * @return el mensaje formateado o el mensaje por defecto
      */
+    @Override
     public String getMessage(String key, String defaultMessage, Object... args) {
         return messageSource.getMessage(key, args, defaultMessage, LocaleContextHolder.getLocale());
     }
