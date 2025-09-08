@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.kardex.application.ports.input.IKardexCommandPort;
 import com.kardex.domain.model.Kardex;
-import com.kardex.infrastructure.adapters.config.RabbitWeightedAverageConfig;
+import com.kardex.infrastructure.adapters.config.rabbitConfig.RabbitWeightedAverageConfig;
 import com.kardex.infrastructure.adapters.output.messageBroker.base.AbstractMessageListener;
 import com.kardex.infrastructure.adapters.output.messageBroker.dto.EventDto;
 import com.kardex.infrastructure.adapters.output.messageBroker.dto.KardexRabbitDto;

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.kardex.domain.model.Product;
 import com.kardex.domain.port.IProductCommandRepositoryPort;
-import com.kardex.infrastructure.adapters.config.RabbitProductConfig;
+import com.kardex.infrastructure.adapters.config.rabbitConfig.RabbitProductConfig;
 import com.kardex.infrastructure.adapters.output.messageBroker.base.AbstractMessageListener;
 import com.kardex.infrastructure.adapters.output.messageBroker.dto.EventDto;
 import com.kardex.infrastructure.adapters.output.messageBroker.dto.ProductAsyncDto;

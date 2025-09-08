@@ -17,18 +17,18 @@ import lombok.Setter;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 public class KardexDtoRequest {
-    @NotNull(message = "The field 'quantity' cannot be null")
-    @Positive(message = "The quantity must be positive")
+    @NotNull(message = "{kardex.validation.quantity.notnull}")
+    @Positive(message = "{kardex.validation.quantity.positive}")
     private Long quantity;
 
-    @NotNull(message = "The field 'factCode' cannot be null")
-    @Positive(message = "The factCode must be positive")
+    @NotNull(message = "{kardex.validation.factcode.notnull}")
+    @Positive(message = "{kardex.validation.factcode.positive}")
     private Long factCode;
 
     private BigDecimal unitPrice;
 
-    @NotNull(message = "The field 'productId' cannot be null")
-    @Positive(message = "The productId must be positive")
+    @NotNull(message = "{kardex.validation.productid.notnull}")
+    @Positive(message = "{kardex.validation.productid.positive}")
     private Long productId;
 
     private String details;

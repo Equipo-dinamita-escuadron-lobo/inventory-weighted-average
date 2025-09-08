@@ -124,4 +124,14 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
         return (String) jwtToken.getClaims().get("sub");
     }
 
+    /**
+     * Devuelve el valor del token JWT como una cadena de texto.
+     * 
+     * @return el token JWT como una cadena de texto
+     */
+    @Override
+    public String getToken() {
+        return jwtToken.getTokenValue();
+    }
+
 }

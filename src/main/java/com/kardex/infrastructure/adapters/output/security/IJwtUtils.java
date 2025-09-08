@@ -4,4 +4,6 @@ public interface IJwtUtils {
     
     String getId();
     
+    String getToken();
+    
 } 
