@@ -33,9 +33,14 @@ jwt:
       principle-attribute: ${JWT_PRINCIPAL_ATTR:preferred_username}
       resource-id: ${JWT_RESOURCE_ID:microservices_client}
 
-
 eureka:
   client:
     enabled: false 
 server:
   port: 0
+
+services:
+    stock:
+      base-url: ${lb://STOCK}
+    products:
+      base-url: ${lb://PRODUCTS}

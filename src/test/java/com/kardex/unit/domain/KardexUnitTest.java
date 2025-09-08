@@ -128,6 +128,7 @@ public class KardexUnitTest {
         int lastQuantity = 20; // To make the resulting balance zero
         BigDecimal lastUnitPrice = new BigDecimal("15.00");
         BigDecimal lastTotalBalance = new BigDecimal("300.00");
+        kardex.setType(MovementType.SALE);
         
         // Act
         kardex.addSale(lastQuantity, lastUnitPrice, lastTotalBalance);

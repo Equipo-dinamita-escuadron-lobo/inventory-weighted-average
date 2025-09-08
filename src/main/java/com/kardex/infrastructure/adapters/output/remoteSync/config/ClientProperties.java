@@ -31,10 +31,10 @@ public class ClientProperties {
         log.info("Products base URL: {}", products.getBaseUrl());
         
         if (stock.getBaseUrl() == null || stock.getBaseUrl().trim().isEmpty()) {
-            throw new IllegalStateException("Stock base URL not configured. Expected 'app.clients.stock.base-url'");
+            throw new IllegalStateException("Stock base URL not configured. Expected 'services.stock.base-url'");
         }
         if (products.getBaseUrl() == null || products.getBaseUrl().trim().isEmpty()) {
-            throw new IllegalStateException("Products base URL not configured. Expected 'app.clients.products.base-url'");
+            throw new IllegalStateException("Products base URL not configured. Expected 'services.products.base-url'");
         }
         
         log.info("Client properties validated successfully");
