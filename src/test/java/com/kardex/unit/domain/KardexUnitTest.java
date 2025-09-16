@@ -257,7 +257,7 @@ public class KardexUnitTest {
     void testUpdateDetailIfNotNull() {
         // Arrange
         kardex.setType(MovementType.SALE);
-        kardex.setFactCode(500L);
+        kardex.setFactCode("500");
         kardex.setDetails("Venta - Factura: 500");
 
         // Act
@@ -272,7 +272,7 @@ public class KardexUnitTest {
     void testUpdateDetailIfNull() {
         // Arrange
         kardex.setType(MovementType.SALE);
-        kardex.setFactCode(500L);
+        kardex.setFactCode("500");
         kardex.setDetails(null);
 
         // Act
@@ -287,7 +287,7 @@ public class KardexUnitTest {
     void testUpdateDetailIfEmpty() {
         // Arrange
         kardex.setType(MovementType.SALE);
-        kardex.setFactCode(500L);
+        kardex.setFactCode("500");
         kardex.setDetails("");
 
         // Act

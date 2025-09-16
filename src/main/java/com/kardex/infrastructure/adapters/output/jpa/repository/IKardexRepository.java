@@ -27,9 +27,9 @@ public interface IKardexRepository extends JpaRepository<KardexEntity, Long> {
     );
 
     // Find all Kardex entries by fact code, product ID and movement type
-    List<KardexEntity> findByFactCodeAndProductIdAndType(Long factCode, Long productId, MovementType type);
+    List<KardexEntity> findByFactCodeAndProductIdAndType(String factCode, Long productId, MovementType type);
 
     // Check if exists by fact code, product ID and movement type
-    boolean existsByFactCodeAndProductIdAndType(Long factCode, Long productId, MovementType type);
+    boolean existsByFactCodeAndProductIdAndType(String factCode, Long productId, MovementType type);
 
 }

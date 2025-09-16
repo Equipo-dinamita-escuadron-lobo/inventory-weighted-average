@@ -2,8 +2,11 @@ package com.kardex.domain.model;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Date;
+import java.util.Random;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +18,7 @@ import lombok.Setter;
 public class Kardex {
     private Long id;
 
-    private Long factCode;
+    private String factCode;
 
     private int quantity;
 
@@ -62,6 +65,7 @@ public class Kardex {
         this.balanceUnitPrice = this.totalBalance.divide(totalQuantityBigDecimal, 2, RoundingMode.HALF_UP);
         this.addDate();
         this.updateDetailIfNotNull();
+        this.factCode = generateAdjustmentFactCode();
     }
 
     public void addSale(int lastQuantity, BigDecimal lastUnitPrice, BigDecimal lastTotalBalance) {
@@ -89,6 +93,7 @@ public class Kardex {
         this.totalBalance = lastTotalBalance.subtract(this.unitPrice.multiply(BigDecimal.valueOf(this.quantity)) );
         this.addDate();
         this.updateDetailIfNotNull();   
+        this.factCode = generateAdjustmentFactCode();
     }
 
     public void returnOnSale(int lastQuantity, BigDecimal lastUnitPrice, BigDecimal lastTotalBalance) {
@@ -146,8 +151,22 @@ public class Kardex {
     public void updateDetailIfNotNull() {
         if (this.details == null || this.details.isEmpty()) {
             // Formar el detalle con el tipo de movimiento y el código.  Venta - Factura: 500
-            this.details = String.format("%s - Factura: %d", this.type.getDescription(), this.factCode);
+            this.details = String.format("%s - Factura: %s", this.type.getDescription(), this.factCode);
         }
     }
+
+    /*Cuando el de factura es 0 es un ajuste de inventario entonces el factCode se genera un codigo de la siguiente manera:
+        AYYMMDDHHMMSS(letra aleatoria) ejmplo A240614153045X
+    */
+    private String generateAdjustmentFactCode() {
+        if (this.factCode != null && !this.factCode.isEmpty() && !this.factCode.equals("0")) {
+            return this.factCode; // Si ya tiene un código válido, lo retorna
+        }
+        String timestamp = new SimpleDateFormat("yyMMddHHmmss").format(new Date());
+        char randomLetter = (char) ('A' + new Random().nextInt(26));
+        return String.format("%c%s", randomLetter, timestamp);
+    }
+
+    
 
 }

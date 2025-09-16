@@ -16,7 +16,7 @@ import lombok.Setter;
  */
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
-public class KardexDtoRequest {
+public class KardexPurchaseDtoRequest {
     @NotNull(message = "{kardex.validation.quantity.notnull}")
     @Positive(message = "{kardex.validation.quantity.positive}")
     private Long quantity;
@@ -25,6 +25,8 @@ public class KardexDtoRequest {
     @Positive(message = "{kardex.validation.factcode.positive}")
     private Long factCode;
 
+    @NotNull(message = "{kardex.validation.unitprice.notnull}")
+    @Positive(message = "{kardex.validation.unitprice.positive}")
     private BigDecimal unitPrice;
 
     @NotNull(message = "{kardex.validation.productid.notnull}")
