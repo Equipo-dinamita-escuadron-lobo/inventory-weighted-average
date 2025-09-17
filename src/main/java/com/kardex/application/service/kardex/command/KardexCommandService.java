@@ -48,8 +48,7 @@ public class KardexCommandService implements IKardexCommandPort{
             kardex.setBalanceQuantity(kardex.getQuantity());
             kardex.setBalanceUnitPrice(kardex.getUnitPrice());
             kardex.setTotalBalance(kardex.getUnitPrice().multiply(BigDecimal.valueOf(kardex.getQuantity())));
-            kardex.addDate();
-            kardex.updateDetailIfNotNull();
+            kardex.finalizeKardexEntry();
         } else {
             kardex.addPurchase(lastRegisteredKardex.getBalanceQuantity(), lastRegisteredKardex.getTotalBalance());
         }

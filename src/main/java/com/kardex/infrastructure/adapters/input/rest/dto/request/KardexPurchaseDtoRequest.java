@@ -21,10 +21,6 @@ public class KardexPurchaseDtoRequest {
     @Positive(message = "{kardex.validation.quantity.positive}")
     private Long quantity;
 
-    @NotNull(message = "{kardex.validation.factcode.notnull}")
-    @Positive(message = "{kardex.validation.factcode.positive}")
-    private Long factCode;
-
     @NotNull(message = "{kardex.validation.unitprice.notnull}")
     @Positive(message = "{kardex.validation.unitprice.positive}")
     private BigDecimal unitPrice;

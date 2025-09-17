@@ -18,10 +18,6 @@ public class KardexSaleDtoRequest {
     @Positive(message = "{kardex.validation.quantity.positive}")
     private Long quantity;
 
-    @NotNull(message = "{kardex.validation.factcode.notnull}")
-    @Positive(message = "{kardex.validation.factcode.positive}")
-    private Long factCode;
-
     @NotNull(message = "{kardex.validation.productid.notnull}")
     @Positive(message = "{kardex.validation.productid.positive}")
     private Long productId;

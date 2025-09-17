@@ -38,7 +38,16 @@ public class Kardex {
 
     private BigDecimal totalBalance;
 
-    public void addDate(){
+    /**
+     * Finaliza la entrada del kardex agregando fecha, actualizando detalles y generando código de factura si es necesario
+     */
+    public void finalizeKardexEntry() {
+        addDate();
+        updateDetailIfNotNull();
+        generateAdjustmentFactCode();
+    }
+
+    private void addDate(){
         this.date = ZonedDateTime.now(ZoneId.of("America/Bogota"));
     }
 
@@ -63,9 +72,7 @@ public class Kardex {
         
         // 5. Divide el valor total entre la cantidad total para el promedio ponderado
         this.balanceUnitPrice = this.totalBalance.divide(totalQuantityBigDecimal, 2, RoundingMode.HALF_UP);
-        this.addDate();
-        this.updateDetailIfNotNull();
-        this.factCode = generateAdjustmentFactCode();
+        finalizeKardexEntry();
     }
 
     public void addSale(int lastQuantity, BigDecimal lastUnitPrice, BigDecimal lastTotalBalance) {
@@ -78,8 +85,7 @@ public class Kardex {
         }
         if (this.balanceQuantity == 0) {
             resetBalancesIfZero();
-            this.addDate();
-            this.updateDetailIfNotNull(); 
+            finalizeKardexEntry(); 
             return;
         }
         
@@ -91,9 +97,7 @@ public class Kardex {
 
         // 4. Calcula el valor total
         this.totalBalance = lastTotalBalance.subtract(this.unitPrice.multiply(BigDecimal.valueOf(this.quantity)) );
-        this.addDate();
-        this.updateDetailIfNotNull();   
-        this.factCode = generateAdjustmentFactCode();
+        finalizeKardexEntry();
     }
 
     public void returnOnSale(int lastQuantity, BigDecimal lastUnitPrice, BigDecimal lastTotalBalance) {
@@ -110,8 +114,7 @@ public class Kardex {
         
         // 3. se calcula el nuevo precio unitario
         this.balanceUnitPrice = this.totalBalance.divide(BigDecimal.valueOf(this.balanceQuantity), 2, RoundingMode.HALF_UP);
-        this.addDate();
-        this.updateDetailIfNotNull();      
+        finalizeKardexEntry();      
     }
 
     public void returnOnPurchase(int lastQuantity, BigDecimal lastTotalBalance) {
@@ -136,8 +139,7 @@ public class Kardex {
         
         // 5. Divide el valor total entre la cantidad total para el promedio ponderado
         this.balanceUnitPrice = this.totalBalance.divide(totalQuantityBigDecimal, 2, RoundingMode.HALF_UP);
-        this.addDate();
-        this.updateDetailIfNotNull();
+        finalizeKardexEntry();
     }
 
 
@@ -148,25 +150,27 @@ public class Kardex {
             this.unitPrice = BigDecimal.ZERO;  
     }
 
-    public void updateDetailIfNotNull() {
+    private void updateDetailIfNotNull() {
         if (this.details == null || this.details.isEmpty()) {
             // Formar el detalle con el tipo de movimiento y el código.  Venta - Factura: 500
             this.details = String.format("%s - Factura: %s", this.type.getDescription(), this.factCode);
+        }else{
+            // Agregar el tipo de movimiento al detalle existente
+            this.details = String.format("%s | %s - Factura: %s", this.details, this.type.getDescription(), this.factCode);
         }
     }
 
-    /*Cuando el de factura es 0 es un ajuste de inventario entonces el factCode se genera un codigo de la siguiente manera:
+    /*
+        Cuando el de factura es 0 es un ajuste de inventario entonces el factCode se genera un codigo de la siguiente manera:
         AYYMMDDHHMMSS(letra aleatoria) ejmplo A240614153045X
     */
-    private String generateAdjustmentFactCode() {
+    private void generateAdjustmentFactCode() {
         if (this.factCode != null && !this.factCode.isEmpty() && !this.factCode.equals("0")) {
-            return this.factCode; // Si ya tiene un código válido, lo retorna
+            return; // Ya tiene un código de factura válido
         }
         String timestamp = new SimpleDateFormat("yyMMddHHmmss").format(new Date());
         char randomLetter = (char) ('A' + new Random().nextInt(26));
-        return String.format("%c%s", randomLetter, timestamp);
+        this.factCode = String.format("%c%s", randomLetter, timestamp);
     }
-
-    
 
 }
