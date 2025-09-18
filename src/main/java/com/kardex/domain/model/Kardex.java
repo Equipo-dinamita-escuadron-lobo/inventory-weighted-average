@@ -43,8 +43,8 @@ public class Kardex {
      */
     public void finalizeKardexEntry() {
         addDate();
-        updateDetailIfNotNull();
         generateAdjustmentFactCode();
+        updateDetailIfNotNull();
     }
 
     private void addDate(){
@@ -165,12 +165,12 @@ public class Kardex {
         AYYMMDDHHMMSS(letra aleatoria) ejmplo A240614153045X
     */
     private void generateAdjustmentFactCode() {
-        if (this.factCode != null && !this.factCode.isEmpty() && !this.factCode.equals("0")) {
+        if (this.factCode != null && !this.factCode.isEmpty()) {
             return; // Ya tiene un código de factura válido
         }
         String timestamp = new SimpleDateFormat("yyMMddHHmmss").format(new Date());
         char randomLetter = (char) ('A' + new Random().nextInt(26));
-        this.factCode = String.format("%c%s", randomLetter, timestamp);
+        this.factCode = String.format("A%s%c", timestamp, randomLetter);
     }
 
 }
