@@ -5,8 +5,7 @@ public enum MovementType {
     PURCHASE("Compra"),
     SALE("Venta"),
     SALESRETURN("Devolución de venta"),
-    PURCHASERETURN("Devolución de compra"),
-    ADJUSTMENT("Ajuste");
+    PURCHASERETURN("Devolución de compra");
 
     private final String description;
 

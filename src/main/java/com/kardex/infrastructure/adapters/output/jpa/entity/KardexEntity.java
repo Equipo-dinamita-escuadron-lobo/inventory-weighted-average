@@ -29,7 +29,7 @@ public class KardexEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long factCode;
+    private String factCode;
 
     @Column(nullable = false)
     private int quantity;

@@ -26,7 +26,7 @@ public class KardexValidationService {
     /**
      * Valida las reglas de negocio para un movimiento de kardex
      */
-    public void validateBusinessRules(Long factCode, Long productId, MovementType movementType) {
+    public void validateBusinessRules(String factCode, Long productId, MovementType movementType) {
         log.debug(messageService.getMessage(MessageKeys.LOG_VALIDATING_BUSINESS_RULES, 
             factCode, productId, movementType.getDescription()));
             

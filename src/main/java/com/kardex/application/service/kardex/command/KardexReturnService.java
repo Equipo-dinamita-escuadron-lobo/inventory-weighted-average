@@ -25,7 +25,7 @@ public class KardexReturnService {
     /**
      * Obtiene el precio unitario si la devolución está permitida
      */
-    public BigDecimal getUnitPriceIfReturnAllowed(Long factCode, int quantity, Long productId, MovementType originalMovementType) {
+    public BigDecimal getUnitPriceIfReturnAllowed(String factCode, int quantity, Long productId, MovementType originalMovementType) {
         // Buscar específicamente por el tipo de movimiento original
         List<Kardex> originalKardexList = kardexQueryRepositoryPort.findByFactCodeAndProductIdAndType(factCode, productId, originalMovementType);
         if (originalKardexList.isEmpty()) {

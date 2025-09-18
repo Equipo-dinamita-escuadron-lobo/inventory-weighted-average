@@ -12,7 +12,7 @@ import com.kardex.domain.model.MovementType;
 public interface IKardexQueryRepositoryPort {
     Page<Kardex> findProductId(Long productId, Pageable pageable);
     Page<Kardex> findProductIdAndDate(Long productId, Pageable pageable, LocalDate startDate, LocalDate endDate);
-    List<Kardex> findByFactCodeAndProductIdAndType(Long factCode, Long productId, MovementType type);
+    List<Kardex> findByFactCodeAndProductIdAndType(String factCode, Long productId, MovementType type);
     Kardex getLatestKardexByProductId(Long productId);
-    boolean existsByFactCodeAndProductIdAndType(Long factCode, Long productId, MovementType type);
+    boolean existsByFactCodeAndProductIdAndType(String factCode, Long productId, MovementType type);
 }

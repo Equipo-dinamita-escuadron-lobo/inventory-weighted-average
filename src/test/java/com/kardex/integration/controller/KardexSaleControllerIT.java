@@ -85,7 +85,7 @@ public class KardexSaleControllerIT {
         kardexRepository.deleteAll();
 
         KardexEntity kardexEntry = new KardexEntity();
-        kardexEntry.setFactCode(1L);
+        kardexEntry.setFactCode("1");
         kardexEntry.setQuantity(10);
         kardexEntry.setUnitPrice(BigDecimal.valueOf(10.0));
         kardexEntry.setDetails("Initial stock");
@@ -109,7 +109,7 @@ public class KardexSaleControllerIT {
             String requestBody = """
                 {
                     "quantity": 5,
-                    "factCode": 2,
+                    "factCode": "2",
                     "details": "Sale of 5 units",
                     "productId": 1
                 }
@@ -144,7 +144,7 @@ public class KardexSaleControllerIT {
             String requestBody = """
                 {
                     "quantity": 5,
-                    "factCode": 2,
+                    "factCode": "2",
                     "details": "Sale of 5 units",
                     "productId": 1
                 }
@@ -179,7 +179,7 @@ public class KardexSaleControllerIT {
             String firstSale = """
                 {
                     "quantity": 5,
-                    "factCode": 11111,
+                    "factCode": "11111",
                     "details": "First sale",
                     "productId": 1
                 }
@@ -201,7 +201,7 @@ public class KardexSaleControllerIT {
             String secondSale = """
                 {
                     "quantity": 2,
-                    "factCode": 22222,
+                    "factCode": "22222",
                     "details": "Second sale",
                     "productId": 1
                 }
@@ -225,7 +225,7 @@ public class KardexSaleControllerIT {
 
             String requestBody = """
                 {
-                    "factCode": 2,
+                    "factCode": "2",
                     "details": "Missing quantity",
                     "productId": 1
                 }
@@ -266,7 +266,7 @@ public class KardexSaleControllerIT {
             String requestBody = """
                 {
                     "quantity": 5,
-                    "factCode": 2,
+                    "factCode": "2",
                     "details": "Missing productId"
                 }
             """;
@@ -285,7 +285,7 @@ public class KardexSaleControllerIT {
             String requestBody = """
                 {
                     "quantity": 5,
-                    "factCode": 2,
+                    "factCode": "2",
                     "productId": 1
                 }
             """;
@@ -307,7 +307,7 @@ public class KardexSaleControllerIT {
             String requestBody = """
                 {
                     "quantity": 5,
-                    "factCode": 2,
+                    "factCode": "2",
                     "productId": 9999
                 }
             """;
@@ -329,7 +329,7 @@ public class KardexSaleControllerIT {
             String requestBody = """
                 {
                     "quantity": 5,
-                    "factCode": 2,
+                    "factCode": "2",
                     "productId": 1
                 }
             """;
@@ -347,7 +347,7 @@ public class KardexSaleControllerIT {
             String requestBody = """
                 {
                     "quantity": -5,
-                    "factCode": 2,
+                    "factCode": "2",
                     "productId": 1
                 }
             """;

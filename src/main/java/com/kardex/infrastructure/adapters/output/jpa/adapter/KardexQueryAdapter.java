@@ -40,7 +40,7 @@ public class KardexQueryAdapter implements IKardexQueryRepositoryPort {
     }
 
     @Override
-    public List<Kardex> findByFactCodeAndProductIdAndType(Long factCode, Long productId, MovementType type) {
+    public List<Kardex> findByFactCodeAndProductIdAndType(String factCode, Long productId, MovementType type) {
         List<KardexEntity> kardexEntities = kardexRepository.findByFactCodeAndProductIdAndType(factCode, productId, type);
         return kardexEntityMapper.toDomainList(kardexEntities);
     }
@@ -52,7 +52,7 @@ public class KardexQueryAdapter implements IKardexQueryRepositoryPort {
     }
 
     @Override
-    public boolean existsByFactCodeAndProductIdAndType(Long factCode, Long productId, MovementType type) {
+    public boolean existsByFactCodeAndProductIdAndType(String factCode, Long productId, MovementType type) {
         return kardexRepository.existsByFactCodeAndProductIdAndType(factCode, productId, type);
     }
     

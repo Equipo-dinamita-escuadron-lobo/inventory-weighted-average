@@ -25,20 +25,32 @@ public class KardexUnitTest {
     }
     
     @Test
-    @DisplayName("Should add the current date to the kardex")
-    void testAddDate() {
+    @DisplayName("Should finalize kardex entry by adding date, updating details and generating fact code")
+    void testFinalizeKardexEntry() {
         // Arrange
+        kardex.setType(MovementType.PURCHASE);
+        kardex.setFactCode("0"); // Para que genere código de ajuste
         ZonedDateTime before = ZonedDateTime.now(ZoneId.of("America/Bogota")).truncatedTo(ChronoUnit.SECONDS);
         
         // Act
-        kardex.addDate();
+        kardex.finalizeKardexEntry();
         
         // Assert
+        // Verifica que se agregó la fecha
         ZonedDateTime after = ZonedDateTime.now(ZoneId.of("America/Bogota")).truncatedTo(ChronoUnit.SECONDS);
         assertNotNull(kardex.getDate());
         ZonedDateTime kardexDate = kardex.getDate().truncatedTo(ChronoUnit.SECONDS);
         assertTrue(kardexDate.equals(before) || kardexDate.isAfter(before) && kardexDate.isBefore(after) 
                 || kardexDate.equals(after));
+        
+        // Verifica que se actualizaron los detalles
+        assertNotNull(kardex.getDetails());
+        assertTrue(kardex.getDetails().contains("Compra - Factura:"));
+        
+        // Verifica que se generó un código de factura de ajuste (ya no es "0")
+        assertNotNull(kardex.getFactCode());
+        assertNotEquals("0", kardex.getFactCode());
+        assertTrue(kardex.getFactCode().length() > 1);
     }
     
     @Test
@@ -48,8 +60,10 @@ public class KardexUnitTest {
         kardex.setQuantity(10);
         kardex.setUnitPrice(new BigDecimal("25.50"));
         kardex.setType(MovementType.PURCHASE);
+        kardex.setFactCode("0"); // Para generar código de ajuste
         int lastQuantity = 5;
         BigDecimal lastTotalBalance = new BigDecimal("100.00");
+        ZonedDateTime before = ZonedDateTime.now(ZoneId.of("America/Bogota"));
         
         // Act
         kardex.addPurchase(lastQuantity, lastTotalBalance);
@@ -62,6 +76,17 @@ public class KardexUnitTest {
         // The average unit price should be the total divided by the quantity
         BigDecimal expectedUnitPrice = expectedTotal.divide(new BigDecimal("15"), 2, RoundingMode.HALF_UP);
         assertEquals(expectedUnitPrice, kardex.getBalanceUnitPrice());
+        
+        // Verify that finalizeKardexEntry was called (date should be set)
+        assertNotNull(kardex.getDate());
+        assertTrue(kardex.getDate().isAfter(before) || kardex.getDate().isEqual(before));
+        
+        // Verify details were updated
+        assertNotNull(kardex.getDetails());
+        assertTrue(kardex.getDetails().contains("Compra - Factura:"));
+        
+        // Verify fact code was generated (should not be "0" anymore)
+        assertNotEquals("0", kardex.getFactCode());
     }
     
     @Test
@@ -87,9 +112,11 @@ public class KardexUnitTest {
         // Arrange
         kardex.setQuantity(5);
         kardex.setType(MovementType.SALE);
+        kardex.setFactCode("FACT001");
         int lastQuantity = 20;
         BigDecimal lastUnitPrice = new BigDecimal("15.00");
         BigDecimal lastTotalBalance = new BigDecimal("300.00");
+        ZonedDateTime before = ZonedDateTime.now(ZoneId.of("America/Bogota"));
         
         // Act
         kardex.addSale(lastQuantity, lastUnitPrice, lastTotalBalance);
@@ -101,6 +128,14 @@ public class KardexUnitTest {
         
         BigDecimal expectedTotal = new BigDecimal("225.00"); // 300 - (5 * 15)
         assertEquals(expectedTotal, kardex.getTotalBalance());
+        
+        // Verify that finalizeKardexEntry was called (date should be set)
+        assertNotNull(kardex.getDate());
+        assertTrue(kardex.getDate().isAfter(before) || kardex.getDate().isEqual(before));
+        
+        // Verify details were updated
+        assertNotNull(kardex.getDetails());
+        assertTrue(kardex.getDetails().contains("Venta - Factura: FACT001"));
     }
     
     @Test
@@ -253,45 +288,47 @@ public class KardexUnitTest {
     }
 
     @Test
-    @DisplayName("Should update details if not null")
-    void testUpdateDetailIfNotNull() {
+    @DisplayName("Should update details when details exist in finalizeKardexEntry")
+    void testFinalizeKardexEntryWithExistingDetails() {
         // Arrange
         kardex.setType(MovementType.SALE);
-        kardex.setFactCode(500L);
-        kardex.setDetails("Venta - Factura: 500");
+        kardex.setFactCode("500");
+        kardex.setDetails("Existing details");
 
         // Act
-        kardex.updateDetailIfNotNull();
+        kardex.finalizeKardexEntry();
 
         // Assert
-        assertEquals("Venta - Factura: 500", kardex.getDetails());
+        assertTrue(kardex.getDetails().contains("Existing details"));
+        assertTrue(kardex.getDetails().contains("Venta - Factura: 500"));
+        assertTrue(kardex.getDetails().contains("|"));
     }
 
     @Test
-    @DisplayName("Should update details if null")
-    void testUpdateDetailIfNull() {
+    @DisplayName("Should create details when null in finalizeKardexEntry")
+    void testFinalizeKardexEntryWithNullDetails() {
         // Arrange
         kardex.setType(MovementType.SALE);
-        kardex.setFactCode(500L);
+        kardex.setFactCode("500");
         kardex.setDetails(null);
 
         // Act
-        kardex.updateDetailIfNotNull();
+        kardex.finalizeKardexEntry();
 
         // Assert
         assertEquals("Venta - Factura: 500", kardex.getDetails());
     }
 
     @Test
-    @DisplayName("Should update details if empty")
-    void testUpdateDetailIfEmpty() {
+    @DisplayName("Should create details when empty in finalizeKardexEntry")
+    void testFinalizeKardexEntryWithEmptyDetails() {
         // Arrange
         kardex.setType(MovementType.SALE);
-        kardex.setFactCode(500L);
+        kardex.setFactCode("500");
         kardex.setDetails("");
 
         // Act
-        kardex.updateDetailIfNotNull();
+        kardex.finalizeKardexEntry();
 
         // Assert
         assertEquals("Venta - Factura: 500", kardex.getDetails());
