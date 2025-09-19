@@ -100,7 +100,6 @@ public class ProductCommandService implements IProductSyncCommandPort {
                 .reference(dto.getReference())
                 .name(dto.getName())
                 .presentation(dto.getPresentation())
-                .manager(null)
                 .enterpriseId(enterpriseId)
                 .state(dto.isState())
                 .build())

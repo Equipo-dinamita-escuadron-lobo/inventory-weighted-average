@@ -31,8 +31,6 @@ public class ProductEntity {
 
     private String presentation;
 
-    private String manager;
-
     @Column(name = "enterprise_id", nullable = false)
     private String enterpriseId;
 

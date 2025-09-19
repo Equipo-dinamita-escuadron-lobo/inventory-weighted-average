@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class ProductListener extends AbstractMessageListener<EventDto<ProductAsyncDto, EventProductType>, EventProductType> {
+public class ProductListener extends AbstractMessageListener<EventDto<ProductAsyncDto, EventProductType>> {
     private final IProductCommandRepositoryPort productCommandPort;
     private final ProductBrokerMapper productBrokerMapper;
 
@@ -71,6 +71,11 @@ public class ProductListener extends AbstractMessageListener<EventDto<ProductAsy
     }
 
     @Override
+    protected String getEntityType() {
+        return "Product";
+    }
+
+    @Override
     protected String getEntityIdentifierSafely(EventDto<ProductAsyncDto, EventProductType> event) {
         if (event == null || event.getData() == null) {
             return "unknown";
@@ -78,16 +83,5 @@ public class ProductListener extends AbstractMessageListener<EventDto<ProductAsy
         
         String name = event.getData().getName();
         return name != null ? name : "unnamed";
-    }
-
-    @Override
-    protected String getEntityType() {
-        return "Product";
-    }
-
-    // Listener for the Dead Letter Queue - for monitoring
-    @RabbitListener(queues = RabbitProductConfig.PRODUCT_KARDEX_DLQ)
-    public void handleProductDeadLetterQueue(Message message) {
-        handleDeadLetterQueue(message);
     }
 }

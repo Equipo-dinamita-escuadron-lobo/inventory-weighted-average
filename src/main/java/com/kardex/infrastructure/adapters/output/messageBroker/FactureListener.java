@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class FactureListener extends AbstractMessageListener<EventDto<KardexRabbitDto, EventFactureType>, EventFactureType> {
+public class FactureListener extends AbstractMessageListener<EventDto<KardexRabbitDto, EventFactureType>> {
     private final IKardexCommandPort kardexCommandPort;
     private final IKardexRabbitMQMapper kardexRabbitMQRestMapper;
 
@@ -70,6 +70,11 @@ public class FactureListener extends AbstractMessageListener<EventDto<KardexRabb
     }
 
     @Override
+    protected String getEntityType() {
+        return "Kardex";
+    }
+
+    @Override
     protected String getEntityIdentifierSafely(EventDto<KardexRabbitDto, EventFactureType> event) {
         if (event == null || event.getData() == null) {
             return "unknown";
@@ -77,16 +82,5 @@ public class FactureListener extends AbstractMessageListener<EventDto<KardexRabb
         String factCode = event.getData().getFactCode() != null ? 
             event.getData().getFactCode().toString() : "unnamed";
         return factCode;
-    }
-
-    @Override
-    protected String getEntityType() {
-        return "Kardex";
-    }
-
-    // Listener for the Dead Letter Queue - for monitoring
-    @RabbitListener(queues = RabbitWeightedAverageConfig.WEIGHTED_AVERAGE_DLQ)
-    public void handleKardexDeadLetterQueue(Message message) {
-        handleDeadLetterQueue(message);
     }
 }

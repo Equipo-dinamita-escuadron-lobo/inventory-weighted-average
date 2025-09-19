@@ -19,8 +19,6 @@ public class Product {
     private String name;
 
     private String presentation;
-    
-    private String manager;
 
     private String enterpriseId;
 

@@ -12,6 +12,5 @@ public interface IProductClientMapper {
     ProductSyncDto toDto(Product product);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "manager", ignore = true)
     Product toDomain(ProductSyncDto dto);
 }
