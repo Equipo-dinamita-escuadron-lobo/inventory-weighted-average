@@ -2,6 +2,7 @@ package com.kardex.infrastructure.adapters.output.messageBroker.base;
 
 import org.springframework.amqp.core.Message;
 import com.rabbitmq.client.Channel;
+import com.kardex.domain.port.IMessageErrorHandlingPort;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -14,15 +15,22 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractMessageListener<T> {
 
     /**
+     * Puerto para el manejo de errores de procesamiento.
+     * Debe ser inyectado por las clases hijas.
+     */
+    protected IMessageErrorHandlingPort messageErrorHandlingPort;
+
+    /**
      * Método principal para manejar mensajes entrantes.
      * Implementa la lógica común de validación, procesamiento y acknowledgment.
      */
-    protected void handleMessage(T event, Message message, Channel channel, long deliveryTag) {
+    protected void handleMessage(T event, Channel channel, long deliveryTag) {
         try {
             log.info("Received {} message from queue", getEntityType());
             
             if (!isValidEvent(event)) {
-                log.warn("Invalid {} event received: {}", getEntityType(), event);
+                log.warn("Invalid {} event received, saving error to database", getEntityType());
+                handleValidationError(event);
                 acknowledgeMessage(channel, deliveryTag);
                 return;
             }
@@ -32,7 +40,7 @@ public abstract class AbstractMessageListener<T> {
             log.info("{} message processed successfully", getEntityType());
             
         } catch (Exception e) {
-            handleProcessingError(e, channel, deliveryTag);
+            handleProcessingError(e, event, channel, deliveryTag);
         }
     }
 
@@ -54,12 +62,39 @@ public abstract class AbstractMessageListener<T> {
     /**
      * Maneja errores durante el procesamiento del mensaje.
      */
-    private void handleProcessingError(Exception e, Channel channel, long deliveryTag) {
+    private void handleProcessingError(Exception e, T event, Channel channel, long deliveryTag) {
         try {
             log.error("Error processing {} message: {}", getEntityType(), e.getMessage(), e);
+            
+            // Guardar error en base de datos
+            if (messageErrorHandlingPort != null) {
+                String eventType = extractEventType(event);
+                String messageData = convertEventToJson(event);
+                String errorDescription = String.format("Processing error: %s", e.getMessage());
+                
+                messageErrorHandlingPort.saveProcessingError(eventType, errorDescription, messageData, getEntityType());
+            }
+            
             acknowledgeMessage(channel, deliveryTag); // ACK para evitar reenvío
         } catch (Exception ackException) {
             log.error("Error acknowledging message: {}", ackException.getMessage());
+        }
+    }
+
+    /**
+     * Maneja errores de validación de eventos.
+     */
+    private void handleValidationError(T event) {
+        try {
+            if (messageErrorHandlingPort != null) {
+                String eventType = extractEventType(event);
+                String messageData = convertEventToJson(event);
+                String errorDescription = "Validation failed: Required fields are missing or invalid";
+                
+                messageErrorHandlingPort.saveProcessingError(eventType, errorDescription, messageData, getEntityType());
+            }
+        } catch (Exception e) {
+            log.error("Error saving validation error to database: {}", e.getMessage());
         }
     }
 
@@ -93,4 +128,18 @@ public abstract class AbstractMessageListener<T> {
             return "unavailable";
         }
     }
+
+    /**
+     * Extrae el tipo de evento del mensaje. Debe ser implementado por cada listener.
+     * @param event El evento del cual extraer el tipo
+     * @return String representando el tipo de evento, o null si no se puede determinar
+     */
+    protected abstract String extractEventType(T event);
+
+    /**
+     * Convierte el evento a JSON para almacenamiento en BD. Debe ser implementado por cada listener.
+     * @param event El evento a convertir
+     * @return String en formato JSON con los datos del evento
+     */
+    protected abstract String convertEventToJson(T event);
 }

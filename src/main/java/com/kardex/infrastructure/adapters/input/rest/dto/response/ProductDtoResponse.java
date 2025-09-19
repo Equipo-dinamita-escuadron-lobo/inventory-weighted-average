@@ -17,8 +17,6 @@ public class ProductDtoResponse {
     private String name;
 
     private String presentation;
-    
-    private String manager;
 
     private String enterpriseId;
 }
