@@ -20,6 +20,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @brief JPA adapter for Product command operations
+ * 
+ * Handles product creation and update operations with batch processing
+ * capabilities for efficient synchronization.
+ */
 @Repository
 @RequiredArgsConstructor
 @Slf4j
@@ -28,6 +34,11 @@ public class ProductCommandAdapter implements IProductCommandRepositoryPort {
     private final IProductRepository productRepository;
     private final IProductEntityCommandMapper productEntityCommandMapper;
 
+    /**
+     * @brief Saves or updates multiple products in batch
+     * @param products List of products to process
+     * @return Result message indicating processing outcome
+     */
     @Override
     @Transactional
     public String saveAll(List<Product> products) {
@@ -54,7 +65,11 @@ public class ProductCommandAdapter implements IProductCommandRepositoryPort {
         }
     }
 
-
+    /**
+     * @brief Saves a single product
+     * @param product The product to save
+     * @return Result message
+     */
     @Override
     public String save(Product product) {
         try {
@@ -66,7 +81,11 @@ public class ProductCommandAdapter implements IProductCommandRepositoryPort {
         }
     }
 
-    // Separate new products from existing ones
+    /**
+     * @brief Separates products into new and existing based on their IDs
+     * @param products List of products to partition
+     * @return ProductPartition with separated new and existing products
+     */
     private ProductPartition separateNewAndExistingProducts(List<Product> products) {
         List<Long> productIds = products.stream().map(Product::getProductId).toList();
         Set<Long> existingIds = new HashSet<>(productRepository.findProductsIdByProductIdIn(productIds));
@@ -80,7 +99,11 @@ public class ProductCommandAdapter implements IProductCommandRepositoryPort {
         );
     }
 
-    // Save new products
+    /**
+     * @brief Saves new products to database
+     * @param newProducts List of new products to save
+     * @return Number of products saved
+     */
     private int saveNewProducts(List<Product> newProducts) {
         if (newProducts.isEmpty()) {
             return 0;
@@ -93,7 +116,11 @@ public class ProductCommandAdapter implements IProductCommandRepositoryPort {
         return newProducts.size();
     }
 
-    // Update existing products
+    /**
+     * @brief Updates existing products in database
+     * @param existingProducts List of existing products to update
+     * @return Number of products updated
+     */
     private int updateExistingProducts(List<Product> existingProducts) {
         if (existingProducts.isEmpty()) {
             return 0;

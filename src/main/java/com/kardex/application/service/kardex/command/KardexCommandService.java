@@ -18,6 +18,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @brief Service implementation for Kardex command operations
+ * 
+ * Processes inventory movements using weighted average cost method.
+ * Handles purchases, sales, and returns with stock integration.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -34,6 +40,11 @@ public class KardexCommandService implements IKardexCommandPort{
     private final KardexReturnService returnService;
     private final StockIntegrationService stockIntegrationService;
 
+    /**
+     * @brief Registers a purchase transaction with weighted average calculation
+     * @param kardex Purchase details to process
+     * @return Processed kardex with updated inventory balances
+     */
     @Override
     public Kardex registerPurchase(Kardex kardex) {
         log.info(messageService.getMessage(MessageKeys.LOG_PURCHASE_STARTED, 
@@ -69,6 +80,11 @@ public class KardexCommandService implements IKardexCommandPort{
         return savedKardex;
     }
 
+    /**
+     * @brief Registers a sale transaction with inventory validation
+     * @param kardex Sale details to process
+     * @return Processed kardex with updated inventory balances
+     */
     @Override
     public Kardex registerSale(Kardex kardex) {
         log.info(messageService.getMessage(MessageKeys.LOG_SALE_STARTED, 
@@ -95,6 +111,11 @@ public class KardexCommandService implements IKardexCommandPort{
     }
 
 
+    /**
+     * @brief Registers a purchase return with original price validation
+     * @param kardex Return details to process
+     * @return Processed kardex with updated inventory balances
+     */
     @Override
     public Kardex registerReturnOnPurchase(Kardex kardex) {
         log.info(messageService.getMessage(MessageKeys.LOG_PURCHASE_RETURN_STARTED, 
@@ -120,6 +141,11 @@ public class KardexCommandService implements IKardexCommandPort{
         return savedKardex;
     }
 
+    /**
+     * @brief Registers a sale return with original price validation
+     * @param kardex Return details to process
+     * @return Processed kardex with updated inventory balances
+     */
     @Override
     public Kardex registerReturnOnSale(Kardex kardex) {
         log.info(messageService.getMessage(MessageKeys.LOG_SALE_RETURN_STARTED, 

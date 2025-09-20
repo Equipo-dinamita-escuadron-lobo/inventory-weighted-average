@@ -1,6 +1,9 @@
 package com.kardex.domain.model;
 
-
+/**
+ * @brief Enumeration of inventory movement types
+ * 
+ */
 public enum MovementType {
     PURCHASE("Compra"),
     SALE("Venta"),

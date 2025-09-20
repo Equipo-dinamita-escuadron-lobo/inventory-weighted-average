@@ -14,6 +14,12 @@ import com.kardex.infrastructure.adapters.config.i18n.MessageKeys;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * @brief Service for handling inventory return operations and validations
+ * 
+ * Manages return transaction logic including quantity validation
+ * and original price retrieval for consistent pricing.
+ */
 @Service
 @RequiredArgsConstructor
 public class KardexReturnService {
@@ -23,26 +29,31 @@ public class KardexReturnService {
     private final IMessageServicePort messageService;
 
     /**
-     * Obtiene el precio unitario si la devolución está permitida
+     * @brief Validates return and retrieves original unit price
+     * @param factCode Original invoice/document code
+     * @param quantity Quantity to return
+     * @param productId Product identifier
+     * @param originalMovementType Original movement type (PURCHASE or SALE)
+     * @return Original unit price if return is valid
      */
     public BigDecimal getUnitPriceIfReturnAllowed(String factCode, int quantity, Long productId, MovementType originalMovementType) {
-        // Buscar específicamente por el tipo de movimiento original
+        // Search for the original movement by factCode, productId, and type
         List<Kardex> originalKardexList = kardexQueryRepositoryPort.findByFactCodeAndProductIdAndType(factCode, productId, originalMovementType);
         if (originalKardexList.isEmpty()) {
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
                 messageService.getMessage(MessageKeys.ERROR_NO_ORIGINAL_MOVEMENT, originalMovementType.getDescription()));
         }
 
-        // El primer registro debe ser la operación original
+        // The first record must be the original operation
         Kardex originalKardex = originalKardexList.get(0);
         int initialInvoiceQuantity = originalKardex.getQuantity();
         BigDecimal unitPrice = originalKardex.getUnitPrice();
 
-        // Ahora buscar todas las devoluciones previas de este mismo factCode y productId
+        // Now search for all previous returns of this same factCode and productId
         MovementType returnType = getReturnType(originalMovementType);
         List<Kardex> returnKardexList = kardexQueryRepositoryPort.findByFactCodeAndProductIdAndType(factCode, productId, returnType);
-        
-        // Calcular el total de devoluciones previas más la cantidad actual
+
+        // Calculate the total of previous returns plus the current quantity
         int totalReturnQuantity = returnKardexList.stream().mapToInt(Kardex::getQuantity).sum() + quantity;
         
         if (totalReturnQuantity <= initialInvoiceQuantity) {
@@ -54,7 +65,9 @@ public class KardexReturnService {
     }
 
     /**
-     * Obtiene el tipo de movimiento de devolución correspondiente al tipo original
+     * @brief Maps original movement type to corresponding return type
+     * @param originalType Original movement type
+     * @return Corresponding return movement type
      */
     public MovementType getReturnType(MovementType originalType) {
         switch (originalType) {

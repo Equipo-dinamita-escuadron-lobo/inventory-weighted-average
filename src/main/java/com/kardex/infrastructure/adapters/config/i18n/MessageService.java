@@ -9,8 +9,10 @@ import com.kardex.domain.port.IMessageServicePort;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Servicio para la gestión de mensajes internacionalizados.
- * Proporciona métodos para obtener mensajes en diferentes idiomas.
+ * @brief Service implementation for internationalized message management
+ * 
+ * Provides methods to retrieve localized messages with the current
+ * locale context and parameter substitution support.
  */
 @Service
 @RequiredArgsConstructor
@@ -19,10 +21,10 @@ public class MessageService implements IMessageServicePort {
     private final MessageSource messageSource;
 
     /**
-     * Obtiene un mensaje usando el locale actual
-     * @param key la clave del mensaje
-     * @param args argumentos para formatear el mensaje
-     * @return el mensaje formateado
+     * @brief Gets a message using the current locale
+     * @param key Message key identifier
+     * @param args Arguments for message formatting
+     * @return Formatted localized message
      */
     @Override
     public String getMessage(String key, Object... args) {
@@ -30,11 +32,11 @@ public class MessageService implements IMessageServicePort {
     }
 
     /**
-     * Obtiene un mensaje con un valor por defecto si no se encuentra la clave
-     * @param key la clave del mensaje
-     * @param defaultMessage mensaje por defecto
-     * @param args argumentos para formatear el mensaje
-     * @return el mensaje formateado o el mensaje por defecto
+     * @brief Gets a message with default fallback if key not found
+     * @param key Message key identifier
+     * @param defaultMessage Default message if key not found
+     * @param args Arguments for message formatting
+     * @return Formatted message or default message
      */
     @Override
     public String getMessage(String key, String defaultMessage, Object... args) {

@@ -22,6 +22,12 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @brief RabbitMQ listener for facture (invoice) related events
+ * 
+ * Handles various inventory movement events such as purchases, sales,
+ * and returns, with robust error handling and validation.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -33,8 +39,16 @@ public class FactureListener extends AbstractMessageListener<EventDto<KardexRabb
     @PostConstruct
     private void init() {
         this.messageErrorHandlingPort = messageErrorHandlingPortImpl;
+        // Implement specific recovery strategy for kardex events if needed
     }
 
+    /**
+     * @brief Handles facture events from the RabbitMQ queue
+     * @param event The facture event DTO
+     * @param message The raw RabbitMQ message
+     * @param channel The RabbitMQ channel
+     * @param deliveryTag The message delivery tag
+     */
     @RabbitListener(queues = RabbitWeightedAverageConfig.WEIGHTED_AVERAGE_QUEUE)
     public void handleFactureEvent( 
         EventDto<KardexRabbitDto, EventFactureType> event,
@@ -45,6 +59,10 @@ public class FactureListener extends AbstractMessageListener<EventDto<KardexRabb
         handleMessage(event, channel, deliveryTag);
     }
 
+    /**
+     * @brief Processes the facture event based on its type
+     * @param event The facture event to process
+     */
     @Override
     protected void processEvent(EventDto<KardexRabbitDto, EventFactureType> event) {
         try {
@@ -73,12 +91,17 @@ public class FactureListener extends AbstractMessageListener<EventDto<KardexRabb
                     throw new IllegalArgumentException("Unsupported event type: " + event.getType());
             }
         } catch (Exception e) {
-            // Si hay error en la persistencia, re-lanzar para que sea manejado por la clase padre
+            // Re-throw to be handled by the parent class if persistence fails
             log.error("Database operation failed for kardex operation: {}", e.getMessage());
             throw e;
         }
     }
 
+    /**
+     * @brief Validates the integrity of the facture event data
+     * @param event The facture event to validate
+     * @return True if the event is valid, false otherwise
+     */
     @Override
     protected boolean isValidEvent(EventDto<KardexRabbitDto, EventFactureType> event) {
         if (event == null) {
@@ -93,7 +116,7 @@ public class FactureListener extends AbstractMessageListener<EventDto<KardexRabb
         
         KardexRabbitDto data = event.getData();
         
-        // Validar campos obligatorios
+        // Validate required fields
         if (data.getQuantity() == null || data.getQuantity() <= 0) {
             log.warn("Quantity is null or invalid - required field");
             return false;
@@ -109,7 +132,7 @@ public class FactureListener extends AbstractMessageListener<EventDto<KardexRabb
             return false;
         }
         
-        // Para operaciones de compra, unitPrice es obligatorio
+        // For purchase operations, unitPrice is required
         if ((event.getType() == EventFactureType.PURCHASE || event.getType() == EventFactureType.RETURNONPURCHASE) 
             && (data.getUnitPrice() == null || data.getUnitPrice().compareTo(java.math.BigDecimal.ZERO) <= 0)) {
             log.warn("UnitPrice is null or invalid for purchase operation - required field");

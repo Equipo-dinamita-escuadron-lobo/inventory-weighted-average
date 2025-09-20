@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * @brief Domain model for tracking synchronization state
+ * 
+ */
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor

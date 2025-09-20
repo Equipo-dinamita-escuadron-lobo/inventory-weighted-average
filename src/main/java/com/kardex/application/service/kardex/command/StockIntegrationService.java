@@ -11,6 +11,12 @@ import com.kardex.infrastructure.adapters.config.i18n.MessageKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @brief Service for integrating inventory movements with external stock system
+ * 
+ * Handles communication with stock service to maintain real-time
+ * inventory synchronization across systems.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -20,7 +26,9 @@ public class StockIntegrationService {
     private final IMessageServicePort messageService;
 
     /**
-     * Crea un objeto Stock basado en los datos del Kardex
+     * @brief Creates a Stock object from Kardex data
+     * @param kardex Source kardex record
+     * @return Stock object for external API call
      */
     public Stock createStock(Kardex kardex) {
         return Stock.builder()
@@ -31,7 +39,9 @@ public class StockIntegrationService {
     }
 
     /**
-     * Llama al servicio de stock para actualizar el inventario
+     * @brief Calls stock service API to update inventory
+     * @param stock Stock data to send
+     * @param isBuy True for purchase/return operations, false for sales
      */
     public void callApiStockService(Stock stock, boolean isBuy) {
         try {

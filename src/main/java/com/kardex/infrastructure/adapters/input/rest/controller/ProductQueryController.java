@@ -14,6 +14,12 @@ import com.kardex.infrastructure.adapters.input.rest.mapper.IProductResponseMapp
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * @brief REST controller for product query operations
+ * 
+ * Provides HTTP endpoints for retrieving product information
+ * within enterprise context with proper response formatting.
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/kardex/weighted-average")
@@ -21,6 +27,11 @@ public class ProductQueryController {
     private final IProductResponseMapper productResponseMapper;
     private final IProductQueryPort productQueryPort;
 
+    /**
+     * @brief Retrieves all products for a specific enterprise
+     * @param enterpriseId Enterprise identifier
+     * @return Response with list of products for the enterprise
+     */
     @GetMapping("/products/{enterpriseId}")
     public ResponseDto<List<ProductDtoResponse>> getAllProducts(@PathVariable String enterpriseId) {
         List<ProductDtoResponse> productDtoResponses = productQueryPort.findAll(enterpriseId)

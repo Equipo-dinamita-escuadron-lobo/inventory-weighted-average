@@ -9,6 +9,12 @@ import org.springframework.web.context.request.WebRequestInterceptor;
 import com.kardex.infrastructure.adapters.output.messageBroker.aspect.JwtTokenService;
 import com.kardex.infrastructure.adapters.output.multitenancy.utils.TenantContext;
 
+/**
+ * @brief Interceptor for managing tenant context in HTTP requests
+ * 
+ * Extracts tenant identifier from JWT tokens and sets it in the TenantContext
+ * for the duration of the request processing.
+ */
 @Component
 public class TenantInterceptor implements WebRequestInterceptor {
 
@@ -16,13 +22,9 @@ public class TenantInterceptor implements WebRequestInterceptor {
     private JwtTokenService jwtTokenService;
 
     /**
-     * Este método se llama antes de que se llame al controlador, y establece el
-     * identificador de inquilino desde el JWT en el TenantContext.
-     * Utiliza el servicio unificado que maneja tanto contexto HTTP como RabbitMQ.
-     * 
-     * @param request La solicitud web
-     * @throws Exception Si no se pudo establecer el identificador de inquilino
-     *                   desde el JWT
+     * @brief Sets tenant context before controller execution
+     * @param request The web request being processed
+     * @throws Exception If tenant context cannot be established from JWT
      */
     @Override
     public void preHandle(WebRequest request) throws Exception {
@@ -30,15 +32,16 @@ public class TenantInterceptor implements WebRequestInterceptor {
             String tenantId = jwtTokenService.getTenantId();
             TenantContext.setTenantId(tenantId);
         } catch (Exception e) {
-            // En caso de error, no establecer el tenant context
-            // Esto permitirá que la aplicación funcione sin contexto de tenant si es necesario
-            throw new Exception("No se pudo establecer el contexto del tenant desde el JWT", e);
+            // In case of error, do not set tenant context
+            // This allows the application to work without tenant context if necessary
+            throw new Exception("Could not establish tenant context from JWT", e);
         }
     }
 
-    /**  
-     * Este metodo se llama después de que se llama al controlador. Borra el
-     * identificador de inquilino del TenantContext.
+    /**
+     * @brief Clears tenant context after controller execution
+     * @param request The web request being processed
+     * @param model Model map (unused)
      */
     @Override
     public void postHandle(WebRequest request, ModelMap model) throws Exception {
@@ -46,17 +49,12 @@ public class TenantInterceptor implements WebRequestInterceptor {
     }
 
     /**
-     * Este metodo se llama después de que se llama al controlador y
-     * después de que se llama al método postHandle. No hace nada en este
-     * caso, pero se declara para implementar la interfaz WebRequestInterceptor.
-     * 
-     * @param request La solicitud web
-     * @param ex      La excepcion lanzada por el controlador, si es que se
-     *               lanza, o null si no se lanzó ninguna excepción
-     * @throws Exception Si se produce un error inesperado
+     * @brief Final cleanup after request completion
+     * @param request The web request being processed
+     * @param ex Exception thrown by controller, if any
      */
     @Override
     public void afterCompletion(WebRequest request, Exception ex) throws Exception {
-        // No hay nada que hacer aquí
+        // No additional cleanup required
     }
 }

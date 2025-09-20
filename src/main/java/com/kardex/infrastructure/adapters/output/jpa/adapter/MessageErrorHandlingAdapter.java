@@ -10,7 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Adaptador para el manejo de errores de procesamiento de mensajes.
+ * @brief Adapter for handling message processing errors
+ * 
+ * Persists error information when message processing fails,
+ * providing audit trail and debugging capabilities.
  */
 @Repository
 @RequiredArgsConstructor
@@ -19,6 +22,13 @@ public class MessageErrorHandlingAdapter implements IMessageErrorHandlingPort {
 
     private final IMessageProcessingErrorRepository errorRepository;
 
+    /**
+     * @brief Saves processing error information to database
+     * @param eventType Type of event that failed
+     * @param errorDescription Description of the error
+     * @param messageData Original message data
+     * @param entityType Type of entity being processed
+     */
     @Override
     public void saveProcessingError(String eventType, String errorDescription, String messageData, String entityType) {
         try {

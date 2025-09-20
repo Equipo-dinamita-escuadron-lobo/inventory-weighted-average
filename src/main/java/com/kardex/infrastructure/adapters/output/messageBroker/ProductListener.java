@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import com.kardex.domain.model.Product;
 import com.kardex.domain.port.IMessageErrorHandlingPort;
 import com.kardex.domain.port.IProductCommandRepositoryPort;
+import com.kardex.domain.port.IEventRecoveryActionPort;
 import com.kardex.infrastructure.adapters.config.rabbitConfig.RabbitProductConfig;
 import com.kardex.infrastructure.adapters.output.messageBroker.base.AbstractMessageListener;
 import com.kardex.infrastructure.adapters.output.messageBroker.dto.EventDto;
@@ -22,6 +23,12 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @brief RabbitMQ listener for product synchronization events
+ * 
+ * Handles product lifecycle events (create, update, delete) from message broker
+ * with error handling and recovery mechanisms for reliable data synchronization.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -29,12 +36,21 @@ public class ProductListener extends AbstractMessageListener<EventDto<ProductAsy
     private final IProductCommandRepositoryPort productCommandPort;
     private final ProductBrokerMapper productBrokerMapper;
     private final IMessageErrorHandlingPort messageErrorHandlingPortImpl;
+    private final IEventRecoveryActionPort<EventDto<ProductAsyncDto, EventProductType>> productRecoveryActionPort;
     
     @PostConstruct
     private void init() {
         this.messageErrorHandlingPort = messageErrorHandlingPortImpl;
+        this.eventRecoveryActionPort = productRecoveryActionPort;
     }
 
+    /**
+     * @brief Handles product events from RabbitMQ queue
+     * @param event Product event with data and type information
+     * @param message RabbitMQ message metadata
+     * @param channel RabbitMQ channel for acknowledgments
+     * @param deliveryTag Message delivery tag for acknowledgment
+     */
     @RabbitListener(queues = RabbitProductConfig.PRODUCT_KARDEX_QUEUE)
     public void handleProductEvent(
             EventDto<ProductAsyncDto, EventProductType> event, 
@@ -45,6 +61,10 @@ public class ProductListener extends AbstractMessageListener<EventDto<ProductAsy
         handleMessage(event, channel, deliveryTag);
     }
     
+    /**
+     * @brief Processes product events based on event type
+     * @param event Product event to process
+     */
     @Override
     protected void processEvent(EventDto<ProductAsyncDto, EventProductType> event) {
         ProductAsyncDto data = event.getData();
@@ -74,12 +94,17 @@ public class ProductListener extends AbstractMessageListener<EventDto<ProductAsy
                     throw new IllegalArgumentException("Unsupported event type: " + event.getType());
             }
         } catch (Exception e) {
-            // Si hay error en la persistencia (ej: referencia duplicada), re-lanzar para que sea manejado por la clase padre
+            // Re-throw for parent class error handling if persistence fails (e.g., duplicate reference)
             log.error("Database operation failed for product {}: {}", productName, e.getMessage());
             throw e;
         }
     }
 
+    /**
+     * @brief Validates product event data integrity
+     * @param event Product event to validate
+     * @return True if event is valid, false otherwise
+     */
     @Override
     protected boolean isValidEvent(EventDto<ProductAsyncDto, EventProductType> event) {
         if (event == null) {

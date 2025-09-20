@@ -20,6 +20,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @brief Service for synchronizing products from external sources
+ * 
+ * Manages incremental product synchronization using timestamp-based
+ * tracking to maintain data consistency across systems.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -34,6 +40,11 @@ public class ProductCommandService implements IProductSyncCommandPort {
 
     private static final String SYNC_TYPE_PRODUCTS = "products";
 
+    /**
+     * @brief Synchronizes products for an enterprise from external API
+     * @param enterpriseId Enterprise identifier to sync products for
+     * @return Status message with sync results
+     */
     @Override
     public String syncProductsByEnterpriseId(String enterpriseId) {
         log.info(messageService.getMessage(MessageKeys.LOG_SYNC_STARTED, enterpriseId));

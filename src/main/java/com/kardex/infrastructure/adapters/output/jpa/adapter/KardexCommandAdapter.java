@@ -11,6 +11,12 @@ import com.kardex.infrastructure.adapters.output.jpa.repository.IKardexRepositor
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @brief JPA adapter for Kardex write operations
+ * 
+ * Implements the output port for persisting inventory movement records
+ * using JPA repository and entity mapping.
+ */
 @Repository
 @RequiredArgsConstructor
 @Slf4j
@@ -19,6 +25,11 @@ public class KardexCommandAdapter implements IKardexCommandRepositoryPort{
     private final IKardexEntityCommandMapper kardexEntityMapper;
     private final IKardexRepository kardexRepository;
 
+    /**
+     * @brief Persists a purchase transaction to database
+     * @param kardex Purchase record to save
+     * @return Saved kardex with generated database identifiers
+     */
     @Override
     public Kardex registerPurchase(Kardex kardex) {
         KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);
@@ -27,6 +38,11 @@ public class KardexCommandAdapter implements IKardexCommandRepositoryPort{
         return kardexEntityMapper.toDomain(savedEntity);
     }
 
+    /**
+     * @brief Persists a sale transaction to database
+     * @param kardex Sale record to save
+     * @return Saved kardex with generated database identifiers
+     */
     @Override
     public Kardex registerSale(Kardex kardex) {
         KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);
@@ -35,6 +51,11 @@ public class KardexCommandAdapter implements IKardexCommandRepositoryPort{
         return kardexEntityMapper.toDomain(savedEntity);
     }
 
+    /**
+     * @brief Persists a purchase return transaction to database
+     * @param kardex Return record to save
+     * @return Saved kardex with generated database identifiers
+     */
     @Override
     public Kardex registerReturnOnPurchase(Kardex kardex) {
         KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);
@@ -43,6 +64,11 @@ public class KardexCommandAdapter implements IKardexCommandRepositoryPort{
         return kardexEntityMapper.toDomain(savedEntity);
     }
 
+    /**
+     * @brief Persists a sale return transaction to database
+     * @param kardex Return record to save
+     * @return Saved kardex with generated database identifiers
+     */
     @Override
     public Kardex registerReturnOnSale(Kardex kardex) {
         KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);

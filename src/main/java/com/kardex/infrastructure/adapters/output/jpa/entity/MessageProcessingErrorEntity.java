@@ -15,7 +15,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Entidad para registrar errores en el procesamiento de mensajes de RabbitMQ.
+ * @brief JPA entity for tracking RabbitMQ message processing errors
+ * 
  */
 @Entity
 @Getter @Setter
@@ -42,6 +43,9 @@ public class MessageProcessingErrorEntity {
     @Column(name = "entity_type", nullable = false)
     private String entityType;
 
+    /**
+     * @brief Sets error timestamp before entity persistence
+     */
     @PrePersist
     protected void onCreate() {
         if (errorTimestamp == null) {

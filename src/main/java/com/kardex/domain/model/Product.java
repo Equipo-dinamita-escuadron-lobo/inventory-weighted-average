@@ -6,6 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @brief Domain model representing a product in the system
+ * 
+ */
 @Getter @Setter
 @Builder
 @NoArgsConstructor @AllArgsConstructor 

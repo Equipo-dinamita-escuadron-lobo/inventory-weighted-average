@@ -11,6 +11,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @brief JPA entity for persisting product information
+ * 
+ */
 @Entity
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor

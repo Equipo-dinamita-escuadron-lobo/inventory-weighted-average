@@ -1,17 +1,19 @@
 package com.kardex.domain.port;
 
 /**
- * Puerto para el manejo de errores de procesamiento de mensajes.
+ * @brief Output port for message processing error handling
+ * 
+ * Provides mechanism to persist error information when
+ * message processing operations fail, enabling audit and debugging.
  */
 public interface IMessageErrorHandlingPort {
     
     /**
-     * Guarda información de error cuando falla el procesamiento de un mensaje.
-     * 
-     * @param eventType Tipo de evento que falló (puede ser null)
-     * @param errorDescription Descripción del error ocurrido
-     * @param messageData Datos del mensaje en formato JSON
-     * @param entityType Tipo de entidad que se estaba procesando
+     * @brief Saves error information when message processing fails
+     * @param eventType Type of event that failed (may be null)
+     * @param errorDescription Description of the error that occurred
+     * @param messageData Message data in JSON format
+     * @param entityType Type of entity being processed
      */
     void saveProcessingError(String eventType, String errorDescription, String messageData, String entityType);
 }

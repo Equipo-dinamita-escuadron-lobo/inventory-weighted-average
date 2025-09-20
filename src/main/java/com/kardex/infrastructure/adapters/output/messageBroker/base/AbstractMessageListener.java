@@ -3,6 +3,7 @@ package com.kardex.infrastructure.adapters.output.messageBroker.base;
 import org.springframework.amqp.core.Message;
 import com.rabbitmq.client.Channel;
 import com.kardex.domain.port.IMessageErrorHandlingPort;
+import com.kardex.domain.port.IEventRecoveryActionPort;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -19,6 +20,12 @@ public abstract class AbstractMessageListener<T> {
      * Debe ser inyectado por las clases hijas.
      */
     protected IMessageErrorHandlingPort messageErrorHandlingPort;
+
+    /**
+     * Puerto para ejecutar acciones de recuperación cuando falla el procesamiento.
+     * Opcional - puede ser inyectado por las clases hijas si necesitan recuperación automática.
+     */
+    protected IEventRecoveryActionPort<T> eventRecoveryActionPort;
 
     /**
      * Método principal para manejar mensajes entrantes.
@@ -66,11 +73,16 @@ public abstract class AbstractMessageListener<T> {
         try {
             log.error("Error processing {} message: {}", getEntityType(), e.getMessage(), e);
             
+            // Intentar ejecutar acción de recuperación si está disponible
+            boolean recoveryExecuted = attemptRecovery(event);
+            
             // Guardar error en base de datos
             if (messageErrorHandlingPort != null) {
                 String eventType = extractEventType(event);
                 String messageData = convertEventToJson(event);
-                String errorDescription = String.format("Processing error: %s", e.getMessage());
+                String errorDescription = String.format("Processing error: %s%s", 
+                    e.getMessage(), 
+                    recoveryExecuted ? " (Recovery action executed)" : "");
                 
                 messageErrorHandlingPort.saveProcessingError(eventType, errorDescription, messageData, getEntityType());
             }
@@ -95,6 +107,41 @@ public abstract class AbstractMessageListener<T> {
             }
         } catch (Exception e) {
             log.error("Error saving validation error to database: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Intenta ejecutar una acción de recuperación cuando falla el procesamiento del evento.
+     * 
+     * @param event El evento que falló al procesarse
+     * @return true si se ejecutó una acción de recuperación, false en caso contrario
+     */
+    private boolean attemptRecovery(T event) {
+        if (eventRecoveryActionPort == null) {
+            log.debug("No recovery action port configured for {}", getEntityType());
+            return false;
+        }
+        
+        try {
+            if (eventRecoveryActionPort.canHandle(event)) {
+                log.info("Attempting recovery action for failed {} event", getEntityType());
+                boolean success = eventRecoveryActionPort.executeRecoveryAction(event);
+                
+                if (success) {
+                    log.info("Recovery action executed successfully for {} event", getEntityType());
+                } else {
+                    log.warn("Recovery action failed for {} event", getEntityType());
+                }
+                
+                return success;
+            } else {
+                log.debug("Recovery action cannot handle this {} event", getEntityType());
+                return false;
+            }
+        } catch (Exception recoveryException) {
+            log.error("Error executing recovery action for {} event: {}", 
+                getEntityType(), recoveryException.getMessage(), recoveryException);
+            return false;
         }
     }
 

@@ -14,6 +14,10 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * @brief JPA entity for tracking synchronization state
+ * 
+ */
 @Entity
 @Table(name = "sync_state")
 @Getter @Setter
@@ -37,12 +41,18 @@ public class SyncStateEntity {
     @Column(name = "updated_at")
     private Instant updatedAt;
     
+    /**
+     * @brief Sets creation and update timestamps on entity creation
+     */
     @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();
         updatedAt = Instant.now();
     }
     
+    /**
+     * @brief Updates the modified timestamp on entity update
+     */
     @PreUpdate
     protected void onUpdate() {
         updatedAt = Instant.now();

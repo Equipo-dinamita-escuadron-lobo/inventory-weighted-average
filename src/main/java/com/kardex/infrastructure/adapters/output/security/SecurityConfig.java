@@ -12,6 +12,12 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * @brief Spring Security configuration for JWT-based authentication
+ * 
+ * Configures OAuth2 resource server with JWT authentication,
+ * CSRF protection disabled, and stateless session management.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -23,22 +29,15 @@ public class SecurityConfig {
     private JwtAuthConverter jwtAuthConverter;
 
     /**
-     * Este método configura la cadena de filtros de seguridad. Deshabilita la
-     * protección CSRF,
-     * y para los puntos de conexión /swagger-ui/** y /v3/api-docs/**, permite
-     * acceso anónimo.
-     * Para todos los demás puntos de conexión, requiere autenticación.
-     *
-     * También configura el convertidor de autenticación JWT y especifica que la
-     * aplicación
-     * debe utilizar JWTs para la autenticación.
-     *
-     * Finalmente, establece la política de creación de sesión en STATELESS.
+     * @brief Configures the security filter chain for HTTP requests
      * 
-     * @param httpSecurity El objeto HttpSecurity a configurar
-     * @return La cadena de filtros de seguridad a utilizar
-     * @throws Exception Si hay un error al configurar la cadena de filtros de
-     *                   seguridad
+     * Disables CSRF protection, permits anonymous access to Swagger and actuator endpoints,
+     * requires authentication for all other endpoints, and configures JWT authentication
+     * with stateless session management.
+     *
+     * @param httpSecurity The HttpSecurity object to configure
+     * @return The configured security filter chain
+     * @throws Exception If there's an error configuring the security filter chain
      */
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
