@@ -33,7 +33,7 @@ public class ProductQueryService implements IProductQueryPort {
      */
     @Override
     public List<Product> findAll(String enterpriseId) {
-        log.info(messageService.getMessage(MessageKeys.LOG_PRODUCT_QUERY_ALL, enterpriseId));
+        log.info(messageService.getMessage(MessageKeys.LOG_INFO, "Fetching all products for enterpriseId=" + enterpriseId));
         return productQueryRepository.findAll(enterpriseId);
     }
     

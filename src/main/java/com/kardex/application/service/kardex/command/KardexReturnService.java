@@ -41,7 +41,7 @@ public class KardexReturnService {
         List<Kardex> originalKardexList = kardexQueryRepositoryPort.findByFactCodeAndProductIdAndType(factCode, productId, originalMovementType);
         if (originalKardexList.isEmpty()) {
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
-                messageService.getMessage(MessageKeys.ERROR_NO_ORIGINAL_MOVEMENT, originalMovementType.getDescription()));
+                messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, "factCode=" + factCode + ", productId=" + productId + ", type=" + originalMovementType));
         }
 
         // The first record must be the original operation
@@ -60,7 +60,7 @@ public class KardexReturnService {
             return unitPrice;
         }
         formatterResultOutputPort.returnBusinessRuleErrorResponse(400, 
-            messageService.getMessage(MessageKeys.ERROR_RETURN_QUANTITY_EXCEEDED));
+            messageService.getMessage(MessageKeys.ERROR_QUANTITY_EXCEEDED, "Quantity"));
         return BigDecimal.ZERO;
     }
 
@@ -77,7 +77,7 @@ public class KardexReturnService {
                 return MovementType.SALESRETURN;
             default:
                 throw new IllegalArgumentException(
-                    messageService.getMessage(MessageKeys.ERROR_INVALID_MOVEMENT_TYPE, originalType));
+                    messageService.getMessage(MessageKeys.ERROR_INVALID_TYPE,"MovementType", originalType));
         }
     }
 }

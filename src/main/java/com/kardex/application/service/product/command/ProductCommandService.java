@@ -46,9 +46,7 @@ public class ProductCommandService implements IProductSyncCommandPort {
      * @return Status message with sync results
      */
     @Override
-    public String syncProductsByEnterpriseId(String enterpriseId) {
-        log.info(messageService.getMessage(MessageKeys.LOG_SYNC_STARTED, enterpriseId));
-        
+    public String syncProductsByEnterpriseId(String enterpriseId) { 
         // 1. Obtain the last synchronization date
         Optional<Instant> lastSync = syncStateRepository.findLastSyncFor(SYNC_TYPE_PRODUCTS, enterpriseId);
 
@@ -56,10 +54,10 @@ public class ProductCommandService implements IProductSyncCommandPort {
             // If no previous sync exists, create a new sync state with the current time
             Instant oldDate = Instant.parse("2000-01-01T00:00:00Z");
             lastSync = createSyncStateIfNotExists(enterpriseId, oldDate); 
-            log.info(messageService.getMessage(MessageKeys.LOG_NO_PREVIOUS_SYNC, enterpriseId));
+            log.info(messageService.getMessage(MessageKeys.ERROR_MISSING_RECORD, enterpriseId));
         }
 
-        log.info(messageService.getMessage(MessageKeys.LOG_LAST_SYNC_DATE, enterpriseId, lastSync.get()));
+        log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_STARTED, "syncProductsByEnterpriseId", enterpriseId, lastSync.get()));
 
         // 2. Moment before the call (this will be the new date if all goes well)
         Instant syncStartedAt = Instant.now();
@@ -75,14 +73,14 @@ public class ProductCommandService implements IProductSyncCommandPort {
             // 5. Only if everything was successful, update the date
             updateSyncState(enterpriseId, syncStartedAt);
 
-            log.info(messageService.getMessage(MessageKeys.LOG_SYNC_SUCCESS, enterpriseId, updatedProducts.size()));
+            log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED, enterpriseId, updatedProducts.size()));
 
             return "Successful synchronization: " + updatedProducts.size() + " products processed.";
 
         } catch (Exception e) {
-            log.error(messageService.getMessage(MessageKeys.LOG_SYNC_ERROR, enterpriseId), e);
+            log.error(messageService.getMessage(MessageKeys.LOG_OPERATION_ERROR, enterpriseId), e);
             formatterResultOutputPort.returnBusinessRuleErrorResponse(500, 
-                messageService.getMessage(MessageKeys.ERROR_SYNC_PRODUCTS, e.getMessage()));
+                messageService.getMessage(MessageKeys.LOG_SYNC, e.getMessage()));
             throw e;
         }
     }
@@ -90,17 +88,17 @@ public class ProductCommandService implements IProductSyncCommandPort {
     private void processUpdatedProducts(List<Product> products, String enterpriseId) {
         try {
             if (products == null || products.isEmpty()) {
-                log.info(messageService.getMessage(MessageKeys.LOG_NO_PRODUCTS_TO_PROCESS, enterpriseId));
+                log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_ERROR, "processUpdatedProducts", "Enterprise ID: " + enterpriseId));
                 return;
             }
             
             List<Product> productList = getProductsFromDto(products, enterpriseId);
 
             // Save all products to the database
-            String result = productCommandRepositoryPort.saveAll(productList);
-            log.info(messageService.getMessage(MessageKeys.LOG_PRODUCTS_SAVED, result));
+            productCommandRepositoryPort.saveAll(productList);
+            log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED, "processUpdatedProducts"));
         } catch (Exception e) {
-            log.error(messageService.getMessage(MessageKeys.LOG_PROCESSING_PRODUCTS_ERROR, enterpriseId), e);
+            log.error(messageService.getMessage(MessageKeys.LOG_OPERATION_ERROR, "processUpdatedProducts", e.getMessage()), e);
         }
     }
 
@@ -142,7 +140,8 @@ public class ProductCommandService implements IProductSyncCommandPort {
         newState.setEnterpriseId(enterpriseId);
         newState.setLastSyncDate(syncDate);
         syncStateRepository.save(newState);
-        log.info(messageService.getMessage(MessageKeys.LOG_SYNC_STATE_CREATED, enterpriseId));
+        log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED, 
+            "Created initial sync state for enterpriseId=" + enterpriseId + " with date=" + syncDate));
         return Optional.of(syncDate);
     }
     

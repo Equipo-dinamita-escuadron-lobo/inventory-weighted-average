@@ -156,13 +156,6 @@ public abstract class AbstractMessageListener<T> {
         }
     }
 
-    /**
-     * Obtiene un identificador seguro de la entidad para logging.
-     * Método opcional que puede ser sobrescrito por listeners específicos.
-     */
-    protected String getEntityIdentifierSafely(T event) {
-        return event != null ? event.toString() : "unknown";
-    }
 
     /**
      * Método de utilidad para extraer contenido del mensaje como String.

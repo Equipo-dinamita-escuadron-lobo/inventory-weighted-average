@@ -148,16 +148,6 @@ public class FactureListener extends AbstractMessageListener<EventDto<KardexRabb
     }
 
     @Override
-    protected String getEntityIdentifierSafely(EventDto<KardexRabbitDto, EventFactureType> event) {
-        if (event == null || event.getData() == null) {
-            return "unknown";
-        }
-        String factCode = event.getData().getFactCode() != null ? 
-            event.getData().getFactCode().toString() : "unnamed";
-        return factCode;
-    }
-
-    @Override
     protected String extractEventType(EventDto<KardexRabbitDto, EventFactureType> event) {
         if (event == null) {
             return null;

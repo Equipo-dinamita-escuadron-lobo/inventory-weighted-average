@@ -50,11 +50,11 @@ public class StockIntegrationService {
             } else {
                 stockClient.sellStock(stock);
             }
-            log.info(messageService.getMessage(MessageKeys.LOG_STOCK_REQUEST_SUCCESS, 
+            log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED, 
                 isBuy ? "purchase" : "sale"));
         } catch (Exception e) {
-            log.error(messageService.getMessage(MessageKeys.LOG_STOCK_REQUEST_ERROR, 
-                isBuy ? "purchase" : "sale", e.getMessage()));
+            log.error(messageService.getMessage(MessageKeys.LOG_OPERATION_ERROR, 
+                isBuy ? "purchase" : "sale", e.getMessage(), e));
         }
     }
 }

@@ -46,10 +46,7 @@ public class KardexCommandService implements IKardexCommandPort{
      * @return Processed kardex with updated inventory balances
      */
     @Override
-    public Kardex registerPurchase(Kardex kardex) {
-        log.info(messageService.getMessage(MessageKeys.LOG_PURCHASE_STARTED, 
-            kardex.getProductId(), kardex.getFactCode(), kardex.getQuantity()));
-            
+    public Kardex registerPurchase(Kardex kardex) {  
         validationService.validateProductExists(kardex.getProductId());
         validationService.validateBusinessRules(kardex.getFactCode(), kardex.getProductId(), MovementType.PURCHASE);
         
@@ -66,17 +63,15 @@ public class KardexCommandService implements IKardexCommandPort{
         
         if(kardex.getBalanceUnitPrice().compareTo(BigDecimal.ZERO) == 0) {
             formatterResultOutputPort.returnBusinessRuleErrorResponse(400, 
-                messageService.getMessage(MessageKeys.ERROR_BALANCE_UNIT_PRICE_ZERO));
+                messageService.getMessage(MessageKeys.ERROR_INVALID_VALUE, "balance unit price"));
         }
 
         Stock stock = stockIntegrationService.createStock(kardex);
         stockIntegrationService.callApiStockService(stock, true);
 
         Kardex savedKardex = kardexCommandRepositoryPort.registerPurchase(kardex);
-        
-        log.info(messageService.getMessage(MessageKeys.LOG_PURCHASE_COMPLETED, 
-            savedKardex.getProductId(), savedKardex.getId()));
-            
+
+        log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED, "Method registerPurchase productId=" + savedKardex.getProductId()));
         return savedKardex;
     }
 
@@ -87,9 +82,6 @@ public class KardexCommandService implements IKardexCommandPort{
      */
     @Override
     public Kardex registerSale(Kardex kardex) {
-        log.info(messageService.getMessage(MessageKeys.LOG_SALE_STARTED, 
-            kardex.getProductId(), kardex.getFactCode(), kardex.getQuantity()));
-            
         validationService.validateProductExists(kardex.getProductId());
         validationService.validateBusinessRules(kardex.getFactCode(), kardex.getProductId(), MovementType.SALE);
         
@@ -104,9 +96,7 @@ public class KardexCommandService implements IKardexCommandPort{
 
         Kardex savedKardex = kardexCommandRepositoryPort.registerSale(kardex);
         
-        log.info(messageService.getMessage(MessageKeys.LOG_SALE_COMPLETED, 
-            savedKardex.getProductId(), savedKardex.getId()));
-            
+        log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED, "Method registerSale productId=" + savedKardex.getProductId()));         
         return savedKardex;
     }
 
@@ -117,10 +107,7 @@ public class KardexCommandService implements IKardexCommandPort{
      * @return Processed kardex with updated inventory balances
      */
     @Override
-    public Kardex registerReturnOnPurchase(Kardex kardex) {
-        log.info(messageService.getMessage(MessageKeys.LOG_PURCHASE_RETURN_STARTED, 
-            kardex.getProductId(), kardex.getFactCode(), kardex.getQuantity()));
-            
+    public Kardex registerReturnOnPurchase(Kardex kardex) {        
         validationService.validateProductExists(kardex.getProductId());
         BigDecimal unitPrice = returnService.getUnitPriceIfReturnAllowed(kardex.getFactCode(), kardex.getQuantity(), kardex.getProductId(), MovementType.PURCHASE);
         kardex.setUnitPrice(unitPrice);
@@ -135,9 +122,7 @@ public class KardexCommandService implements IKardexCommandPort{
 
         Kardex savedKardex = kardexCommandRepositoryPort.registerReturnOnPurchase(kardex);
         
-        log.info(messageService.getMessage(MessageKeys.LOG_PURCHASE_RETURN_COMPLETED, 
-            savedKardex.getProductId(), savedKardex.getId()));
-            
+        log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED, "Method registerReturnOnPurchase productId=" + savedKardex.getProductId()));
         return savedKardex;
     }
 
@@ -147,10 +132,7 @@ public class KardexCommandService implements IKardexCommandPort{
      * @return Processed kardex with updated inventory balances
      */
     @Override
-    public Kardex registerReturnOnSale(Kardex kardex) {
-        log.info(messageService.getMessage(MessageKeys.LOG_SALE_RETURN_STARTED, 
-            kardex.getProductId(), kardex.getFactCode(), kardex.getQuantity()));
-            
+    public Kardex registerReturnOnSale(Kardex kardex) {   
         validationService.validateProductExists(kardex.getProductId());
         BigDecimal unitPrice = returnService.getUnitPriceIfReturnAllowed(kardex.getFactCode(), kardex.getQuantity(), kardex.getProductId(), MovementType.SALE);
         kardex.setUnitPrice(unitPrice);
@@ -166,9 +148,7 @@ public class KardexCommandService implements IKardexCommandPort{
 
         Kardex savedKardex = kardexCommandRepositoryPort.registerReturnOnSale(kardex);
         
-        log.info(messageService.getMessage(MessageKeys.LOG_SALE_RETURN_COMPLETED, 
-            savedKardex.getProductId(), savedKardex.getId()));
-            
+        log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED," Method registerReturnOnSale productId=" + savedKardex.getProductId()));
         return savedKardex;
     }
 

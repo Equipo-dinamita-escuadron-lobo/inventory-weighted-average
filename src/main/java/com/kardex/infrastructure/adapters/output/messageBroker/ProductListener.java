@@ -149,16 +149,6 @@ public class ProductListener extends AbstractMessageListener<EventDto<ProductAsy
     }
 
     @Override
-    protected String getEntityIdentifierSafely(EventDto<ProductAsyncDto, EventProductType> event) {
-        if (event == null || event.getData() == null) {
-            return "unknown";
-        }
-        
-        String name = event.getData().getName();
-        return name != null ? name : "unnamed";
-    }
-
-    @Override
     protected String extractEventType(EventDto<ProductAsyncDto, EventProductType> event) {
         if (event == null) {
             return null;

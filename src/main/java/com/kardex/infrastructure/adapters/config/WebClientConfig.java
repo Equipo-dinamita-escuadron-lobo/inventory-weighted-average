@@ -18,7 +18,7 @@ public class WebClientConfig {
      * @brief Creates a load-balanced WebClient builder
      * 
      * The @LoadBalanced annotation enables Spring Cloud to resolve
-     * service names registered in Eureka (e.g., "lb://STOCK").
+     * service names registered in Eureka (e.g., "lb://Name").
      *
      * @return Configured WebClient.Builder with load balancing
      */

@@ -35,18 +35,14 @@ public class KardexValidationService {
      * @param productId Product identifier
      * @param movementType Type of inventory movement
      */
-    public void validateBusinessRules(String factCode, Long productId, MovementType movementType) {
-        log.debug(messageService.getMessage(MessageKeys.LOG_VALIDATING_BUSINESS_RULES, 
-            factCode, productId, movementType.getDescription()));
-            
+    public void validateBusinessRules(String factCode, Long productId, MovementType movementType) { 
         // Check for duplicate movements based on factCode, productId, and type
         boolean exists = kardexQueryRepositoryPort.existsByFactCodeAndProductIdAndType(factCode, productId, movementType);
         
         if (exists) {
             String movementDescription = movementType.getDescription();
             formatterResultOutputPort.returnBusinessRuleErrorResponse(400, 
-                messageService.getMessage(MessageKeys.ERROR_DUPLICATE_MOVEMENT, 
-                    movementDescription, factCode, productId));
+                messageService.getMessage(MessageKeys.ERROR_DUPLICATE_RECORD, "factCode=" + factCode + ", productId=" + productId + ", type=" + movementDescription));
         }
     }
 
@@ -58,7 +54,7 @@ public class KardexValidationService {
     public void validatePreviousKardexExists(Kardex lastRegisteredKardex, String operation) {
         if (lastRegisteredKardex == null) {
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
-                messageService.getMessage(MessageKeys.ERROR_NO_PREVIOUS_KARDEX, operation));
+                messageService.getMessage(MessageKeys.ERROR_MISSING_RECORD, operation));
         }
     }
 
@@ -66,12 +62,10 @@ public class KardexValidationService {
      * @brief Validates that a product exists in the system
      * @param productId Product identifier to validate
      */
-    public void validateProductExists(Long productId) {
-        log.debug(messageService.getMessage(MessageKeys.LOG_PRODUCT_EXISTS_VALIDATION, productId));
-        
+    public void validateProductExists(Long productId) {       
         if (!productQueryRepositoryPort.existsByProductId(productId)) {
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
-                messageService.getMessage(MessageKeys.ERROR_PRODUCT_NOT_FOUND));
+                messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, "productId=" + productId));
         }
     }
 }
