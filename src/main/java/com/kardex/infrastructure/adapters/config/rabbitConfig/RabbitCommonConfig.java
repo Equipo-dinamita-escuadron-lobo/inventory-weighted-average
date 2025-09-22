@@ -2,7 +2,6 @@ package com.kardex.infrastructure.adapters.config.rabbitConfig;
 
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.RabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -13,42 +12,32 @@ import org.springframework.context.annotation.Profile;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @brief Common RabbitMQ configuration for message handling
+ * 
+ * Provides shared RabbitMQ infrastructure including JSON message
+ * conversion and listener container factory setup.
+ */
 @Configuration
 @Slf4j
 @Profile("!test")
 public class RabbitCommonConfig {
+    
+    /**
+     * @brief Configures JSON message converter for RabbitMQ
+     * @return Jackson2JsonMessageConverter for automatic JSON serialization/deserialization
+     */
     @Bean
     Jackson2JsonMessageConverter jsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
 
-    // Custom RabbitTemplate with proper error handling
-    @Bean
-    RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-        RabbitTemplate template = new RabbitTemplate(connectionFactory);
-        template.setMessageConverter(jsonMessageConverter());
-        template.setMandatory(true);
-        
-        // Return callback para mensajes no enrutables
-        template.setReturnsCallback(returned -> {
-            log.error("Message returned: {}", returned.getMessage());
-            log.error("Reply code: {}", returned.getReplyCode());
-            log.error("Reply text: {}", returned.getReplyText());
-            log.error("Exchange: {}", returned.getExchange());
-            log.error("Routing key: {}", returned.getRoutingKey());
-        });
-        
-        // Confirm callback para publishers
-        template.setConfirmCallback((correlationData, ack, cause) -> {
-            if (!ack) {
-                log.error("Message not delivered to exchange. Cause:: {}", cause);
-            }
-        });
-        
-        return template;
-    }
-
-    // Custom listener container factory
+    /**
+     * @brief Creates custom listener container factory with JSON conversion
+     * @param connectionFactory RabbitMQ connection factory
+     * @param configurer Auto-configurer for listener container factory
+     * @return Configured listener container factory with JSON message converter
+     */
     @Bean
     RabbitListenerContainerFactory<SimpleMessageListenerContainer> rabbitListenerContainerFactory(
             ConnectionFactory connectionFactory,

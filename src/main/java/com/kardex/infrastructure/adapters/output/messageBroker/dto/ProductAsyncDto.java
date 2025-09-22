@@ -14,7 +14,5 @@ public class ProductAsyncDto {
     private String reference;
     private String enterpriseId;
     private String presentation;
-    private Integer quantity;
-    private double cost;
     private boolean state;
 }

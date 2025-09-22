@@ -18,32 +18,10 @@ import org.springframework.amqp.core.BindingBuilder;
 public class RabbitProductConfig {
     public static final String PRODUCT_EXCHANGE = "product.exchange";
     public static final String PRODUCT_KARDEX_QUEUE = "product.kardex.queue";
-    
-    // Dead Letter Queue configuration
-    public static final String PRODUCT_KARDEX_DLQ = "product.kardex.dlq";
-    public static final String PRODUCT_KARDEX_DLX = "product.kardex.dlx";
 
-    // Dead Letter Exchange
-    @Bean
-    FanoutExchange productKardexDlx() {
-        return new FanoutExchange(PRODUCT_KARDEX_DLX, true, false);
-    }
-
-    // Dead Letter Queue - for domain/business rule violations (no retry)
-    @Bean
-    Queue productKardexDlq() {
-        return QueueBuilder.durable(PRODUCT_KARDEX_DLQ).build();
-    }
-
-    // Main Queue with DLQ configuration - for product synchronization
     @Bean
     Queue productKardexQueue() {
-        return QueueBuilder.durable(PRODUCT_KARDEX_QUEUE)
-                .withArgument("x-dead-letter-exchange", PRODUCT_KARDEX_DLX)
-                .withArgument("x-dead-letter-routing-key", "")
-                // TTL for product events - can be higher as order is less critical
-                .withArgument("x-message-ttl", 600000) // 10 minutes TTL
-                .build();
+        return QueueBuilder.durable(PRODUCT_KARDEX_QUEUE).build();
     }
 
     @Bean
@@ -54,10 +32,5 @@ public class RabbitProductConfig {
     @Bean
     Binding productKardexQueueBinding() {
         return BindingBuilder.bind(productKardexQueue()).to(productExchange());
-    }
-
-    @Bean
-    Binding productKardexDlqBinding() {
-        return BindingBuilder.bind(productKardexDlq()).to(productKardexDlx());
     }
 }

@@ -1,156 +1,185 @@
 package com.kardex.infrastructure.adapters.output.messageBroker.base;
 
-import java.io.IOException;
-import java.net.ConnectException;
-import java.util.concurrent.TimeoutException;
-
 import org.springframework.amqp.core.Message;
-import org.springframework.amqp.support.AmqpHeaders;
-import org.springframework.dao.DataAccessException;
-import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.transaction.TransactionException;
-
-import com.kardex.infrastructure.adapters.output.exception.customized.BusinessRuleException;
-import com.kardex.infrastructure.adapters.output.exception.customized.EntityAlreadyExists;
-import com.kardex.infrastructure.adapters.output.exception.customized.EntityDoesNotExistException;
-import com.kardex.infrastructure.adapters.output.exception.customized.GenericErrorException;
 import com.rabbitmq.client.Channel;
-
+import com.kardex.domain.port.IMessageErrorHandlingPort;
+import com.kardex.domain.port.IEventRecoveryActionPort;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Abstract base class for RabbitMQ message listeners.
+ * Clase base abstracta para todos los message listeners de RabbitMQ.
+ * Proporciona funcionalidad común para el manejo de mensajes sin lógica de DLQ.
  * 
- * Provides common functionality for:
- * - Message processing with error handling
- * - Intelligent retry logic (domain vs infrastructure errors)
- * - Standardized logging
- * - Dead Letter Queue handling
- * 
- * @param <T> Event data type
- * @param <U> Event type enum
+ * @param <T> Tipo del evento/mensaje a procesar
  */
 @Slf4j
-public abstract class AbstractMessageListener<T, U> {
+public abstract class AbstractMessageListener<T> {
 
     /**
-     * Template method for handling incoming messages.
-     * Implements the common flow: validate -> process -> acknowledge/reject
+     * Puerto para el manejo de errores de procesamiento.
+     * Debe ser inyectado por las clases hijas.
      */
-    protected void handleMessage(
-            T event,
-            Message message, 
-            Channel channel,
-            @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
-        
-        try {
-            // Safe check for the initial log  
-            String entityIdentifier = getEntityIdentifierSafely(event);  
-            log.info("Processing message with delivery tag: {} for {}: {}", 
-                    deliveryTag, getEntityType(), entityIdentifier);
+    protected IMessageErrorHandlingPort messageErrorHandlingPort;
 
-            // Event validation
+    /**
+     * Puerto para ejecutar acciones de recuperación cuando falla el procesamiento.
+     * Opcional - puede ser inyectado por las clases hijas si necesitan recuperación automática.
+     */
+    protected IEventRecoveryActionPort<T> eventRecoveryActionPort;
+
+    /**
+     * Método principal para manejar mensajes entrantes.
+     * Implementa la lógica común de validación, procesamiento y acknowledgment.
+     */
+    protected void handleMessage(T event, Channel channel, long deliveryTag) {
+        try {
+            log.info("Received {} message from queue", getEntityType());
+            
             if (!isValidEvent(event)) {
-                log.error("Received invalid event: {}", event);
-                channel.basicNack(deliveryTag, false, false); // Send to DLQ
+                log.warn("Invalid {} event received, saving error to database", getEntityType());
+                handleValidationError(event);
+                acknowledgeMessage(channel, deliveryTag);
                 return;
             }
-
-            // Process the event (template method - implemented by subclasses)
+            
             processEvent(event);
-
-            // Manual message acknowledgment
-            channel.basicAck(deliveryTag, false);
-            log.info("Successfully processed message for {}: {}", getEntityType(), entityIdentifier);
-
-        } catch (Exception e) {
-           // Safe check for the error log
-            String entityIdentifier = getEntityIdentifierSafely(event);
-            log.error("Error processing message for {}: {}, error: {}", 
-                    getEntityType(), entityIdentifier, e.getMessage(), e);
-
-            try {
-                // Check if it is a domain/business logic error vs infrastructure error
-                if (isRetryableError(e)) {
-                    // Infrastructure error - reject and requeue for retry
-                    channel.basicNack(deliveryTag, false, true);
-                    log.warn("Infrastructure error detected. Retrying message for {}: {}. Error: {}", 
-                            getEntityType(), entityIdentifier, e.getClass().getSimpleName());
-                } else {
-                    // Domain/Business rule error - send directly to DLQ (no retry)
-                    channel.basicNack(deliveryTag, false, false);
-                    log.error("Domain/Business rule violation detected. Sending message to DLQ for {}: {}. Error: {}", 
-                            getEntityType(), entityIdentifier, e.getClass().getSimpleName());
-                }
-            } catch (IOException ioException) {
-                log.error("Failed to nack message: {}", ioException.getMessage());
-            }
-        }
-    }
-
-    /**
-     * Determines if an error should trigger a retry.
-     * 
-     * Domain/Business exceptions are NOT retried as they will always fail.
-     * Infrastructure errors are retried as they may be temporary.
-     */
-    private boolean isRetryableError(Exception e) {
-        // Domain/Business exceptions should NOT be retried as they will always fail
-        if (e instanceof BusinessRuleException ||
-            e instanceof EntityDoesNotExistException ||
-            e instanceof EntityAlreadyExists ||
-            e instanceof GenericErrorException ||
-            e instanceof IllegalArgumentException) {
-            return false;
-        }
-        
-        // Infrastructure errors that may be temporary and worth retrying
-        return e instanceof DataAccessException ||
-               e instanceof TransactionException ||
-               e instanceof ConnectException ||
-               e instanceof TimeoutException ||
-               e instanceof org.springframework.amqp.AmqpException ||
-               e instanceof java.sql.SQLException;
-    }
-
-    /**
-     * Standard Dead Letter Queue handler for monitoring.
-     */
-    protected void handleDeadLetterQueue(Message message) {
-        try {
-            String messageBody = new String(message.getBody());
-            log.error("Message sent to {} DLQ: {}", getEntityType(), messageBody);
+            acknowledgeMessage(channel, deliveryTag);
+            log.info("{} message processed successfully", getEntityType());
             
         } catch (Exception e) {
-            log.error("Error handling {} DLQ message: {}", getEntityType(), e.getMessage(), e);
+            handleProcessingError(e, event, channel, deliveryTag);
         }
     }
 
-    // Abstract methods to be implemented by subclasses
-
     /**
-     * Process the specific business logic for the event.
-     * @param event The event to process
+     * Procesa el evento específico. Debe ser implementado por cada listener.
      */
     protected abstract void processEvent(T event);
 
     /**
-     * Validate if the event is valid for processing.
-     * @param event The event to validate
-     * @return true if valid, false otherwise
+     * Valida si el evento es válido para procesamiento.
      */
     protected abstract boolean isValidEvent(T event);
 
     /**
-     * Get a safe identifier for the entity being processed (for logging).
-     * @param event The event
-     * @return A string identifier
-     */
-    protected abstract String getEntityIdentifierSafely(T event);
-
-    /**
-     * Get the entity type name for logging purposes.
-     * @return The entity type name (e.g., "Product", "Kardex")
+     * Retorna el tipo de entidad que maneja este listener (para logging).
      */
     protected abstract String getEntityType();
+
+    /**
+     * Maneja errores durante el procesamiento del mensaje.
+     */
+    private void handleProcessingError(Exception e, T event, Channel channel, long deliveryTag) {
+        try {
+            log.error("Error processing {} message: {}", getEntityType(), e.getMessage(), e);
+            
+            // Intentar ejecutar acción de recuperación si está disponible
+            boolean recoveryExecuted = attemptRecovery(event);
+            
+            // Guardar error en base de datos
+            if (messageErrorHandlingPort != null) {
+                String eventType = extractEventType(event);
+                String messageData = convertEventToJson(event);
+                String errorDescription = String.format("Processing error: %s%s", 
+                    e.getMessage(), 
+                    recoveryExecuted ? " (Recovery action executed)" : "");
+                
+                messageErrorHandlingPort.saveProcessingError(eventType, errorDescription, messageData, getEntityType());
+            }
+            
+            acknowledgeMessage(channel, deliveryTag); // ACK para evitar reenvío
+        } catch (Exception ackException) {
+            log.error("Error acknowledging message: {}", ackException.getMessage());
+        }
+    }
+
+    /**
+     * Maneja errores de validación de eventos.
+     */
+    private void handleValidationError(T event) {
+        try {
+            if (messageErrorHandlingPort != null) {
+                String eventType = extractEventType(event);
+                String messageData = convertEventToJson(event);
+                String errorDescription = "Validation failed: Required fields are missing or invalid";
+                
+                messageErrorHandlingPort.saveProcessingError(eventType, errorDescription, messageData, getEntityType());
+            }
+        } catch (Exception e) {
+            log.error("Error saving validation error to database: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Intenta ejecutar una acción de recuperación cuando falla el procesamiento del evento.
+     * 
+     * @param event El evento que falló al procesarse
+     * @return true si se ejecutó una acción de recuperación, false en caso contrario
+     */
+    private boolean attemptRecovery(T event) {
+        if (eventRecoveryActionPort == null) {
+            log.debug("No recovery action port configured for {}", getEntityType());
+            return false;
+        }
+        
+        try {
+            if (eventRecoveryActionPort.canHandle(event)) {
+                log.info("Attempting recovery action for failed {} event", getEntityType());
+                boolean success = eventRecoveryActionPort.executeRecoveryAction(event);
+                
+                if (success) {
+                    log.info("Recovery action executed successfully for {} event", getEntityType());
+                } else {
+                    log.warn("Recovery action failed for {} event", getEntityType());
+                }
+                
+                return success;
+            } else {
+                log.debug("Recovery action cannot handle this {} event", getEntityType());
+                return false;
+            }
+        } catch (Exception recoveryException) {
+            log.error("Error executing recovery action for {} event: {}", 
+                getEntityType(), recoveryException.getMessage(), recoveryException);
+            return false;
+        }
+    }
+
+    /**
+     * Envía acknowledgment del mensaje.
+     */
+    private void acknowledgeMessage(Channel channel, long deliveryTag) {
+        try {
+            channel.basicAck(deliveryTag, false);
+        } catch (Exception e) {
+            log.error("Failed to acknowledge message: {}", e.getMessage());
+        }
+    }
+
+
+    /**
+     * Método de utilidad para extraer contenido del mensaje como String.
+     */
+    protected String getMessageBodyAsString(Message message) {
+        try {
+            return new String(message.getBody());
+        } catch (Exception e) {
+            log.warn("Error converting message body to string: {}", e.getMessage());
+            return "unavailable";
+        }
+    }
+
+    /**
+     * Extrae el tipo de evento del mensaje. Debe ser implementado por cada listener.
+     * @param event El evento del cual extraer el tipo
+     * @return String representando el tipo de evento, o null si no se puede determinar
+     */
+    protected abstract String extractEventType(T event);
+
+    /**
+     * Convierte el evento a JSON para almacenamiento en BD. Debe ser implementado por cada listener.
+     * @param event El evento a convertir
+     * @return String en formato JSON con los datos del evento
+     */
+    protected abstract String convertEventToJson(T event);
 }

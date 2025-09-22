@@ -8,6 +8,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @brief Domain model representing current stock information
+ * 
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter @Setter @Builder

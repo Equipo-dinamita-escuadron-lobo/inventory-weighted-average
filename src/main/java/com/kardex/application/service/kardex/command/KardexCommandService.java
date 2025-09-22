@@ -18,6 +18,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @brief Service implementation for Kardex command operations
+ * 
+ * Processes inventory movements using weighted average cost method.
+ * Handles purchases, sales, and returns with stock integration.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -34,11 +40,13 @@ public class KardexCommandService implements IKardexCommandPort{
     private final KardexReturnService returnService;
     private final StockIntegrationService stockIntegrationService;
 
+    /**
+     * @brief Registers a purchase transaction with weighted average calculation
+     * @param kardex Purchase details to process
+     * @return Processed kardex with updated inventory balances
+     */
     @Override
-    public Kardex registerPurchase(Kardex kardex) {
-        log.info(messageService.getMessage(MessageKeys.LOG_PURCHASE_STARTED, 
-            kardex.getProductId(), kardex.getFactCode(), kardex.getQuantity()));
-            
+    public Kardex registerPurchase(Kardex kardex) {  
         validationService.validateProductExists(kardex.getProductId());
         validationService.validateBusinessRules(kardex.getFactCode(), kardex.getProductId(), MovementType.PURCHASE);
         
@@ -55,25 +63,25 @@ public class KardexCommandService implements IKardexCommandPort{
         
         if(kardex.getBalanceUnitPrice().compareTo(BigDecimal.ZERO) == 0) {
             formatterResultOutputPort.returnBusinessRuleErrorResponse(400, 
-                messageService.getMessage(MessageKeys.ERROR_BALANCE_UNIT_PRICE_ZERO));
+                messageService.getMessage(MessageKeys.ERROR_INVALID_VALUE, "balance unit price"));
         }
 
         Stock stock = stockIntegrationService.createStock(kardex);
         stockIntegrationService.callApiStockService(stock, true);
 
         Kardex savedKardex = kardexCommandRepositoryPort.registerPurchase(kardex);
-        
-        log.info(messageService.getMessage(MessageKeys.LOG_PURCHASE_COMPLETED, 
-            savedKardex.getProductId(), savedKardex.getId()));
-            
+
+        log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED, "Method registerPurchase productId=" + savedKardex.getProductId()));
         return savedKardex;
     }
 
+    /**
+     * @brief Registers a sale transaction with inventory validation
+     * @param kardex Sale details to process
+     * @return Processed kardex with updated inventory balances
+     */
     @Override
     public Kardex registerSale(Kardex kardex) {
-        log.info(messageService.getMessage(MessageKeys.LOG_SALE_STARTED, 
-            kardex.getProductId(), kardex.getFactCode(), kardex.getQuantity()));
-            
         validationService.validateProductExists(kardex.getProductId());
         validationService.validateBusinessRules(kardex.getFactCode(), kardex.getProductId(), MovementType.SALE);
         
@@ -88,18 +96,18 @@ public class KardexCommandService implements IKardexCommandPort{
 
         Kardex savedKardex = kardexCommandRepositoryPort.registerSale(kardex);
         
-        log.info(messageService.getMessage(MessageKeys.LOG_SALE_COMPLETED, 
-            savedKardex.getProductId(), savedKardex.getId()));
-            
+        log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED, "Method registerSale productId=" + savedKardex.getProductId()));         
         return savedKardex;
     }
 
 
+    /**
+     * @brief Registers a purchase return with original price validation
+     * @param kardex Return details to process
+     * @return Processed kardex with updated inventory balances
+     */
     @Override
-    public Kardex registerReturnOnPurchase(Kardex kardex) {
-        log.info(messageService.getMessage(MessageKeys.LOG_PURCHASE_RETURN_STARTED, 
-            kardex.getProductId(), kardex.getFactCode(), kardex.getQuantity()));
-            
+    public Kardex registerReturnOnPurchase(Kardex kardex) {        
         validationService.validateProductExists(kardex.getProductId());
         BigDecimal unitPrice = returnService.getUnitPriceIfReturnAllowed(kardex.getFactCode(), kardex.getQuantity(), kardex.getProductId(), MovementType.PURCHASE);
         kardex.setUnitPrice(unitPrice);
@@ -114,17 +122,17 @@ public class KardexCommandService implements IKardexCommandPort{
 
         Kardex savedKardex = kardexCommandRepositoryPort.registerReturnOnPurchase(kardex);
         
-        log.info(messageService.getMessage(MessageKeys.LOG_PURCHASE_RETURN_COMPLETED, 
-            savedKardex.getProductId(), savedKardex.getId()));
-            
+        log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED, "Method registerReturnOnPurchase productId=" + savedKardex.getProductId()));
         return savedKardex;
     }
 
+    /**
+     * @brief Registers a sale return with original price validation
+     * @param kardex Return details to process
+     * @return Processed kardex with updated inventory balances
+     */
     @Override
-    public Kardex registerReturnOnSale(Kardex kardex) {
-        log.info(messageService.getMessage(MessageKeys.LOG_SALE_RETURN_STARTED, 
-            kardex.getProductId(), kardex.getFactCode(), kardex.getQuantity()));
-            
+    public Kardex registerReturnOnSale(Kardex kardex) {   
         validationService.validateProductExists(kardex.getProductId());
         BigDecimal unitPrice = returnService.getUnitPriceIfReturnAllowed(kardex.getFactCode(), kardex.getQuantity(), kardex.getProductId(), MovementType.SALE);
         kardex.setUnitPrice(unitPrice);
@@ -140,9 +148,7 @@ public class KardexCommandService implements IKardexCommandPort{
 
         Kardex savedKardex = kardexCommandRepositoryPort.registerReturnOnSale(kardex);
         
-        log.info(messageService.getMessage(MessageKeys.LOG_SALE_RETURN_COMPLETED, 
-            savedKardex.getProductId(), savedKardex.getId()));
-            
+        log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED," Method registerReturnOnSale productId=" + savedKardex.getProductId()));
         return savedKardex;
     }
 

@@ -12,12 +12,23 @@ import com.kardex.application.ports.input.IProductSyncCommandPort;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * @brief REST controller for product synchronization operations
+ * 
+ * Provides HTTP endpoints for triggering product synchronization
+ * from external product management systems.
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/kardex/weighted-average/sync")
 public class ProductSyncController {
     private final IProductSyncCommandPort productCommandPort;
 
+    /**
+     * @brief Triggers product synchronization for an enterprise
+     * @param enterpriseId Enterprise identifier to sync products for
+     * @return Response with synchronization result status
+     */
     @GetMapping("/products/{enterpriseId}")
     public ResponseEntity<ResponseDto<String>> syncProducts(@PathVariable String enterpriseId) {
         String result = productCommandPort.syncProductsByEnterpriseId(enterpriseId);

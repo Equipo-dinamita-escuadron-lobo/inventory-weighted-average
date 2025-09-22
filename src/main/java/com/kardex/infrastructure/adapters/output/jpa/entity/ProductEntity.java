@@ -11,6 +11,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @brief JPA entity for persisting product information
+ * 
+ */
 @Entity
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
@@ -30,8 +34,6 @@ public class ProductEntity {
     private String name;
 
     private String presentation;
-
-    private String manager;
 
     @Column(name = "enterprise_id", nullable = false)
     private String enterpriseId;

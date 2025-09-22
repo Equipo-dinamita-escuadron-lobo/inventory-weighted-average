@@ -63,7 +63,6 @@ public class KardexSaleControllerIT {
         product.setReference("REF001");
         product.setName("Test Product");
         product.setPresentation("Box");
-        product.setManager("John Doe");
         product.setEnterpriseId("ENT123");
         product.setState(true);
         productRepository.save(product);
@@ -73,7 +72,6 @@ public class KardexSaleControllerIT {
         secondProduct.setReference("REF002");
         secondProduct.setName("Second Product");
         secondProduct.setPresentation("Unit");
-        secondProduct.setManager("Jane Smith");
         secondProduct.setEnterpriseId("ENT123");
         secondProduct.setState(true);
         productRepository.save(secondProduct);

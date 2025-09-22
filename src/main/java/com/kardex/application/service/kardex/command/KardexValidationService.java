@@ -13,6 +13,12 @@ import com.kardex.infrastructure.adapters.config.i18n.MessageKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @brief Service for validating Kardex business rules and data integrity
+ * 
+ * Ensures business constraints are met before processing inventory movements,
+ * including duplicate prevention and prerequisite validation.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -24,42 +30,42 @@ public class KardexValidationService {
     private final IMessageServicePort messageService;
 
     /**
-     * Valida las reglas de negocio para un movimiento de kardex
+     * @brief Validates business rules for a kardex movement
+     * @param factCode Invoice/document code
+     * @param productId Product identifier
+     * @param movementType Type of inventory movement
      */
-    public void validateBusinessRules(String factCode, Long productId, MovementType movementType) {
-        log.debug(messageService.getMessage(MessageKeys.LOG_VALIDATING_BUSINESS_RULES, 
-            factCode, productId, movementType.getDescription()));
-            
-        // Verificar si ya existe el mismo factCode, productId y tipo de movimiento
+    public void validateBusinessRules(String factCode, Long productId, MovementType movementType) { 
+        // Check for duplicate movements based on factCode, productId, and type
         boolean exists = kardexQueryRepositoryPort.existsByFactCodeAndProductIdAndType(factCode, productId, movementType);
         
         if (exists) {
             String movementDescription = movementType.getDescription();
             formatterResultOutputPort.returnBusinessRuleErrorResponse(400, 
-                messageService.getMessage(MessageKeys.ERROR_DUPLICATE_MOVEMENT, 
-                    movementDescription, factCode, productId));
+                messageService.getMessage(MessageKeys.ERROR_DUPLICATE_RECORD, "factCode=" + factCode + ", productId=" + productId + ", type=" + movementDescription));
         }
     }
 
     /**
-     * Valida que el Kardex anterior exista para operaciones que lo requieren
+     * @brief Validates that previous kardex exists for dependent operations
+     * @param lastRegisteredKardex Last kardex record for the product
+     * @param operation Operation name for error messaging
      */
     public void validatePreviousKardexExists(Kardex lastRegisteredKardex, String operation) {
         if (lastRegisteredKardex == null) {
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
-                messageService.getMessage(MessageKeys.ERROR_NO_PREVIOUS_KARDEX, operation));
+                messageService.getMessage(MessageKeys.ERROR_MISSING_RECORD, operation));
         }
     }
 
     /**
-     * Valida que el producto exista por su ID
+     * @brief Validates that a product exists in the system
+     * @param productId Product identifier to validate
      */
-    public void validateProductExists(Long productId) {
-        log.debug(messageService.getMessage(MessageKeys.LOG_PRODUCT_EXISTS_VALIDATION, productId));
-        
+    public void validateProductExists(Long productId) {       
         if (!productQueryRepositoryPort.existsByProductId(productId)) {
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
-                messageService.getMessage(MessageKeys.ERROR_PRODUCT_NOT_FOUND));
+                messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, "productId=" + productId));
         }
     }
 }

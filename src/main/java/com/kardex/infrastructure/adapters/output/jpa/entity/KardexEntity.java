@@ -18,6 +18,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @brief JPA entity for persisting Kardex inventory movement records
+ * 
+ */
 @Entity
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor

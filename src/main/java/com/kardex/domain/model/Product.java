@@ -6,6 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @brief Domain model representing a product in the system
+ * 
+ */
 @Getter @Setter
 @Builder
 @NoArgsConstructor @AllArgsConstructor 
@@ -19,8 +23,6 @@ public class Product {
     private String name;
 
     private String presentation;
-    
-    private String manager;
 
     private String enterpriseId;
 

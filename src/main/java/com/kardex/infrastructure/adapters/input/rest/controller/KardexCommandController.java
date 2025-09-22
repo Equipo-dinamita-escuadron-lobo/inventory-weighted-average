@@ -19,6 +19,12 @@ import com.kardex.infrastructure.adapters.input.rest.mapper.IKardexRestMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * @brief REST controller for Kardex inventory movement commands
+ * 
+ * Provides HTTP endpoints for registering inventory transactions
+ * including purchases and sales with automatic validation.
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/kardex/weighted-average")
@@ -29,6 +35,11 @@ public class KardexCommandController {
     private final IKardexRestMapper kardexRestMapper;
     private final IKardexResponseMapper kardexResponseMapper;
 
+    /**
+     * @brief Registers a purchase transaction
+     * @param kardexPurchaseDtoRequest Purchase transaction data
+     * @return Response with processed kardex information
+     */
     @PostMapping("/purchase-agreement")
     public ResponseEntity<ResponseDto<KardexDtoResponse>> purchaseKardex(@Valid @RequestBody KardexPurchaseDtoRequest kardexPurchaseDtoRequest) {
         Kardex response = kardexCommandPort.registerPurchase(kardexRestMapper.toDomain(kardexPurchaseDtoRequest));
@@ -40,6 +51,11 @@ public class KardexCommandController {
         return responseDto.of();
     }
 
+    /**
+     * @brief Registers a sale transaction
+     * @param kardexSaleDtoRequest Sale transaction data
+     * @return Response with processed kardex information
+     */
     @PostMapping("/sale-agreement")
     public ResponseEntity<ResponseDto<KardexDtoResponse>> saleKardex(@Valid @RequestBody KardexSaleDtoRequest kardexSaleDtoRequest) {
         Kardex response = kardexCommandPort.registerSale(kardexRestMapper.toDomain(kardexSaleDtoRequest));

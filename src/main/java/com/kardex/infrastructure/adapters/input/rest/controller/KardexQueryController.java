@@ -20,6 +20,12 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * @brief REST controller for Kardex inventory movement queries
+ * 
+ * Provides HTTP endpoints for retrieving inventory movement records
+ * with pagination and optional date filtering capabilities.
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/kardex/weighted-average")
@@ -29,6 +35,13 @@ public class KardexQueryController {
     private final IKardexQueryPort kardexQueryPort;
     private final IKardexResponseMapper kardexResponseMapper;
 
+    /**
+     * @brief Retrieves kardex records for a specific product with pagination
+     * @param productId Product identifier to filter records
+     * @param filter Optional date range filter
+     * @param pageable Pagination parameters
+     * @return Paginated response with kardex records
+     */
     @GetMapping("/kardex-by-product")
     public ResponseDto<Page<KardexDtoResponse>> getKardexByProductId(
             @RequestParam @NotNull(message = "The product ID is required.") Long productId,

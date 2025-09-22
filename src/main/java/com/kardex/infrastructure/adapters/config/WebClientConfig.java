@@ -6,17 +6,21 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
- * Centralized configuration for WebClient and the HTTP client for the Stock microservice.
+ * @brief Configuration for HTTP client setup and load balancing
+ * 
+ * Provides centralized WebClient configuration for microservice communication
+ * with integrated load balancing support through Spring Cloud.
  */
 @Configuration
 public class WebClientConfig {
 
     /**
-     * Creates a WebClient.Builder bean already set up for load balancing.
-     * The @LoadBalanced annotation is crucial for Spring Cloud to resolve
-     * service names registered in Eureka (e.g., "lb://STOCK").
+     * @brief Creates a load-balanced WebClient builder
+     * 
+     * The @LoadBalanced annotation enables Spring Cloud to resolve
+     * service names registered in Eureka (e.g., "lb://Name").
      *
-     * @return A configured WebClient.Builder.
+     * @return Configured WebClient.Builder with load balancing
      */
     @Bean
     @LoadBalanced
