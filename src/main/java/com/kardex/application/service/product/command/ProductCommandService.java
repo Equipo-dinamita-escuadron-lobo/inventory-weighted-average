@@ -54,10 +54,10 @@ public class ProductCommandService implements IProductSyncCommandPort {
             // If no previous sync exists, create a new sync state with the current time
             Instant oldDate = Instant.parse("2000-01-01T00:00:00Z");
             lastSync = createSyncStateIfNotExists(enterpriseId, oldDate); 
-            log.info(messageService.getMessage(MessageKeys.ERROR_MISSING_RECORD, enterpriseId));
+            log.info("Created initial sync state for enterpriseId={} with date={}", enterpriseId, oldDate);
         }
 
-        log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_STARTED, "syncProductsByEnterpriseId", enterpriseId, lastSync.get()));
+        log.info("Syncing products for enterpriseId={} since lastSync={}", enterpriseId, lastSync.get());
 
         // 2. Moment before the call (this will be the new date if all goes well)
         Instant syncStartedAt = Instant.now();
@@ -73,14 +73,14 @@ public class ProductCommandService implements IProductSyncCommandPort {
             // 5. Only if everything was successful, update the date
             updateSyncState(enterpriseId, syncStartedAt);
 
-            log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED, enterpriseId, updatedProducts.size()));
+            log.info("Syncing products for enterpriseId={} completed", enterpriseId);
 
             return "Successful synchronization: " + updatedProducts.size() + " products processed.";
 
         } catch (Exception e) {
-            log.error(messageService.getMessage(MessageKeys.LOG_OPERATION_ERROR, enterpriseId), e);
+            log.error("Syncing products for enterpriseId={} error", enterpriseId, e);
             formatterResultOutputPort.returnBusinessRuleErrorResponse(500, 
-                messageService.getMessage(MessageKeys.LOG_SYNC, e.getMessage()));
+                messageService.getMessage(MessageKeys.ERROR_GENERIC, "syncProductsByEnterpriseId", e.getMessage()));
             throw e;
         }
     }
@@ -88,7 +88,7 @@ public class ProductCommandService implements IProductSyncCommandPort {
     private void processUpdatedProducts(List<Product> products, String enterpriseId) {
         try {
             if (products == null || products.isEmpty()) {
-                log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_ERROR, "processUpdatedProducts", "Enterprise ID: " + enterpriseId));
+                log.info("No products to update for enterpriseId={}", enterpriseId);
                 return;
             }
             
@@ -96,9 +96,9 @@ public class ProductCommandService implements IProductSyncCommandPort {
 
             // Save all products to the database
             productCommandRepositoryPort.saveAll(productList);
-            log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED, "processUpdatedProducts"));
+            log.info("Process updated products completed for enterpriseId={}", enterpriseId);
         } catch (Exception e) {
-            log.error(messageService.getMessage(MessageKeys.LOG_OPERATION_ERROR, "processUpdatedProducts", e.getMessage()), e);
+            log.error("Process updated products error for enterpriseId={}", enterpriseId, e);
         }
     }
 
@@ -140,8 +140,7 @@ public class ProductCommandService implements IProductSyncCommandPort {
         newState.setEnterpriseId(enterpriseId);
         newState.setLastSyncDate(syncDate);
         syncStateRepository.save(newState);
-        log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED, 
-            "Created initial sync state for enterpriseId=" + enterpriseId + " with date=" + syncDate));
+        log.info("Created new sync state for enterpriseId={} with date={}", enterpriseId, syncDate);
         return Optional.of(syncDate);
     }
     

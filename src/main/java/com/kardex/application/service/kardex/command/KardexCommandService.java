@@ -71,7 +71,7 @@ public class KardexCommandService implements IKardexCommandPort{
 
         Kardex savedKardex = kardexCommandRepositoryPort.registerPurchase(kardex);
 
-        log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED, "Method registerPurchase productId=" + savedKardex.getProductId()));
+        log.info("Method registerPurchase productId=" + savedKardex.getProductId());
         return savedKardex;
     }
 
@@ -95,8 +95,8 @@ public class KardexCommandService implements IKardexCommandPort{
         stockIntegrationService.callApiStockService(stock, false);
 
         Kardex savedKardex = kardexCommandRepositoryPort.registerSale(kardex);
-        
-        log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED, "Method registerSale productId=" + savedKardex.getProductId()));         
+
+        log.info("Method registerSale productId=" + savedKardex.getProductId());
         return savedKardex;
     }
 
@@ -122,7 +122,7 @@ public class KardexCommandService implements IKardexCommandPort{
 
         Kardex savedKardex = kardexCommandRepositoryPort.registerReturnOnPurchase(kardex);
         
-        log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED, "Method registerReturnOnPurchase productId=" + savedKardex.getProductId()));
+        log.info("Method registerReturnOnPurchase productId=" + savedKardex.getProductId());
         return savedKardex;
     }
 
@@ -148,7 +148,7 @@ public class KardexCommandService implements IKardexCommandPort{
 
         Kardex savedKardex = kardexCommandRepositoryPort.registerReturnOnSale(kardex);
         
-        log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED," Method registerReturnOnSale productId=" + savedKardex.getProductId()));
+        log.info(" Method registerReturnOnSale productId=" + savedKardex.getProductId());
         return savedKardex;
     }
 

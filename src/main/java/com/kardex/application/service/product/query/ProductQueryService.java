@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import com.kardex.application.ports.input.IProductQueryPort;
 import com.kardex.domain.model.Product;
 import com.kardex.domain.port.IProductQueryRepositoryPort;
-import com.kardex.domain.port.IMessageServicePort;
-import com.kardex.infrastructure.adapters.config.i18n.MessageKeys;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 public class ProductQueryService implements IProductQueryPort {
 
     private final IProductQueryRepositoryPort productQueryRepository;
-    private final IMessageServicePort messageService;
 
     /**
      * @brief Retrieves all products for a specific enterprise
@@ -33,7 +30,7 @@ public class ProductQueryService implements IProductQueryPort {
      */
     @Override
     public List<Product> findAll(String enterpriseId) {
-        log.info(messageService.getMessage(MessageKeys.LOG_INFO, "Fetching all products for enterpriseId=" + enterpriseId));
+        log.info("Retrieving all products for enterpriseId={}", enterpriseId);
         return productQueryRepository.findAll(enterpriseId);
     }
     
