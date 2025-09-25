@@ -29,7 +29,7 @@ public class KardexUnitTest {
     void testFinalizeKardexEntry() {
         // Arrange
         kardex.setType(MovementType.PURCHASE);
-        kardex.setFactCode("0"); // Para que genere código de ajuste
+        kardex.setFactCode(null); // Para que genere código de ajuste
         ZonedDateTime before = ZonedDateTime.now(ZoneId.of("America/Bogota")).truncatedTo(ChronoUnit.SECONDS);
         
         // Act
@@ -49,7 +49,7 @@ public class KardexUnitTest {
         
         // Verifica que se generó un código de factura de ajuste (ya no es "0")
         assertNotNull(kardex.getFactCode());
-        assertNotEquals("0", kardex.getFactCode());
+        assertNotEquals(null, kardex.getFactCode());
         assertTrue(kardex.getFactCode().length() > 1);
     }
     
@@ -60,7 +60,7 @@ public class KardexUnitTest {
         kardex.setQuantity(10);
         kardex.setUnitPrice(new BigDecimal("25.50"));
         kardex.setType(MovementType.PURCHASE);
-        kardex.setFactCode("0"); // Para generar código de ajuste
+        kardex.setFactCode(null); // Para generar código de ajuste
         int lastQuantity = 5;
         BigDecimal lastTotalBalance = new BigDecimal("100.00");
         ZonedDateTime before = ZonedDateTime.now(ZoneId.of("America/Bogota"));
@@ -86,7 +86,7 @@ public class KardexUnitTest {
         assertTrue(kardex.getDetails().contains("Compra - Factura:"));
         
         // Verify fact code was generated (should not be "0" anymore)
-        assertNotEquals("0", kardex.getFactCode());
+        assertNotEquals(null, kardex.getFactCode());
     }
     
     @Test

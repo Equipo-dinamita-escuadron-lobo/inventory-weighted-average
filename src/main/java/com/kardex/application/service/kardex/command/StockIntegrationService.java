@@ -4,9 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.kardex.domain.model.Kardex;
 import com.kardex.domain.model.Stock;
-import com.kardex.domain.port.IMessageServicePort;
 import com.kardex.domain.port.IStockClientPort;
-import com.kardex.infrastructure.adapters.config.i18n.MessageKeys;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 public class StockIntegrationService {
     
     private final IStockClientPort stockClient;
-    private final IMessageServicePort messageService;
 
     /**
      * @brief Creates a Stock object from Kardex data
@@ -50,11 +47,9 @@ public class StockIntegrationService {
             } else {
                 stockClient.sellStock(stock);
             }
-            log.info(messageService.getMessage(MessageKeys.LOG_OPERATION_COMPLETED, 
-                isBuy ? "purchase" : "sale"));
+            log.info("" + (isBuy ? "Purchase/Return" : "Sale") + " stock updated successfully for product: {}", stock.getProductId());
         } catch (Exception e) {
-            log.error(messageService.getMessage(MessageKeys.LOG_OPERATION_ERROR, 
-                isBuy ? "purchase" : "sale", e.getMessage(), e));
+            log.error("Error during " + (isBuy ? "purchase" : "sale") + ": " + e.getMessage(), e);
         }
     }
 }
