@@ -36,4 +36,9 @@ public interface IKardexCommandPort {
      * @return Processed kardex with updated balances
      */
     Kardex registerReturnOnSale(Kardex kardex);
+    
+    /**
+     * @brief Deletes all kardex records
+     */
+    void deleteAll();
 }

@@ -36,4 +36,9 @@ public interface IKardexCommandRepositoryPort {
      * @return Saved kardex with generated identifiers
      */
     Kardex registerReturnOnSale(Kardex kardex);
+    
+    /**
+     * @brief Deletes all kardex records
+     */
+    void deleteAll();
 }

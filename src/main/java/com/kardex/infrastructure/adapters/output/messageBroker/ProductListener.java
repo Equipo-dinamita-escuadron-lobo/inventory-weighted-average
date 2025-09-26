@@ -82,12 +82,14 @@ public class ProductListener extends AbstractMessageListener<EventDto<ProductAsy
                 case UPDATED:
                     log.info("Updating product: {}", productName);
                     Product updatedProduct = productBrokerMapper.toDomain(data);
-                    productCommandPort.save(updatedProduct);
-                    log.info("Product updated successfully: {}", updatedProduct.getName());
+                    String updateResult = productCommandPort.update(updatedProduct);
+                    log.info("Product update result: {} - {}", updatedProduct.getName(), updateResult);
                     break;
                     
                 case DELETED:
-                    log.info("Deleting product: {}", productName);            
+                    log.info("Deleting product: {}", productName);
+                    String deleteResult = productCommandPort.deleteById(data.getProductId(), data.getEnterpriseId());
+                    log.info("Product deletion result: {}", deleteResult);
                     break;
                     
                 default:

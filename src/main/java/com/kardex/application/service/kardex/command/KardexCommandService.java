@@ -152,4 +152,18 @@ public class KardexCommandService implements IKardexCommandPort{
         return savedKardex;
     }
 
+    /**
+     * @brief Deletes all kardex records
+     */
+    @Override
+    public void deleteAll() {
+        log.info("Deleting all kardex records");
+        try {
+            kardexCommandRepositoryPort.deleteAll();
+            log.info("All kardex records deleted successfully");
+        } catch (Exception e) {
+            log.error("Error deleting all kardex records: {}", e.getMessage());
+        }
+    }
+
 }

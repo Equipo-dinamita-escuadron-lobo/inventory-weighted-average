@@ -77,4 +77,14 @@ public class KardexCommandAdapter implements IKardexCommandRepositoryPort{
         return kardexEntityMapper.toDomain(savedEntity);
     }
 
+    /**
+     * @brief Deletes all kardex records from database
+     */
+    @Override
+    public void deleteAll() {
+        log.info("Deleting all kardex records from database");
+        kardexRepository.deleteAll();
+        log.info("All kardex records deleted from database");
+    }
+
 }
