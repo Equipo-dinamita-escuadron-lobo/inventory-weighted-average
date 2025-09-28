@@ -3,7 +3,7 @@ package com.kardex.infrastructure.adapters.output.jpa.adapter;
 import org.springframework.stereotype.Repository;
 
 import com.kardex.domain.model.Kardex;
-import com.kardex.domain.port.IKardexCommandRepositoryPort;
+import com.kardex.domain.port.kardex.IKardexCommandRepositoryPort;
 import com.kardex.infrastructure.adapters.output.jpa.entity.KardexEntity;
 import com.kardex.infrastructure.adapters.output.jpa.mapper.IKardexEntityCommandMapper;
 import com.kardex.infrastructure.adapters.output.jpa.repository.IKardexRepository;

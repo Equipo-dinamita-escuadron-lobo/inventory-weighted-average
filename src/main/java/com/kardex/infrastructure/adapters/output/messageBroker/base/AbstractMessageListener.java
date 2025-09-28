@@ -1,9 +1,11 @@
 package com.kardex.infrastructure.adapters.output.messageBroker.base;
 
 import org.springframework.amqp.core.Message;
+
+import com.kardex.domain.port.messageProcessingError.IEventRecoveryActionPort;
+import com.kardex.domain.port.messageProcessingError.IMessageErrorHandlingPort;
 import com.rabbitmq.client.Channel;
-import com.kardex.domain.port.IMessageErrorHandlingPort;
-import com.kardex.domain.port.IEventRecoveryActionPort;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -101,7 +103,10 @@ public abstract class AbstractMessageListener<T> {
             if (messageErrorHandlingPort != null) {
                 String eventType = extractEventType(event);
                 String messageData = convertEventToJson(event);
-                String errorDescription = "Validation failed: Required fields are missing or invalid";
+                String specificError = getValidationErrorMessage();
+                String errorDescription = specificError != null 
+                    ? "Validation failed: " + specificError
+                    : "Validation failed: Required fields are missing or invalid";
                 
                 messageErrorHandlingPort.saveProcessingError(eventType, errorDescription, messageData, getEntityType());
             }
@@ -182,4 +187,12 @@ public abstract class AbstractMessageListener<T> {
      * @return String en formato JSON con los datos del evento
      */
     protected abstract String convertEventToJson(T event);
+
+    /**
+     * Obtiene el mensaje de error específico de validación si está disponible.
+     * @return String con el mensaje de error específico, o null si no hay mensaje específico
+     */
+    protected String getValidationErrorMessage() {
+        return null; // Implementación por defecto
+    }
 }

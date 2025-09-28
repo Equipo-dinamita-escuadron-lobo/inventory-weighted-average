@@ -1,4 +1,4 @@
-package com.kardex.domain.port;
+package com.kardex.application.ports.input.messageProcessingError;
 
 import java.util.Optional;
 
@@ -8,12 +8,12 @@ import org.springframework.data.domain.Pageable;
 import com.kardex.domain.model.MessageProcessingError;
 
 /**
- * @brief Output port for MessageProcessingError query operations
+ * @brief Input port for MessageProcessingError query operations
  * 
- * Defines the contract for accessing message processing error data
- * from the persistence layer.
+ * Provides query capabilities for retrieving message processing error records
+ * with pagination support, individual record access and latest record access.
  */
-public interface IMessageProcessingErrorQueryRepositoryPort {
+public interface IMessageProcessingErrorQueryPort {
     
     /**
      * @brief Finds a message processing error by ID
@@ -21,6 +21,12 @@ public interface IMessageProcessingErrorQueryRepositoryPort {
      * @return Optional containing the error record if found
      */
     Optional<MessageProcessingError> findById(Long id);
+    
+    /**
+     * @brief Finds the most recent message processing error
+     * @return Optional containing the latest error record if found
+     */
+    Optional<MessageProcessingError> findLastRecord();
     
     /**
      * @brief Retrieves all message processing errors with pagination

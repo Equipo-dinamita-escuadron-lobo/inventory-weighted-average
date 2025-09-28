@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kardex.application.ports.input.IKardexQueryPort;
+import com.kardex.application.ports.input.kardex.IKardexQueryPort;
 import com.kardex.domain.model.Kardex;
 import com.kardex.infrastructure.adapters.input.rest.dto.ResponseDto;
 import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexFilterDto;

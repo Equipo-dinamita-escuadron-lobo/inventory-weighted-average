@@ -1,4 +1,4 @@
-package com.kardex.domain.port;
+package com.kardex.domain.port.kardex;
 
 import java.time.LocalDate;
 import java.util.List;

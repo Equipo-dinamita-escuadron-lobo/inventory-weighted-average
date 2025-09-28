@@ -16,7 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.kardex.application.service.kardex.command.StockIntegrationService;
 import com.kardex.domain.model.Kardex;
 import com.kardex.domain.model.Stock;
-import com.kardex.domain.port.IStockClientPort;
+import com.kardex.domain.port.external.IStockClientPort;
 
 @ExtendWith(MockitoExtension.class)
 public class StockIntegrationServiceUnitTest {

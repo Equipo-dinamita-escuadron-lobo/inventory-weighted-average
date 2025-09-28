@@ -1,4 +1,4 @@
-package com.kardex.application.ports.input;
+package com.kardex.application.ports.input.kardex;
 
 import java.time.LocalDate;
 

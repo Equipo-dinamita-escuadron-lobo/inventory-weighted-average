@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kardex.application.ports.input.IKardexCommandPort;
+import com.kardex.application.ports.input.kardex.IKardexCommandPort;
 import com.kardex.domain.model.Kardex;
 import com.kardex.infrastructure.adapters.input.rest.dto.ResponseDto;
 import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexPurchaseDtoRequest;

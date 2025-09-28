@@ -6,9 +6,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.kardex.application.ports.input.IMessageProcessingErrorQueryPort;
+import com.kardex.application.ports.input.messageProcessingError.IMessageProcessingErrorQueryPort;
 import com.kardex.domain.model.MessageProcessingError;
-import com.kardex.domain.port.IMessageProcessingErrorQueryRepositoryPort;
+import com.kardex.domain.port.common.IFormatterResultOutputPort;
+import com.kardex.domain.port.common.IMessageServicePort;
+import com.kardex.domain.port.messageProcessingError.IMessageProcessingErrorQueryRepositoryPort;
+import com.kardex.infrastructure.adapters.config.i18n.MessageKeys;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  * @brief Service implementation for MessageProcessingError query operations
  * 
  * Provides read access to message processing error records with
- * pagination support and individual record access.
+ * pagination support, individual record access and latest record access.
  */
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 public class MessageProcessingErrorQueryService implements IMessageProcessingErrorQueryPort {
 
     private final IMessageProcessingErrorQueryRepositoryPort messageProcessingErrorQueryRepositoryPort;
+    private final IFormatterResultOutputPort formatterResultOutputPort;
+    private final IMessageServicePort messageService;
 
     /**
      * @brief Finds a message processing error by ID
@@ -34,7 +39,27 @@ public class MessageProcessingErrorQueryService implements IMessageProcessingErr
     @Override
     public Optional<MessageProcessingError> findById(Long id) {
         log.info("Finding message processing error by id: {}", id);
-        return messageProcessingErrorQueryRepositoryPort.findById(id);
+        Optional<MessageProcessingError> messageProcessingError = messageProcessingErrorQueryRepositoryPort.findById(id);
+        if (!messageProcessingError.isPresent()) {
+            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
+                messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, "Message processing error with id: " + id));
+        }
+        return messageProcessingError;
+    }
+
+    /**
+     * @brief Finds the most recent message processing error
+     * @return Optional containing the latest error record if found
+     */
+    @Override
+    public Optional<MessageProcessingError> findLastRecord() {
+        log.info("Finding the most recent message processing error");
+        Optional<MessageProcessingError> messageProcessingError = messageProcessingErrorQueryRepositoryPort.findLastRecord();
+        if (!messageProcessingError.isPresent()) {
+            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
+                messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, "No message processing errors found"));
+        }
+        return messageProcessingError;
     }
 
     /**

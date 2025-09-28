@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.kardex.domain.model.Product;
-import com.kardex.domain.port.IProductClientPort;
+import com.kardex.domain.port.product.IProductClientPort;
 import com.kardex.infrastructure.adapters.output.remoteSync.config.IProductClient;
 import com.kardex.infrastructure.adapters.output.remoteSync.mapper.IProductClientMapper;
 

@@ -1,4 +1,4 @@
-package com.kardex.domain.port;
+package com.kardex.domain.port.kardex;
 
 import com.kardex.domain.model.Kardex;
 

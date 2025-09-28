@@ -2,7 +2,7 @@ package com.kardex.infrastructure.adapters.output.jpa.adapter;
 
 import org.springframework.stereotype.Repository;
 
-import com.kardex.domain.port.IMessageProcessingErrorCommandRepositoryPort;
+import com.kardex.domain.port.messageProcessingError.IMessageProcessingErrorCommandRepositoryPort;
 import com.kardex.infrastructure.adapters.output.jpa.repository.IMessageProcessingErrorRepository;
 
 import lombok.RequiredArgsConstructor;

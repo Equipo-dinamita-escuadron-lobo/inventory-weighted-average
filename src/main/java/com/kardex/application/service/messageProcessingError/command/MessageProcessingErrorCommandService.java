@@ -2,11 +2,11 @@ package com.kardex.application.service.messageProcessingError.command;
 
 import org.springframework.stereotype.Service;
 
-import com.kardex.application.ports.input.IMessageProcessingErrorCommandPort;
-import com.kardex.domain.port.IMessageProcessingErrorCommandRepositoryPort;
-import com.kardex.domain.port.IMessageProcessingErrorQueryRepositoryPort;
-import com.kardex.domain.port.IFormatterResultOutputPort;
-import com.kardex.domain.port.IMessageServicePort;
+import com.kardex.application.ports.input.messageProcessingError.IMessageProcessingErrorCommandPort;
+import com.kardex.domain.port.common.IFormatterResultOutputPort;
+import com.kardex.domain.port.common.IMessageServicePort;
+import com.kardex.domain.port.messageProcessingError.IMessageProcessingErrorCommandRepositoryPort;
+import com.kardex.domain.port.messageProcessingError.IMessageProcessingErrorQueryRepositoryPort;
 import com.kardex.infrastructure.adapters.config.i18n.MessageKeys;
 
 import jakarta.transaction.Transactional;

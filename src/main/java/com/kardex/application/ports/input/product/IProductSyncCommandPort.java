@@ -1,4 +1,4 @@
-package com.kardex.application.ports.input;
+package com.kardex.application.ports.input.product;
 
 /**
  * @brief Input port for product synchronization operations

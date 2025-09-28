@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.kardex.domain.model.SyncState;
-import com.kardex.domain.port.ISyncStateRepositoryPort;
+import com.kardex.domain.port.external.ISyncStateRepositoryPort;
 import com.kardex.infrastructure.adapters.output.jpa.entity.SyncStateEntity;
 import com.kardex.infrastructure.adapters.output.jpa.mapper.ISyncStateEntityMapper;
 import com.kardex.infrastructure.adapters.output.jpa.repository.ISyncStateRepository;

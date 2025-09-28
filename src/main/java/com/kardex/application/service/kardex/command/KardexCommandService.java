@@ -4,14 +4,14 @@ import java.math.BigDecimal;
 
 import org.springframework.stereotype.Service;
 
-import com.kardex.application.ports.input.IKardexCommandPort;
+import com.kardex.application.ports.input.kardex.IKardexCommandPort;
 import com.kardex.domain.model.Kardex;
 import com.kardex.domain.model.MovementType;
 import com.kardex.domain.model.Stock;
-import com.kardex.domain.port.IFormatterResultOutputPort;
-import com.kardex.domain.port.IKardexCommandRepositoryPort;
-import com.kardex.domain.port.IKardexQueryRepositoryPort;
-import com.kardex.domain.port.IMessageServicePort;
+import com.kardex.domain.port.common.IFormatterResultOutputPort;
+import com.kardex.domain.port.common.IMessageServicePort;
+import com.kardex.domain.port.kardex.IKardexCommandRepositoryPort;
+import com.kardex.domain.port.kardex.IKardexQueryRepositoryPort;
 import com.kardex.infrastructure.adapters.config.i18n.MessageKeys;
 
 import jakarta.transaction.Transactional;

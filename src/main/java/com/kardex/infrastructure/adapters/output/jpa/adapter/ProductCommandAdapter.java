@@ -10,7 +10,7 @@ import java.util.function.Function;
 import org.springframework.stereotype.Repository;
 
 import com.kardex.domain.model.Product;
-import com.kardex.domain.port.IProductCommandRepositoryPort;
+import com.kardex.domain.port.product.IProductCommandRepositoryPort;
 import com.kardex.infrastructure.adapters.output.jpa.entity.ProductEntity;
 import com.kardex.infrastructure.adapters.output.jpa.mapper.IProductEntityCommandMapper;
 import com.kardex.infrastructure.adapters.output.jpa.record.ProductPartition;

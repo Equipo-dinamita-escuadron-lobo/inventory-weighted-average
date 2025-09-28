@@ -1,4 +1,4 @@
-package com.kardex.domain.port;
+package com.kardex.domain.port.product;
 
 import java.time.Instant;
 import java.util.List;

@@ -6,9 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.kardex.application.ports.input.IKardexQueryPort;
+import com.kardex.application.ports.input.kardex.IKardexQueryPort;
 import com.kardex.domain.model.Kardex;
-import com.kardex.domain.port.IKardexQueryRepositoryPort;
+import com.kardex.domain.port.kardex.IKardexQueryRepositoryPort;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

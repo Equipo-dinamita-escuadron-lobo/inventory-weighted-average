@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kardex.application.ports.input.IMessageProcessingErrorCommandPort;
-import com.kardex.application.ports.input.IMessageProcessingErrorQueryPort;
+import com.kardex.application.ports.input.messageProcessingError.IMessageProcessingErrorCommandPort;
+import com.kardex.application.ports.input.messageProcessingError.IMessageProcessingErrorQueryPort;
 import com.kardex.domain.model.MessageProcessingError;
 import com.kardex.infrastructure.adapters.input.rest.dto.ResponseDto;
 import com.kardex.infrastructure.adapters.input.rest.dto.response.MessageProcessingErrorDtoResponse;
@@ -46,22 +46,30 @@ public class MessageProcessingErrorController {
     public ResponseEntity<ResponseDto<MessageProcessingErrorDtoResponse>> findById(@PathVariable Long id) {
         Optional<MessageProcessingError> messageProcessingError = messageProcessingErrorQueryPort.findById(id);
         
-        if (messageProcessingError.isPresent()) {
-            MessageProcessingErrorDtoResponse response = messageProcessingErrorResponseMapper.toDtoResponse(messageProcessingError.get());
-            ResponseDto<MessageProcessingErrorDtoResponse> responseDto = ResponseDto.<MessageProcessingErrorDtoResponse>builder()
-                    .data(response)
-                    .status(200)
-                    .message("Message processing error found successfully")
-                    .build();
-            return responseDto.of();
-        } else {
-            ResponseDto<MessageProcessingErrorDtoResponse> responseDto = ResponseDto.<MessageProcessingErrorDtoResponse>builder()
-                    .data(null)
-                    .status(404)
-                    .message("Message processing error not found")
-                    .build();
-            return responseDto.of();
-        }
+        MessageProcessingErrorDtoResponse response = messageProcessingErrorResponseMapper.toDtoResponse(messageProcessingError.get());
+        ResponseDto<MessageProcessingErrorDtoResponse> responseDto = ResponseDto.<MessageProcessingErrorDtoResponse>builder()
+                .data(response)
+                .status(200)
+                .message("Message processing error found successfully")
+                .build();
+        return responseDto.of();
+    }
+
+    /**
+     * @brief Retrieves the most recent message processing error
+     * @return Response with the latest message processing error or not found
+     */
+    @GetMapping("/last")
+    public ResponseEntity<ResponseDto<MessageProcessingErrorDtoResponse>> findLastRecord() {
+        Optional<MessageProcessingError> messageProcessingError = messageProcessingErrorQueryPort.findLastRecord();
+        
+        MessageProcessingErrorDtoResponse response = messageProcessingErrorResponseMapper.toDtoResponse(messageProcessingError.get());
+        ResponseDto<MessageProcessingErrorDtoResponse> responseDto = ResponseDto.<MessageProcessingErrorDtoResponse>builder()
+                .data(response)
+                .status(200)
+                .message("Latest message processing error found successfully")
+                .build();
+        return responseDto.of();
     }
 
     /**
