@@ -4,6 +4,12 @@ import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import com.kardex.infrastructure.adapters.output.multitenancy.interceptor.TenantInterceptor;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * @brief Configuration for HTTP client setup and load balancing
@@ -11,9 +17,16 @@ import org.springframework.web.reactive.function.client.WebClient;
  * Provides centralized WebClient configuration for microservice communication
  * with integrated load balancing support through Spring Cloud.
  */
+@RequiredArgsConstructor
 @Configuration
-public class WebClientConfig {
+public class WebClientConfig implements WebMvcConfigurer {
 
+    private final TenantInterceptor tenantInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addWebRequestInterceptor(tenantInterceptor);
+    }
     /**
      * @brief Creates a load-balanced WebClient builder
      * 

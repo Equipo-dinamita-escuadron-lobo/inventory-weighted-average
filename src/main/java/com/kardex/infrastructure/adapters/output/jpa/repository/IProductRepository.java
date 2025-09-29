@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -24,5 +25,12 @@ public interface IProductRepository extends JpaRepository<ProductEntity, Long> {
     ProductEntity getReferenceByProductId(Long productId);
 
     boolean existsByProductId(Long id);
+
+    // Delete methods
+    @Modifying
+    int deleteByProductIdAndEnterpriseId(Long productId, String enterpriseId);
+    
+    @Modifying
+    int deleteByEnterpriseId(String enterpriseId);
 
 }

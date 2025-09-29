@@ -1,4 +1,4 @@
-package com.kardex.domain.port;
+package com.kardex.domain.port.external;
 
 import com.kardex.domain.model.Stock;
 

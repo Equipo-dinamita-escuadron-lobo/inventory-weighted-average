@@ -7,9 +7,9 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 import com.kardex.domain.model.Product;
-import com.kardex.domain.port.IMessageErrorHandlingPort;
-import com.kardex.domain.port.IProductCommandRepositoryPort;
-import com.kardex.domain.port.IEventRecoveryActionPort;
+import com.kardex.domain.port.messageProcessingError.IEventRecoveryActionPort;
+import com.kardex.domain.port.messageProcessingError.IMessageErrorHandlingPort;
+import com.kardex.domain.port.product.IProductCommandRepositoryPort;
 import com.kardex.infrastructure.adapters.config.rabbitConfig.RabbitProductConfig;
 import com.kardex.infrastructure.adapters.output.messageBroker.base.AbstractMessageListener;
 import com.kardex.infrastructure.adapters.output.messageBroker.dto.EventDto;
@@ -37,6 +37,8 @@ public class ProductListener extends AbstractMessageListener<EventDto<ProductAsy
     private final ProductBrokerMapper productBrokerMapper;
     private final IMessageErrorHandlingPort messageErrorHandlingPortImpl;
     private final IEventRecoveryActionPort<EventDto<ProductAsyncDto, EventProductType>> productRecoveryActionPort;
+
+    private String validationErrorMessage = null;
     
     @PostConstruct
     private void init() {
@@ -82,12 +84,14 @@ public class ProductListener extends AbstractMessageListener<EventDto<ProductAsy
                 case UPDATED:
                     log.info("Updating product: {}", productName);
                     Product updatedProduct = productBrokerMapper.toDomain(data);
-                    productCommandPort.save(updatedProduct);
-                    log.info("Product updated successfully: {}", updatedProduct.getName());
+                    String updateResult = productCommandPort.update(updatedProduct);
+                    log.info("Product update result: {} - {}", updatedProduct.getName(), updateResult);
                     break;
                     
                 case DELETED:
-                    log.info("Deleting product: {}", productName);            
+                    log.info("Deleting product: {}", productName);
+                    String deleteResult = productCommandPort.deleteById(data.getProductId(), data.getEnterpriseId());
+                    log.info("Product deletion result: {}", deleteResult);
                     break;
                     
                 default:
@@ -108,12 +112,20 @@ public class ProductListener extends AbstractMessageListener<EventDto<ProductAsy
     @Override
     protected boolean isValidEvent(EventDto<ProductAsyncDto, EventProductType> event) {
         if (event == null) {
-            log.warn("Event is null");
+            validationErrorMessage = "Event is null";
+            log.warn(validationErrorMessage);
+            return false;
+        }
+
+        if (event.getType() == null) {
+            validationErrorMessage = "Event type is null";
+            log.warn(validationErrorMessage);
             return false;
         }
         
         if (event.getData() == null) {
-            log.warn("Event data is null");
+            validationErrorMessage = "Event data is null";
+            log.warn(validationErrorMessage);
             return false;
         }
         
@@ -121,22 +133,26 @@ public class ProductListener extends AbstractMessageListener<EventDto<ProductAsy
         
         // Validar campos obligatorios (todos menos presentation)
         if (data.getProductId() == null) {
-            log.warn("ProductId is null - required field");
+            validationErrorMessage = "Missing required field: productId";
+            log.warn(validationErrorMessage);
             return false;
         }
         
         if (data.getName() == null || data.getName().trim().isEmpty()) {
-            log.warn("Name is null or empty - required field");
+            validationErrorMessage = "Name is null or empty - required field";
+            log.warn(validationErrorMessage);
             return false;
         }
         
         if (data.getReference() == null || data.getReference().trim().isEmpty()) {
-            log.warn("Reference is null or empty - required field");
+            validationErrorMessage = "Reference is null or empty - required field";
+            log.warn(validationErrorMessage);
             return false;
         }
         
         if (data.getEnterpriseId() == null || data.getEnterpriseId().trim().isEmpty()) {
-            log.warn("EnterpriseId is null or empty - required field");
+            validationErrorMessage = "EnterpriseId is null or empty - required field";
+            log.warn(validationErrorMessage);
             return false;
         }
         
@@ -169,5 +185,10 @@ public class ProductListener extends AbstractMessageListener<EventDto<ProductAsy
         }
         
         return JsonUtils.toJsonWithNullHandling(event.getData());
+    }
+
+    @Override
+    protected String getValidationErrorMessage() {
+        return validationErrorMessage;
     }
 }

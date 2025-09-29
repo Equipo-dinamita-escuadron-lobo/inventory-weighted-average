@@ -2,6 +2,8 @@ package com.kardex.infrastructure.adapters.output.jpa.entity;
 
 import java.time.Instant;
 
+import org.hibernate.annotations.TenantId;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -57,4 +59,7 @@ public class SyncStateEntity {
     protected void onUpdate() {
         updatedAt = Instant.now();
     }
+
+    @TenantId
+    String tenantId;
 }

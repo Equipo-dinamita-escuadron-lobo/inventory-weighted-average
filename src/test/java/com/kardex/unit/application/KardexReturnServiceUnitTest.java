@@ -20,9 +20,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.kardex.application.service.kardex.command.KardexReturnService;
 import com.kardex.domain.model.Kardex;
 import com.kardex.domain.model.MovementType;
-import com.kardex.domain.port.IFormatterResultOutputPort;
-import com.kardex.domain.port.IKardexQueryRepositoryPort;
-import com.kardex.domain.port.IMessageServicePort;
+import com.kardex.domain.port.common.IFormatterResultOutputPort;
+import com.kardex.domain.port.common.IMessageServicePort;
+import com.kardex.domain.port.kardex.IKardexQueryRepositoryPort;
 
 @ExtendWith(MockitoExtension.class)
 public class KardexReturnServiceUnitTest {

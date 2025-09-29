@@ -3,7 +3,7 @@ package com.kardex.infrastructure.adapters.output.jpa.adapter;
 import org.springframework.stereotype.Repository;
 
 import com.kardex.domain.model.Kardex;
-import com.kardex.domain.port.IKardexCommandRepositoryPort;
+import com.kardex.domain.port.kardex.IKardexCommandRepositoryPort;
 import com.kardex.infrastructure.adapters.output.jpa.entity.KardexEntity;
 import com.kardex.infrastructure.adapters.output.jpa.mapper.IKardexEntityCommandMapper;
 import com.kardex.infrastructure.adapters.output.jpa.repository.IKardexRepository;
@@ -75,6 +75,16 @@ public class KardexCommandAdapter implements IKardexCommandRepositoryPort{
         KardexEntity savedEntity = kardexRepository.save(kardexEntity);
         log.info("Registered return on sale for product: {}", kardex.getProductId());
         return kardexEntityMapper.toDomain(savedEntity);
+    }
+
+    /**
+     * @brief Deletes all kardex records from database
+     */
+    @Override
+    public void deleteAll() {
+        log.info("Deleting all kardex records from database");
+        kardexRepository.deleteAll();
+        log.info("All kardex records deleted from database");
     }
 
 }

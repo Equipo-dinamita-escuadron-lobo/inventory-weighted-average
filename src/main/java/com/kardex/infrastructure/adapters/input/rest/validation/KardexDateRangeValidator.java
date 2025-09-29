@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.kardex.domain.port.IMessageServicePort;
+import com.kardex.domain.port.common.IMessageServicePort;
 import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexFilterDto;
 
 import jakarta.validation.ConstraintValidator;

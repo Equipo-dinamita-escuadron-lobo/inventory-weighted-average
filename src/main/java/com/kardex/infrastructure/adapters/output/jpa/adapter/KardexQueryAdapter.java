@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import com.kardex.domain.model.Kardex;
 import com.kardex.domain.model.MovementType;
-import com.kardex.domain.port.IKardexQueryRepositoryPort;
+import com.kardex.domain.port.kardex.IKardexQueryRepositoryPort;
 import com.kardex.infrastructure.adapters.output.jpa.entity.KardexEntity;
 import com.kardex.infrastructure.adapters.output.jpa.mapper.IKardexEntityQueryMapper;
 import com.kardex.infrastructure.adapters.output.jpa.repository.IKardexRepository;

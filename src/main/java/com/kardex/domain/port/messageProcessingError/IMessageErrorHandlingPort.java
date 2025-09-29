@@ -1,4 +1,4 @@
-package com.kardex.domain.port;
+package com.kardex.domain.port.messageProcessingError;
 
 /**
  * @brief Output port for message processing error handling

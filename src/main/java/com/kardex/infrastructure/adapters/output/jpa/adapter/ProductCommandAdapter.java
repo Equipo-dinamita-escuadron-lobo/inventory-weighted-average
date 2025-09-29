@@ -10,7 +10,7 @@ import java.util.function.Function;
 import org.springframework.stereotype.Repository;
 
 import com.kardex.domain.model.Product;
-import com.kardex.domain.port.IProductCommandRepositoryPort;
+import com.kardex.domain.port.product.IProductCommandRepositoryPort;
 import com.kardex.infrastructure.adapters.output.jpa.entity.ProductEntity;
 import com.kardex.infrastructure.adapters.output.jpa.mapper.IProductEntityCommandMapper;
 import com.kardex.infrastructure.adapters.output.jpa.record.ProductPartition;
@@ -78,6 +78,81 @@ public class ProductCommandAdapter implements IProductCommandRepositoryPort {
             return "Product saved successfully.";
         } catch (Exception e) {
             return "An error occurred while saving the product: " + e.getMessage();
+        }
+    }
+
+    /**
+     * @brief Updates an existing product
+     * @param product The product to update
+     * @return Result message
+     */
+    @Override
+    @Transactional
+    public String update(Product product) {
+        try {
+            // Verificar si el producto existe
+            if (!productRepository.existsByProductId(product.getProductId())) {
+                log.warn("Product with ID {} not found for update", product.getProductId());
+                return "Product not found for update.";
+            }
+
+            // Obtener la entidad existente
+            ProductEntity existingEntity = productRepository.getReferenceByProductId(product.getProductId());
+            
+            // Actualizar la entidad con los nuevos datos
+            productEntityCommandMapper.updateEntityFromProduct(product, existingEntity);
+            
+            // Guardar los cambios
+            productRepository.save(existingEntity);
+            
+            log.info("Product with ID {} updated successfully", product.getProductId());
+            return "Product updated successfully.";
+            
+        } catch (Exception e) {
+            log.error("Error updating product with ID {}: {}", product.getProductId(), e.getMessage());
+            return "An error occurred while updating the product: " + e.getMessage();
+        }
+    }
+
+    /**
+     * @brief Deletes a product by its ID and enterprise ID
+     * @param productId Product ID to delete
+     * @param enterpriseId Enterprise ID for context
+     * @return Result message
+     */
+    @Override
+    @Transactional
+    public String deleteById(Long productId, String enterpriseId) {
+        try {
+            int deletedCount = productRepository.deleteByProductIdAndEnterpriseId(productId, enterpriseId);
+            if (deletedCount > 0) {
+                log.info("Product with ID {} deleted successfully for enterprise {}", productId, enterpriseId);
+                return "Product deleted successfully.";
+            } else {
+                log.warn("Product with ID {} not found for enterprise {}", productId, enterpriseId);
+                return "Product not found.";
+            }
+        } catch (Exception e) {
+            log.error("Error deleting product with ID {} for enterprise {}: {}", productId, enterpriseId, e.getMessage());
+            return "An error occurred while deleting the product: " + e.getMessage();
+        }
+    }
+
+    /**
+     * @brief Deletes all products for a specific enterprise
+     * @param enterpriseId Enterprise ID
+     * @return Result message
+     */
+    @Override
+    @Transactional
+    public String deleteAllByEnterpriseId(String enterpriseId) {
+        try {
+            int deletedCount = productRepository.deleteByEnterpriseId(enterpriseId);
+            log.info("Deleted {} products for enterprise {}", deletedCount, enterpriseId);
+            return String.format("Deleted %d products successfully.", deletedCount);
+        } catch (Exception e) {
+            log.error("Error deleting all products for enterprise {}: {}", enterpriseId, e.getMessage());
+            return "An error occurred while deleting products: " + e.getMessage();
         }
     }
 

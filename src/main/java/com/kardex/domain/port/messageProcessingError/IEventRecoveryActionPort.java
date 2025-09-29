@@ -1,4 +1,4 @@
-package com.kardex.domain.port;
+package com.kardex.domain.port.messageProcessingError;
 
 /**
  * @brief Port for defining recovery actions when event processing fails

@@ -2,12 +2,13 @@ package com.kardex.infrastructure.adapters.input.rest.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kardex.application.ports.input.IKardexCommandPort;
+import com.kardex.application.ports.input.kardex.IKardexCommandPort;
 import com.kardex.domain.model.Kardex;
 import com.kardex.infrastructure.adapters.input.rest.dto.ResponseDto;
 import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexPurchaseDtoRequest;
@@ -65,5 +66,21 @@ public class KardexCommandController {
                 .status(200)
                 .message("Kardex sale registered successfully").build();
         return responseDto.of();    
+    }
+
+    /**
+     * @brief Deletes all kardex records
+     * @return Response confirming deletion
+     */
+    @DeleteMapping("/delete-all")
+    public ResponseEntity<ResponseDto<Void>> deleteAllKardex() {
+        kardexCommandPort.deleteAll();
+        
+        ResponseDto<Void> responseDto = ResponseDto.<Void>builder()
+                .data(null)
+                .status(200)
+                .message("All kardex records deleted successfully")
+                .build();
+        return responseDto.of();
     }
 }

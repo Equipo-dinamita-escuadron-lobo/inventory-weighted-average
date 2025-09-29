@@ -1,4 +1,4 @@
-package com.kardex.domain.port;
+package com.kardex.domain.port.common;
 
 public interface IFormatterResultOutputPort {
     public void returnBusinessRuleErrorResponse(int status, String message);

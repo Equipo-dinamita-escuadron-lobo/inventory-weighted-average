@@ -1,4 +1,4 @@
-package com.kardex.domain.port;
+package com.kardex.domain.port.kardex;
 
 import com.kardex.domain.model.Kardex;
 
@@ -36,4 +36,9 @@ public interface IKardexCommandRepositoryPort {
      * @return Saved kardex with generated identifiers
      */
     Kardex registerReturnOnSale(Kardex kardex);
+    
+    /**
+     * @brief Deletes all kardex records
+     */
+    void deleteAll();
 }

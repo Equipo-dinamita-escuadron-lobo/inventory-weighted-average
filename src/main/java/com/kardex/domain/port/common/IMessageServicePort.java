@@ -1,4 +1,4 @@
-package com.kardex.domain.port;
+package com.kardex.domain.port.common;
 
 /**
  * @brief Output port for internationalization message service

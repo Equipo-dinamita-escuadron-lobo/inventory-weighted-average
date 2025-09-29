@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.kardex.domain.model.Stock;
-import com.kardex.domain.port.IStockClientPort;
+import com.kardex.domain.port.external.IStockClientPort;
 import com.kardex.infrastructure.adapters.input.rest.dto.ResponseDto;
 import com.kardex.infrastructure.adapters.output.remoteSync.config.IStockClient;
 import com.kardex.infrastructure.adapters.output.remoteSync.dto.StockDtoResponse;

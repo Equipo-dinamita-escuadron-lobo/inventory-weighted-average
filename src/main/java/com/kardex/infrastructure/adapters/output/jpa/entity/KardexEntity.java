@@ -3,6 +3,8 @@ package com.kardex.infrastructure.adapters.output.jpa.entity;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
+import org.hibernate.annotations.TenantId;
+
 import com.kardex.domain.model.MovementType;
 
 import jakarta.persistence.Column;
@@ -62,4 +64,7 @@ public class KardexEntity {
 
     @Column(name = "product_id", nullable = false)
     private Long productId;
+
+    @TenantId
+    String tenantId;
 }

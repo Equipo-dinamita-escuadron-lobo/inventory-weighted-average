@@ -6,14 +6,15 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.kardex.application.ports.input.IProductSyncCommandPort;
+import com.kardex.application.ports.input.product.IProductCommandPort;
+import com.kardex.application.ports.input.product.IProductSyncCommandPort;
 import com.kardex.domain.model.Product;
-import com.kardex.domain.port.IFormatterResultOutputPort;
-import com.kardex.domain.port.IProductClientPort;
-import com.kardex.domain.port.IProductCommandRepositoryPort;
-import com.kardex.domain.port.ISyncStateRepositoryPort;
-import com.kardex.domain.port.IMessageServicePort;
 import com.kardex.domain.model.SyncState;
+import com.kardex.domain.port.common.IFormatterResultOutputPort;
+import com.kardex.domain.port.common.IMessageServicePort;
+import com.kardex.domain.port.external.ISyncStateRepositoryPort;
+import com.kardex.domain.port.product.IProductClientPort;
+import com.kardex.domain.port.product.IProductCommandRepositoryPort;
 import com.kardex.infrastructure.adapters.config.i18n.MessageKeys;
 
 import jakarta.transaction.Transactional;
@@ -30,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class ProductCommandService implements IProductSyncCommandPort {
+public class ProductCommandService implements IProductSyncCommandPort, IProductCommandPort {
 
     private final IProductCommandRepositoryPort productCommandRepositoryPort;
     private final IProductClientPort productClient;
@@ -143,5 +144,17 @@ public class ProductCommandService implements IProductSyncCommandPort {
         log.info("Created new sync state for enterpriseId={} with date={}", enterpriseId, syncDate);
         return Optional.of(syncDate);
     }
+
+     @Override
+     public String deleteById(Long productId, String enterpriseId) {
+        log.info("Deleting product with ID {} for enterprise {}", productId, enterpriseId);
+        return productCommandRepositoryPort.deleteById(productId, enterpriseId);   
+     }
+
+     @Override
+     public String deleteAllByEnterpriseId(String enterpriseId) {
+        log.info("Deleting all products for enterprise {}", enterpriseId);
+        return productCommandRepositoryPort.deleteAllByEnterpriseId(enterpriseId);
+     }
     
 }

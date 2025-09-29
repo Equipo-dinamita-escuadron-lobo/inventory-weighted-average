@@ -1,4 +1,4 @@
-package com.kardex.application.ports.input;
+package com.kardex.application.ports.input.kardex;
 
 import com.kardex.domain.model.Kardex;
 
@@ -36,4 +36,9 @@ public interface IKardexCommandPort {
      * @return Processed kardex with updated balances
      */
     Kardex registerReturnOnSale(Kardex kardex);
+    
+    /**
+     * @brief Deletes all kardex records
+     */
+    void deleteAll();
 }

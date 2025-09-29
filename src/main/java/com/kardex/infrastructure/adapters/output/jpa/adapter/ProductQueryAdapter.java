@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import com.kardex.domain.model.Product;
-import com.kardex.domain.port.IProductQueryRepositoryPort;
+import com.kardex.domain.port.product.IProductQueryRepositoryPort;
 import com.kardex.infrastructure.adapters.output.jpa.mapper.IProductEntityQueryMapper;
 import com.kardex.infrastructure.adapters.output.jpa.repository.IProductRepository;
 

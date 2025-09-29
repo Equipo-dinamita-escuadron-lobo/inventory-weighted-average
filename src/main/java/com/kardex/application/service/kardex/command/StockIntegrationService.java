@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.kardex.domain.model.Kardex;
 import com.kardex.domain.model.Stock;
-import com.kardex.domain.port.IStockClientPort;
+import com.kardex.domain.port.external.IStockClientPort;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
