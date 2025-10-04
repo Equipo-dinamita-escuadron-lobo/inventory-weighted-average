@@ -1,6 +1,7 @@
 package com.kardex.infrastructure.adapters.output.jpa.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import com.kardex.domain.model.MessageProcessingError;
 import com.kardex.infrastructure.adapters.output.jpa.entity.MessageProcessingErrorEntity;
@@ -26,5 +27,6 @@ public interface IMessageProcessingErrorEntityMapper {
      * @param domain MessageProcessingError domain model
      * @return MessageProcessingError entity
      */
+    @Mapping(target = "tenantId", ignore = true)
     MessageProcessingErrorEntity toEntity(MessageProcessingError domain);
 }

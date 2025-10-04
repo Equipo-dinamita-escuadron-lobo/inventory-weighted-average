@@ -12,10 +12,12 @@ import com.kardex.domain.model.Product;
 @Mapper(componentModel = "spring")
 public interface IProductEntityCommandMapper {
 
+    @Mapping(target = "tenantId", ignore = true)
     ProductEntity toEntity(Product product);
 
     List<ProductEntity> toEntity(List<Product> products);
     
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "tenantId", ignore = true)
     void updateEntityFromProduct(Product product, @MappingTarget ProductEntity entity);
 }
