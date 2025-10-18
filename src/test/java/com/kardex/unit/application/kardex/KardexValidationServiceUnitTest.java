@@ -1,4 +1,4 @@
-package com.kardex.unit.application;
+package com.kardex.unit.application.kardex;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
