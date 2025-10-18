@@ -85,19 +85,6 @@ class MessageProcessingErrorCommandAdapterUnitTest {
     }
 
     @Test
-    @DisplayName("Should handle delete all when repository is empty")
-    void testDeleteAll_EmptyRepository() {
-        // Arrange
-        doNothing().when(messageProcessingErrorRepository).deleteAll();
-
-        // Act
-        commandAdapter.deleteAll();
-
-        // Assert
-        verify(messageProcessingErrorRepository, times(1)).deleteAll();
-    }
-
-    @Test
     @DisplayName("Should invoke repository deleteAll only once")
     void testDeleteAll_SingleInvocation() {
         // Arrange
