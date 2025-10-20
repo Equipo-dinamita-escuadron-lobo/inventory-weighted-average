@@ -1,4 +1,4 @@
-package com.kardex.unit.application;
+package com.kardex.unit.application.kardex;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -64,8 +64,11 @@ public class StockIntegrationServiceUnitTest {
         // Arrange
         RuntimeException exception = new RuntimeException("API Error");
         doThrow(exception).when(stockClient).buyStock(stock);
-        // Act
-        stockIntegrationService.callApiStockService(stock, true);
+        
+        // Act - El método captura la excepción y solo la loguea, no la re-lanza
+        assertDoesNotThrow(() -> {
+            stockIntegrationService.callApiStockService(stock, true);
+        });
         
         // Assert
         verify(stockClient).buyStock(stock);
@@ -78,8 +81,10 @@ public class StockIntegrationServiceUnitTest {
         RuntimeException exception = new RuntimeException("API Error");
         doThrow(exception).when(stockClient).sellStock(stock);
         
-        // Act
-        stockIntegrationService.callApiStockService(stock, false);
+        // Act - El método captura la excepción y solo la loguea, no la re-lanza
+        assertDoesNotThrow(() -> {
+            stockIntegrationService.callApiStockService(stock, false);
+        });
         
         // Assert
         verify(stockClient).sellStock(stock);

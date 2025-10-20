@@ -32,8 +32,18 @@ public class ProductRecoveryActionPort implements IEventRecoveryActionPort<Event
     @Override
     public boolean executeRecoveryAction(EventDto<ProductAsyncDto, EventProductType> event) {
         try {
+            if (event == null || event.getData() == null) {
+                log.error("Cannot execute recovery: event or event data is null");
+                return false;
+            }
+            
             ProductAsyncDto productData = event.getData();
             String enterpriseId = productData.getEnterpriseId();
+            
+            if (enterpriseId == null || enterpriseId.trim().isEmpty()) {
+                log.error("Cannot execute recovery: enterpriseId is null or empty");
+                return false;
+            }
             
             log.info("Executing product sync recovery for enterpriseId: {}", enterpriseId);
             

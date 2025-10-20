@@ -1,7 +1,5 @@
 package com.kardex.infrastructure.adapters.output.messageBroker.base;
 
-import org.springframework.amqp.core.Message;
-
 import com.kardex.domain.port.messageProcessingError.IEventRecoveryActionPort;
 import com.kardex.domain.port.messageProcessingError.IMessageErrorHandlingPort;
 import com.rabbitmq.client.Channel;
@@ -158,19 +156,6 @@ public abstract class AbstractMessageListener<T> {
             channel.basicAck(deliveryTag, false);
         } catch (Exception e) {
             log.error("Failed to acknowledge message: {}", e.getMessage());
-        }
-    }
-
-
-    /**
-     * Método de utilidad para extraer contenido del mensaje como String.
-     */
-    protected String getMessageBodyAsString(Message message) {
-        try {
-            return new String(message.getBody());
-        } catch (Exception e) {
-            log.warn("Error converting message body to string: {}", e.getMessage());
-            return "unavailable";
         }
     }
 

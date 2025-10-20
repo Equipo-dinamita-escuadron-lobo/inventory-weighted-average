@@ -1,4 +1,4 @@
-package com.kardex.unit.application;
+package com.kardex.unit.application.kardex;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
