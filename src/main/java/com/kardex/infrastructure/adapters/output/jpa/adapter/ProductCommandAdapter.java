@@ -73,10 +73,17 @@ public class ProductCommandAdapter implements IProductCommandRepositoryPort {
     @Override
     public String save(Product product) {
         try {
+            // Prepare product using domain logic
+            product.prepareForPersistence();
+            
             ProductEntity productEntity = productEntityCommandMapper.toEntity(product);
             productRepository.save(productEntity);
             return "Product saved successfully.";
+        } catch (IllegalArgumentException e) {
+            log.error("Validation error saving product: {}", e.getMessage());
+            return "Validation error: " + e.getMessage();
         } catch (Exception e) {
+            log.error("Error saving product: {}", e.getMessage());
             return "An error occurred while saving the product: " + e.getMessage();
         }
     }
@@ -90,6 +97,9 @@ public class ProductCommandAdapter implements IProductCommandRepositoryPort {
     @Transactional
     public String update(Product product) {
         try {
+            // Validate product using domain logic
+            product.validateRequiredFields();
+            
             // Verificar si el producto existe
             if (!productRepository.existsByProductId(product.getProductId())) {
                 log.warn("Product with ID {} not found for update", product.getProductId());
@@ -98,6 +108,9 @@ public class ProductCommandAdapter implements IProductCommandRepositoryPort {
 
             // Obtener la entidad existente
             ProductEntity existingEntity = productRepository.getReferenceByProductId(product.getProductId());
+            
+            // Normalize before update
+            product.normalize();
             
             // Actualizar la entidad con los nuevos datos
             productEntityCommandMapper.updateEntityFromProduct(product, existingEntity);
@@ -108,6 +121,9 @@ public class ProductCommandAdapter implements IProductCommandRepositoryPort {
             log.info("Product with ID {} updated successfully", product.getProductId());
             return "Product updated successfully.";
             
+        } catch (IllegalArgumentException e) {
+            log.error("Validation error updating product: {}", e.getMessage());
+            return "Validation error: " + e.getMessage();
         } catch (Exception e) {
             log.error("Error updating product with ID {}: {}", product.getProductId(), e.getMessage());
             return "An error occurred while updating the product: " + e.getMessage();

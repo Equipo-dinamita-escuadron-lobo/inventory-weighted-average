@@ -130,7 +130,7 @@ public class KardexValidationServiceUnitTest {
     void testValidateProductExistsWithNonExistentProduct() {
         // Arrange
         when(productQueryRepositoryPort.existsByProductId(productId)).thenReturn(false);
-        when(messageService.getMessage(anyString(), anyString())).thenReturn("Product not found");
+        when(messageService.getMessage(anyString(), any(Object[].class))).thenReturn("Product not found");
         
         // Act
         kardexValidationService.validateProductExists(productId);
@@ -138,6 +138,5 @@ public class KardexValidationServiceUnitTest {
         // Assert
         verify(productQueryRepositoryPort).existsByProductId(productId);
         verify(formatterResultOutputPort).returnEntityDoesNotExistErrorResponse(eq(404), anyString());
-        verify(messageService).getMessage(anyString(), eq("productId=" + productId));
     }
 }

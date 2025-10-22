@@ -65,7 +65,7 @@ public class KardexValidationService {
     public void validateProductExists(Long productId) {       
         if (!productQueryRepositoryPort.existsByProductId(productId)) {
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
-                messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, "productId=" + productId));
+                messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, productId, "Product"));
         }
     }
 }

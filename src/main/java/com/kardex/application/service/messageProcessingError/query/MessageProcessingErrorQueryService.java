@@ -43,6 +43,14 @@ public class MessageProcessingErrorQueryService implements IMessageProcessingErr
         if (!messageProcessingError.isPresent()) {
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
                 messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, "Message processing error with id: " + id));
+        } else {
+            // Enforce domain invariants and log concise summary for traceability
+            try {
+                messageProcessingError.get().requireValid();
+            } catch (IllegalArgumentException ex) {
+                log.warn("MPE {} has invalid state: {}", id, ex.getMessage());
+            }
+            log.debug("MPE found: {}", messageProcessingError.get().summary(180));
         }
         return messageProcessingError;
     }
@@ -58,6 +66,13 @@ public class MessageProcessingErrorQueryService implements IMessageProcessingErr
         if (!messageProcessingError.isPresent()) {
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
                 messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, "No message processing errors found"));
+        } else {
+            try {
+                messageProcessingError.get().requireValid();
+            } catch (IllegalArgumentException ex) {
+                log.warn("Last MPE has invalid state: {}", ex.getMessage());
+            }
+            log.debug("Last MPE: {}", messageProcessingError.get().summary(180));
         }
         return messageProcessingError;
     }
