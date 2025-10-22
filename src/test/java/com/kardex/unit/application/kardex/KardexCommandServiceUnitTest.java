@@ -188,4 +188,52 @@ public class KardexCommandServiceUnitTest {
         assertEquals(MovementType.SALESRETURN, kardex.getType());
         assertEquals(originalPrice, kardex.getUnitPrice());
     }
+    
+    @Test
+    @DisplayName("Should throw error when balance unit price is zero")
+    void testRegisterPurchaseWithZeroBalanceUnitPrice() {
+        // Arrange
+        kardex.setUnitPrice(BigDecimal.ZERO);
+        when(kardexQueryRepositoryPort.getLatestKardexByProductId(1L)).thenReturn(null);
+        when(messageService.getMessage(any(), anyString())).thenReturn("Invalid value for balance unit price");
+        doThrow(new RuntimeException("Business rule error")).when(formatterResultOutputPort)
+            .returnBusinessRuleErrorResponse(anyInt(), anyString());
+        
+        // Act & Assert - Should throw exception when balance unit price is zero
+        assertThrows(RuntimeException.class, () -> {
+            kardexCommandService.registerPurchase(kardex);
+        });
+        
+        // Verify that error response was called
+        verify(formatterResultOutputPort).returnBusinessRuleErrorResponse(
+            eq(400), 
+            anyString()
+        );
+    }
+    
+    @Test
+    @DisplayName("Should delete all kardex records successfully")
+    void testDeleteAllSuccess() {
+        // Arrange
+        doNothing().when(kardexCommandRepositoryPort).deleteAll();
+        
+        // Act
+        kardexCommandService.deleteAll();
+        
+        // Assert
+        verify(kardexCommandRepositoryPort).deleteAll();
+    }
+    
+    @Test
+    @DisplayName("Should handle exception when deleting all kardex records")
+    void testDeleteAllWithException() {
+        // Arrange
+        doThrow(new RuntimeException("Database error")).when(kardexCommandRepositoryPort).deleteAll();
+        
+        // Act & Assert - Should not throw exception, just log error
+        assertDoesNotThrow(() -> kardexCommandService.deleteAll());
+        
+        // Verify that deleteAll was called
+        verify(kardexCommandRepositoryPort).deleteAll();
+    }
 }

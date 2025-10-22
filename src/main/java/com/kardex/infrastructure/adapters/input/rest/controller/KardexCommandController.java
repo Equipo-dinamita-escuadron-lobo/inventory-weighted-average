@@ -41,7 +41,7 @@ public class KardexCommandController {
      * @param kardexPurchaseDtoRequest Purchase transaction data
      * @return Response with processed kardex information
      */
-    @PostMapping("/purchase-agreement")
+    @PostMapping("/purchase-adjustment")
     public ResponseEntity<ResponseDto<KardexDtoResponse>> purchaseKardex(@Valid @RequestBody KardexPurchaseDtoRequest kardexPurchaseDtoRequest) {
         Kardex response = kardexCommandPort.registerPurchase(kardexRestMapper.toDomain(kardexPurchaseDtoRequest));
         KardexDtoResponse kardexDtoResponse = kardexResponseMapper.toDtoResponse(response);
@@ -57,7 +57,7 @@ public class KardexCommandController {
      * @param kardexSaleDtoRequest Sale transaction data
      * @return Response with processed kardex information
      */
-    @PostMapping("/sale-agreement")
+    @PostMapping("/sale-adjustment")
     public ResponseEntity<ResponseDto<KardexDtoResponse>> saleKardex(@Valid @RequestBody KardexSaleDtoRequest kardexSaleDtoRequest) {
         Kardex response = kardexCommandPort.registerSale(kardexRestMapper.toDomain(kardexSaleDtoRequest));
         KardexDtoResponse kardexDtoResponse = kardexResponseMapper.toDtoResponse(response);

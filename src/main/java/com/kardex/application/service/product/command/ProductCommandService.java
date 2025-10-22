@@ -105,14 +105,21 @@ public class ProductCommandService implements IProductSyncCommandPort, IProductC
 
     private List<Product> getProductsFromDto(List<Product> products, String enterpriseId) {
         return products.stream()
-            .map(dto -> Product.builder()
-                .productId(dto.getProductId())
-                .reference(dto.getReference())
-                .name(dto.getName())
-                .presentation(dto.getPresentation())
-                .enterpriseId(enterpriseId)
-                .state(dto.isState())
-                .build())
+            .map(dto -> {
+                Product product = Product.builder()
+                    .productId(dto.getProductId())
+                    .reference(dto.getReference())
+                    .name(dto.getName())
+                    .presentation(dto.getPresentation())
+                    .enterpriseId(enterpriseId)
+                    .state(dto.isState())
+                    .build();
+                
+                // Prepare product for persistence (normalize and validate)
+                product.prepareForPersistence();
+                
+                return product;
+            })
             .toList();
     }
 

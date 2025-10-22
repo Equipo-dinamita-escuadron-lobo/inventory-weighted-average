@@ -47,13 +47,24 @@ public class MessageProcessingErrorCommandService implements IMessageProcessingE
     @Override
     public void deleteById(Long id) {
         log.info("Deleting message processing error by id: {}", id);
-        
-        // Validate existence
-        if (!messageProcessingErrorQueryRepositoryPort.findById(id).isPresent()) {
-            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
-                messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, "Message processing error with id: " + id));
+
+        // Validate existence and log a concise summary if found
+        var maybeError = messageProcessingErrorQueryRepositoryPort.findById(id);
+        if (!maybeError.isPresent()) {
+            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404,
+                    messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, "Message processing error with id: " + id));
+            return; // safeguard after formatter call
         }
-        
+
+        // Optionally enforce invariants from the domain
+        try {
+            maybeError.get().requireValid();
+        } catch (IllegalArgumentException ex) {
+            log.warn("Deleting MPE {} with invalid state: {}", id, ex.getMessage());
+        }
+
+        log.debug("About to delete MPE: {}", maybeError.get().summary(180));
+
         messageProcessingErrorCommandRepositoryPort.deleteById(id);
         log.info("Message processing error with id {} deleted successfully", id);
     }
