@@ -1,6 +1,7 @@
 package com.kardex.application.ports.input.kardex;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,4 +24,11 @@ public interface IKardexQueryPort {
      * @return Paginated kardex records
      */
     Page<Kardex>  findProductId(Long productId, Pageable pageable, LocalDate startDate, LocalDate endDate);
+    
+    /**
+     * @brief Gets the last kardex record for all products of an enterprise
+     * @param enterpriseId Enterprise identifier to filter products
+     * @return List of latest kardex records for each product
+     */
+    List<Kardex> findLastKardexForAllProducts(String enterpriseId);
 }
