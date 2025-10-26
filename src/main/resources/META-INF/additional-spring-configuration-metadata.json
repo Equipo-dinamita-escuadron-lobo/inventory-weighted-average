@@ -23,5 +23,11 @@
     "name": "services.product.base-url",
     "type": "java.lang.String",
     "description": "A description for 'services.product.base-url'"
+  },
+  {
+    "name": "services.config.base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'services.config.base-url'"
   }
+
 ]}

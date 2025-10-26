@@ -6,10 +6,10 @@ import java.time.ZoneId;
 import org.springframework.stereotype.Service;
 
 import com.kardex.domain.model.Kardex;
+import com.kardex.domain.port.common.IFormatterResultOutputPort;
 import com.kardex.domain.port.common.IMessageServicePort;
 import com.kardex.domain.port.config.IConfigClientPort;
 import com.kardex.infrastructure.adapters.config.i18n.MessageKeys;
-import com.kardex.infrastructure.adapters.output.exception.customized.BusinessRuleException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class KardexDateValidationService {
     
     private final IConfigClientPort configClientPort;
+    private final IFormatterResultOutputPort formatterResultOutputPort;
     private final IMessageServicePort messageService;
 
     public void validateAndSetDate(Kardex kardex, String enterpriseId) {
@@ -25,7 +26,7 @@ public class KardexDateValidationService {
         
         if (!configClientPort.isValidAccountingDate(enterpriseId, today)) {
             String errorMessage = messageService.getMessage(MessageKeys.INVALID_ACCOUNTING_DATE);
-            throw new BusinessRuleException(400, errorMessage);
+            formatterResultOutputPort.returnBusinessRuleErrorResponse(400, errorMessage);
         }
         
         kardex.addDate();

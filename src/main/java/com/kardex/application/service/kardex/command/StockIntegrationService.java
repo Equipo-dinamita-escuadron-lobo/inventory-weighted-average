@@ -47,9 +47,11 @@ public class StockIntegrationService {
             } else {
                 stockClient.sellStock(stock);
             }
-            log.info("" + (isBuy ? "Purchase/Return" : "Sale") + " stock updated successfully for product: {}", stock.getProductId());
+            log.info("{} stock updated successfully for product: {}", (isBuy ? "Purchase/Return" : "Sale"), stock.getProductId());
         } catch (Exception e) {
-            log.error("Error during " + (isBuy ? "purchase" : "sale") + ": " + e.getMessage(), e);
+            // Log the error but don't throw exception - allows kardex to be saved even if stock service is unavailable
+            log.warn("Failed to update stock for {} - Kardex will be saved but stock service was not synchronized: {}", 
+                (isBuy ? "purchase" : "sale"), e.getMessage());
         }
     }
 }

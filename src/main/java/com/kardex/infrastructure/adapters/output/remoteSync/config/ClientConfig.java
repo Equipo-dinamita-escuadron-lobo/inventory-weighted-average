@@ -38,6 +38,7 @@ public class ClientConfig {
         WebClient webClient = webClientBuilder
                 .baseUrl(baseUrl)
                 .filter(jwtPropagationFilter())
+                .filter(errorHandlingFilter())
                 .build();
 
         // 2. Crea el adaptador y la fábrica del proxy
@@ -91,5 +92,21 @@ public class ClientConfig {
                 throw new IllegalStateException("No JWT token available for propagation", e);
             }
         };
+    }
+    
+    /**
+     * Filtro para manejar errores de WebClient de forma más limpia.
+     * Suprime el stack trace detallado para errores esperados como 503.
+     */
+    private ExchangeFilterFunction errorHandlingFilter() {
+        return ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
+            // Si es un error 503 o similar, solo loggeamos el mensaje sin stack trace
+            if (clientResponse.statusCode().is5xxServerError()) {
+                log.debug("Received {} from {}", 
+                    clientResponse.statusCode(), 
+                    clientResponse.logPrefix());
+            }
+            return reactor.core.publisher.Mono.just(clientResponse);
+        });
     }
 }
