@@ -13,6 +13,7 @@ public class ClientProperties {
 
     private Stock stock = new Stock();
     private Products products = new Products();
+    private Config config = new Config();
 
     @Data
     public static class Stock {
@@ -21,6 +22,11 @@ public class ClientProperties {
 
     @Data
     public static class Products {
+        private String baseUrl;
+    }
+
+    @Data
+    public static class Config {
         private String baseUrl;
     }
 

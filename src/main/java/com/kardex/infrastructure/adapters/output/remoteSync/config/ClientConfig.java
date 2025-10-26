@@ -60,6 +60,12 @@ public class ClientConfig {
         return createWebClientProxy(webClientBuilder, baseUrl, IProductClient.class);
     }
 
+    @Bean
+    IConfigClient configClient(WebClient.Builder webClientBuilder, ClientProperties properties) {
+        String baseUrl = properties.getConfig().getBaseUrl();
+        return createWebClientProxy(webClientBuilder, baseUrl, IConfigClient.class);
+    }
+
     /**
      * Filtro para propagar el token JWT en las peticiones HTTP.
      * Funciona tanto para contexto HTTP como para contexto RabbitMQ.

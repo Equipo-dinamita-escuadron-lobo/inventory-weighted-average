@@ -51,7 +51,7 @@ public class Kardex {
         updateDetailIfNotNull();
     }
 
-    private void addDate(){
+    public void addDate(){
         this.date = ZonedDateTime.now(ZoneId.of("America/Bogota"));
     }
 
@@ -179,7 +179,7 @@ public class Kardex {
             this.unitPrice = BigDecimal.ZERO;  
     }
 
-    private void updateDetailIfNotNull() {
+    public void updateDetailIfNotNull() {
         if (this.details == null || this.details.isEmpty()) {
             // Format the detail with the movement type and code.  Sale - Invoice: 500
             this.details = String.format("%s - Factura: %s", this.type.getDescription(), this.factCode);
@@ -193,7 +193,7 @@ public class Kardex {
      * Ensures no duplication by checking existing code
      * Format: AYYMMDDHHMMSSX (A + timestamp + random letter) 
      */
-    private void generateAdjustmentFactCode() {
+    public void generateAdjustmentFactCode() {
         if (this.factCode != null && !this.factCode.isEmpty()) {
             return; // Ya tiene un código de factura válido
         }

@@ -20,6 +20,7 @@ import com.kardex.application.service.kardex.command.KardexValidationService;
 import com.kardex.application.service.kardex.command.StockIntegrationService;
 import com.kardex.domain.model.Kardex;
 import com.kardex.domain.model.MovementType;
+import com.kardex.domain.model.Product;
 import com.kardex.domain.model.Stock;
 import com.kardex.domain.port.common.IFormatterResultOutputPort;
 import com.kardex.domain.port.common.IMessageServicePort;
@@ -56,6 +57,7 @@ public class KardexCommandServiceUnitTest {
     private Kardex kardex;
     private Kardex lastKardex;
     private Stock stock;
+    private Product product;
     
     @BeforeEach
     void setUp() {
@@ -76,6 +78,12 @@ public class KardexCommandServiceUnitTest {
             .quantity(10)
             .price(new BigDecimal("25.50"))
             .build();
+            
+        product = Product.builder()
+            .productId(1L)
+            .enterpriseId("EMP001")
+            .state(true)
+            .build();
     }
     
     @Test
@@ -85,14 +93,15 @@ public class KardexCommandServiceUnitTest {
         when(kardexQueryRepositoryPort.getLatestKardexByProductId(1L)).thenReturn(null);
         when(stockIntegrationService.createStock(any(Kardex.class))).thenReturn(stock);
         when(kardexCommandRepositoryPort.registerPurchase(any(Kardex.class))).thenReturn(kardex);
+        when(validationService.validateBusinessRulesAndGetProduct("FACT001", 1L, MovementType.PURCHASE))
+            .thenReturn(product);
        
         // Act
         Kardex result = kardexCommandService.registerPurchase(kardex);
         
         // Assert
         assertNotNull(result);
-        verify(validationService).validateProductExists(1L);
-        verify(validationService).validateBusinessRules("FACT001", 1L, MovementType.PURCHASE);
+        verify(validationService).validateBusinessRulesAndGetProduct("FACT001", 1L, MovementType.PURCHASE);
         verify(stockIntegrationService).callApiStockService(stock, true);
         verify(kardexCommandRepositoryPort).registerPurchase(kardex);
         assertEquals(MovementType.PURCHASE, kardex.getType());
@@ -105,14 +114,15 @@ public class KardexCommandServiceUnitTest {
         when(kardexQueryRepositoryPort.getLatestKardexByProductId(1L)).thenReturn(lastKardex);
         when(stockIntegrationService.createStock(any(Kardex.class))).thenReturn(stock);
         when(kardexCommandRepositoryPort.registerPurchase(any(Kardex.class))).thenReturn(kardex);
+        when(validationService.validateBusinessRulesAndGetProduct("FACT001", 1L, MovementType.PURCHASE))
+            .thenReturn(product);
         
         // Act
         Kardex result = kardexCommandService.registerPurchase(kardex);
         
         // Assert
         assertNotNull(result);
-        verify(validationService).validateProductExists(1L);
-        verify(validationService).validateBusinessRules("FACT001", 1L, MovementType.PURCHASE);
+        verify(validationService).validateBusinessRulesAndGetProduct("FACT001", 1L, MovementType.PURCHASE);
         verify(stockIntegrationService).callApiStockService(stock, true);
         verify(kardexCommandRepositoryPort).registerPurchase(kardex);
         assertEquals(MovementType.PURCHASE, kardex.getType());
@@ -125,14 +135,15 @@ public class KardexCommandServiceUnitTest {
         when(kardexQueryRepositoryPort.getLatestKardexByProductId(1L)).thenReturn(lastKardex);
         when(stockIntegrationService.createStock(any(Kardex.class))).thenReturn(stock);
         when(kardexCommandRepositoryPort.registerSale(any(Kardex.class))).thenReturn(kardex);
+        when(validationService.validateBusinessRulesAndGetProduct("FACT001", 1L, MovementType.SALE))
+            .thenReturn(product);
         
         // Act
         Kardex result = kardexCommandService.registerSale(kardex);
         
         // Assert
         assertNotNull(result);
-        verify(validationService).validateProductExists(1L);
-        verify(validationService).validateBusinessRules("FACT001", 1L, MovementType.SALE);
+        verify(validationService).validateBusinessRulesAndGetProduct("FACT001", 1L, MovementType.SALE);
         verify(validationService).validatePreviousKardexExists(lastKardex, "sale");
         verify(stockIntegrationService).callApiStockService(stock, false);
         verify(kardexCommandRepositoryPort).registerSale(kardex);
@@ -149,13 +160,15 @@ public class KardexCommandServiceUnitTest {
         when(kardexQueryRepositoryPort.getLatestKardexByProductId(1L)).thenReturn(lastKardex);
         when(stockIntegrationService.createStock(any(Kardex.class))).thenReturn(stock);
         when(kardexCommandRepositoryPort.registerReturnOnPurchase(any(Kardex.class))).thenReturn(kardex);
+        when(validationService.validateBusinessRulesAndGetProduct("FACT001", 1L, MovementType.PURCHASERETURN))
+            .thenReturn(product);
         
         // Act
         Kardex result = kardexCommandService.registerReturnOnPurchase(kardex);
         
         // Assert
         assertNotNull(result);
-        verify(validationService).validateProductExists(1L);
+        verify(validationService).validateBusinessRulesAndGetProduct("FACT001", 1L, MovementType.PURCHASERETURN);
         verify(validationService).validatePreviousKardexExists(lastKardex, "purchase return");
         verify(returnService).getUnitPriceIfReturnAllowed("FACT001", 10, 1L, MovementType.PURCHASE);
         verify(stockIntegrationService).callApiStockService(stock, false);
@@ -174,13 +187,15 @@ public class KardexCommandServiceUnitTest {
         when(kardexQueryRepositoryPort.getLatestKardexByProductId(1L)).thenReturn(lastKardex);
         when(stockIntegrationService.createStock(any(Kardex.class))).thenReturn(stock);
         when(kardexCommandRepositoryPort.registerReturnOnSale(any(Kardex.class))).thenReturn(kardex);
+        when(validationService.validateBusinessRulesAndGetProduct("FACT001", 1L, MovementType.SALESRETURN))
+            .thenReturn(product);
         
         // Act
         Kardex result = kardexCommandService.registerReturnOnSale(kardex);
         
         // Assert
         assertNotNull(result);
-        verify(validationService).validateProductExists(1L);
+        verify(validationService).validateBusinessRulesAndGetProduct("FACT001", 1L, MovementType.SALESRETURN);
         verify(validationService).validatePreviousKardexExists(lastKardex, "sale return");
         verify(returnService).getUnitPriceIfReturnAllowed("FACT001", 10, 1L, MovementType.SALE);
         verify(stockIntegrationService).callApiStockService(stock, true);
