@@ -51,10 +51,9 @@ public class KardexCommandService implements IKardexCommandPort{
     @Override
     public Kardex registerPurchase(Kardex kardex) {  
         Product product = validationService.validateBusinessRulesAndGetProduct(
-            kardex.getFactCode(), kardex.getProductId(), MovementType.PURCHASE);
+            kardex.getFactCode(), kardex.getProductId(), kardex.getType());
         
         Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
-        kardex.setType(MovementType.PURCHASE);
         if (lastRegisteredKardex == null) {
             kardex.setBalanceQuantity(kardex.getQuantity());
             kardex.setBalanceUnitPrice(kardex.getUnitPrice());
@@ -63,6 +62,7 @@ public class KardexCommandService implements IKardexCommandPort{
             kardex.generateAdjustmentFactCode();
             kardex.updateDetailIfNotNull();
         } else {
+            kardexDateValidationService.validateAndSetDate(kardex, product.getEnterpriseId());
             kardex.addPurchase(lastRegisteredKardex.getBalanceQuantity(), lastRegisteredKardex.getTotalBalance());
         }
         
@@ -93,7 +93,6 @@ public class KardexCommandService implements IKardexCommandPort{
         Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
         validationService.validatePreviousKardexExists(lastRegisteredKardex, "sale");
         
-        kardex.setType(MovementType.SALE);
         kardexDateValidationService.validateAndSetDate(kardex, product.getEnterpriseId());
         kardex.addSale(lastRegisteredKardex.getBalanceQuantity(), lastRegisteredKardex.getBalanceUnitPrice(), lastRegisteredKardex.getTotalBalance());
 
@@ -119,7 +118,6 @@ public class KardexCommandService implements IKardexCommandPort{
         BigDecimal unitPrice = returnService.getUnitPriceIfReturnAllowed(kardex.getFactCode(), kardex.getQuantity(), kardex.getProductId(), MovementType.PURCHASE);
         kardex.setUnitPrice(unitPrice);
         Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
-        kardex.setType(MovementType.PURCHASERETURN);
 
         validationService.validatePreviousKardexExists(lastRegisteredKardex, "purchase return");
         kardexDateValidationService.validateAndSetDate(kardex, product.getEnterpriseId());
@@ -146,7 +144,6 @@ public class KardexCommandService implements IKardexCommandPort{
         BigDecimal unitPrice = returnService.getUnitPriceIfReturnAllowed(kardex.getFactCode(), kardex.getQuantity(), kardex.getProductId(), MovementType.SALE);
         kardex.setUnitPrice(unitPrice);
         Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
-        kardex.setType(MovementType.SALESRETURN);
 
         validationService.validatePreviousKardexExists(lastRegisteredKardex, "sale return");
         kardexDateValidationService.validateAndSetDate(kardex, product.getEnterpriseId());

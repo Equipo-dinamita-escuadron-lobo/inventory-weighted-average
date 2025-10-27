@@ -2,6 +2,7 @@ package com.kardex.infrastructure.adapters.input.rest.dto.request;
 
 import java.math.BigDecimal;
 
+import com.kardex.domain.model.MovementType;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -30,4 +31,6 @@ public class KardexPurchaseDtoRequest {
     private Long productId;
 
     private String details;
+ 
+    private final MovementType type = MovementType.ADJUSTMENTENTRY;
 }

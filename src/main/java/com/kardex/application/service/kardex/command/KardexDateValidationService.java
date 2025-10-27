@@ -1,7 +1,6 @@
 package com.kardex.application.service.kardex.command;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 
 import org.springframework.stereotype.Service;
 
@@ -21,14 +20,24 @@ public class KardexDateValidationService {
     private final IFormatterResultOutputPort formatterResultOutputPort;
     private final IMessageServicePort messageService;
 
+    /**
+     * @brief Assigns current date if not present and validates against accounting calendar
+     * @param kardex Kardex object with optional date
+     * @param enterpriseId Enterprise identifier for calendar validation
+     */
     public void validateAndSetDate(Kardex kardex, String enterpriseId) {
-        LocalDate today = LocalDate.now(ZoneId.of("America/Bogota"));
+        // 1. If no date is provided, assign the current date
+        if (kardex.getDate() == null) {
+            kardex.addDate();
+        }
         
-        if (!configClientPort.isValidAccountingDate(enterpriseId, today)) {
+        // 2. Convert ZonedDateTime to LocalDate for validation
+        LocalDate kardexDate = kardex.getDate().toLocalDate();
+        
+        // 3. Validate the date (either provided or assigned) against the accounting calendar
+        if (!configClientPort.isValidAccountingDate(enterpriseId, kardexDate)) {
             String errorMessage = messageService.getMessage(MessageKeys.INVALID_ACCOUNTING_DATE);
             formatterResultOutputPort.returnBusinessRuleErrorResponse(400, errorMessage);
         }
-        
-        kardex.addDate();
     }
 }

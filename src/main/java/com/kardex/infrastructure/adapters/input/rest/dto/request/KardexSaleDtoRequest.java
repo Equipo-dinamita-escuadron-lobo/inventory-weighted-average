@@ -1,5 +1,7 @@
 package com.kardex.infrastructure.adapters.input.rest.dto.request;
 
+import com.kardex.domain.model.MovementType;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -23,4 +25,6 @@ public class KardexSaleDtoRequest {
     private Long productId;
 
     private String details;
+
+    private final MovementType type = MovementType.ADJUSTMENTEXIT;
 }
