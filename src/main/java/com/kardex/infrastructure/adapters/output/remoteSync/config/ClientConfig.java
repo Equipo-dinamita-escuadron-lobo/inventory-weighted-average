@@ -67,6 +67,12 @@ public class ClientConfig {
         return createWebClientProxy(webClientBuilder, baseUrl, IConfigClient.class);
     }
 
+    @Bean
+    IKardexExternalClient kardexExternalClient(WebClient.Builder webClientBuilder, ClientProperties properties) {
+        String baseUrl = properties.getKardexExternal().getBaseUrl();
+        return createWebClientProxy(webClientBuilder, baseUrl, IKardexExternalClient.class);
+    }
+
     /**
      * Filtro para propagar el token JWT en las peticiones HTTP.
      * Funciona tanto para contexto HTTP como para contexto RabbitMQ.

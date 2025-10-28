@@ -77,3 +77,5 @@ services:
       base-url: ${PRODUCTS_SERVICE_URL:lb://PRODUCTS}
     config:
       base-url: ${CONFIG_SERVICE_URL:lb://CONFIG}
+    kardex-external:
+      base-url: ${KARDEX_EXTERNAL_SERVICE_URL:lb://KARDEX-EXTERNAL}
