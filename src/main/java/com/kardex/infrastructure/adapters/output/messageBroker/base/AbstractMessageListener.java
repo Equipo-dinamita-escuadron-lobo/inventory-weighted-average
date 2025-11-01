@@ -2,6 +2,7 @@ package com.kardex.infrastructure.adapters.output.messageBroker.base;
 
 import com.kardex.domain.port.messageProcessingError.IEventRecoveryActionPort;
 import com.kardex.domain.port.messageProcessingError.IMessageErrorHandlingPort;
+import com.kardex.infrastructure.adapters.output.exception.customized.BaseException;
 import com.rabbitmq.client.Channel;
 
 import lombok.extern.slf4j.Slf4j;
@@ -71,7 +72,14 @@ public abstract class AbstractMessageListener<T> {
      */
     private void handleProcessingError(Exception e, T event, Channel channel, long deliveryTag) {
         try {
-            log.error("Error processing {} message: {}", getEntityType(), e.getMessage(), e);
+            // Loggear de manera diferente según el tipo de excepción
+            if (e instanceof BaseException) {
+                // Para excepciones de negocio, solo mostrar el mensaje sin stack trace
+                log.error("Error processing {} message: {}", getEntityType(), e.getMessage());
+            } else {
+                // Para otras excepciones, mostrar el stack trace completo
+                log.error("Error processing {} message: {}", getEntityType(), e.getMessage(), e);
+            }
             
             // Intentar ejecutar acción de recuperación si está disponible
             boolean recoveryExecuted = attemptRecovery(event);

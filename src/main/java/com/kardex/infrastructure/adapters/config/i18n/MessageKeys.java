@@ -19,6 +19,7 @@ public final class MessageKeys {
     public static final String ERROR_MISSING_RECORD = "kardex.error.missing.record";
     public static final String ERROR_OPERATION_NOT_ALLOWED = "kardex.error.operation.not.allowed";
     public static final String ERROR_INVALID_TYPE = "kardex.error.invalid.type";
+    public static final String INVALID_ACCOUNTING_DATE = "kardex.error.invalid.accounting.date";
 
     // Generic Validation Messages
     public static final String VALIDATION_FIELD_REQUIRED = "kardex.validation.field.required";

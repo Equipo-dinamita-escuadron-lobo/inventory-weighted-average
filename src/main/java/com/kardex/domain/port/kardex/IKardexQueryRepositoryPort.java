@@ -58,4 +58,11 @@ public interface IKardexQueryRepositoryPort {
      * @return True if combination exists, false otherwise
      */
     boolean existsByFactCodeAndProductIdAndType(String factCode, Long productId, MovementType type);
+    
+    /**
+     * @brief Gets the last kardex record for all products of an enterprise
+     * @param enterpriseId Enterprise identifier to filter products
+     * @return List of latest kardex records for each product
+     */
+    List<Kardex> findLastKardexForAllProducts(String enterpriseId);
 }

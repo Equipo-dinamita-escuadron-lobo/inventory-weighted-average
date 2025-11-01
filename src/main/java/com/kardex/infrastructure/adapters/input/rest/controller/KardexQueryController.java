@@ -1,5 +1,7 @@
 package com.kardex.infrastructure.adapters.input.rest.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
@@ -14,6 +16,7 @@ import com.kardex.domain.model.Kardex;
 import com.kardex.infrastructure.adapters.input.rest.dto.ResponseDto;
 import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexFilterDto;
 import com.kardex.infrastructure.adapters.input.rest.dto.response.KardexDtoResponse;
+import com.kardex.infrastructure.adapters.input.rest.dto.response.ListLastProductKardexDtoResponse;
 import com.kardex.infrastructure.adapters.input.rest.mapper.IKardexResponseMapper;
 
 import jakarta.validation.Valid;
@@ -54,5 +57,22 @@ public class KardexQueryController {
                 .data(kardexDtoResponses)
                 .status(200)
                 .message("Kardex records retrieved successfully").build();
+    }
+
+    /**
+     * @brief Retrieves the last kardex record for all products of an enterprise
+     * @param enterpriseId Enterprise identifier to filter products
+     * @return Response with list of last kardex records for each product
+     */
+    @GetMapping("/last-kardex-all-products")
+    public ResponseDto<List<ListLastProductKardexDtoResponse>> getLastKardexForAllProducts(
+            @RequestParam @NotNull(message = "The enterprise ID is required.") String enterpriseId) {
+        List<Kardex> kardexList = kardexQueryPort.findLastKardexForAllProducts(enterpriseId);
+        List<ListLastProductKardexDtoResponse> response = kardexResponseMapper.toListLastProductKardexDtoResponseList(kardexList);
+        return ResponseDto.<List<ListLastProductKardexDtoResponse>>builder()
+                .data(response)
+                .status(200)
+                .message("Last kardex records for all products retrieved successfully")
+                .build();
     }
 }

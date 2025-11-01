@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.kardex.application.ports.input.kardex.IKardexCommandPort;
 import com.kardex.domain.model.Kardex;
+import com.kardex.domain.model.MovementType;
 import com.kardex.domain.port.messageProcessingError.IMessageErrorHandlingPort;
 import com.kardex.infrastructure.adapters.config.rabbitConfig.RabbitWeightedAverageConfig;
 import com.kardex.infrastructure.adapters.output.messageBroker.base.AbstractMessageListener;
@@ -67,35 +68,45 @@ public class FactureListener extends AbstractMessageListener<EventDto<KardexRabb
      */
     @Override
     protected void processEvent(EventDto<KardexRabbitDto, EventFactureType> event) {
-        try {
-            switch (event.getType()) {
-                case PURCHASE:
-                    Kardex kardex = kardexRabbitMQRestMapper.toDomain(event.getData());
-                    kardexCommandPort.registerPurchase(kardex);
-                    log.info("Registering purchase in Kardex for product ID: {}", kardex.getProductId());
-                    break;
-                case SALE:
-                    Kardex kardexSale = kardexRabbitMQRestMapper.toDomain(event.getData());
-                    kardexCommandPort.registerSale(kardexSale);
-                    log.info("Registering sale in Kardex for product ID: {}", kardexSale.getProductId());
-                    break;
-                case RETURNONSALE:
-                    Kardex kardexReturnOnSale = kardexRabbitMQRestMapper.toDomain(event.getData());
-                    kardexCommandPort.registerReturnOnSale(kardexReturnOnSale);
-                    log.info("Registering return on sale in Kardex for product ID: {}", kardexReturnOnSale.getProductId());
-                    break;
-                case RETURNONPURCHASE:
-                    Kardex kardexReturnOnPurchase = kardexRabbitMQRestMapper.toDomain(event.getData());
-                    kardexCommandPort.registerReturnOnPurchase(kardexReturnOnPurchase);
-                    log.info("Registering return on purchase in Kardex for product ID: {}", kardexReturnOnPurchase.getProductId());
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unsupported event type: " + event.getType());
-            }
-        } catch (Exception e) {
-            // Re-throw to be handled by the parent class if persistence fails
-            log.error("Database operation failed for kardex operation: {}", e.getMessage());
-            throw e;
+        switch (event.getType()) {
+            case PURCHASE:
+                Kardex kardex = kardexRabbitMQRestMapper.toDomain(event.getData());
+                kardex.setType(MovementType.PURCHASE);
+                kardexCommandPort.registerPurchase(kardex);
+                log.info("Registering purchase in Kardex for product ID: {}", kardex.getProductId());
+                break;
+            case SALE:
+                Kardex kardexSale = kardexRabbitMQRestMapper.toDomain(event.getData());
+                kardexSale.setType(MovementType.SALE);
+                kardexCommandPort.registerSale(kardexSale);
+                log.info("Registering sale in Kardex for product ID: {}", kardexSale.getProductId());
+                break;
+            case RETURNONSALE:
+                Kardex kardexReturnOnSale = kardexRabbitMQRestMapper.toDomain(event.getData());
+                kardexReturnOnSale.setType(MovementType.SALESRETURN);
+                kardexCommandPort.registerReturnOnSale(kardexReturnOnSale);
+                log.info("Registering return on sale in Kardex for product ID: {}", kardexReturnOnSale.getProductId());
+                break;
+            case RETURNONPURCHASE:
+                Kardex kardexReturnOnPurchase = kardexRabbitMQRestMapper.toDomain(event.getData());
+                kardexReturnOnPurchase.setType(MovementType.PURCHASERETURN);
+                kardexCommandPort.registerReturnOnPurchase(kardexReturnOnPurchase);
+                log.info("Registering return on purchase in Kardex for product ID: {}", kardexReturnOnPurchase.getProductId());
+                break;
+            case NONCOMMERCIALEXIT:
+                Kardex kardexNonCommercialExit = kardexRabbitMQRestMapper.toDomain(event.getData());
+                kardexNonCommercialExit.setType(MovementType.NONCOMMERCIALEXIT);
+                kardexCommandPort.registerSale(kardexNonCommercialExit);
+                log.info("Registering non-commercial exit in Kardex for product ID: {}", kardexNonCommercialExit.getProductId());
+                break;
+            case NONCOMMERCIALENTRY:
+                Kardex kardexNonCommercialEntry = kardexRabbitMQRestMapper.toDomain(event.getData());
+                kardexNonCommercialEntry.setType(MovementType.NONCOMMERCIALENTRY);
+                kardexCommandPort.registerPurchase(kardexNonCommercialEntry);
+                log.info("Registering non-commercial entry in Kardex for product ID: {}", kardexNonCommercialEntry.getProductId());
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported event type: " + event.getType());
         }
     }
 

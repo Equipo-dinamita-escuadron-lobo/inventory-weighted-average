@@ -14,7 +14,6 @@ public interface IKardexRestMapper {
     @Mapping(target = "balanceUnitPrice", ignore = true)
     @Mapping(target = "totalBalance", ignore = true)
     @Mapping(target = "date", ignore = true)
-    @Mapping(target = "type", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "factCode", ignore = true)
     Kardex toDomain(KardexPurchaseDtoRequest kardexPurchaseDtoRequest);
@@ -24,7 +23,6 @@ public interface IKardexRestMapper {
     @Mapping(target = "totalBalance", ignore = true)
     @Mapping(target = "unitPrice", ignore = true)
     @Mapping(target = "date", ignore = true)
-    @Mapping(target = "type", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "factCode", ignore = true)
     Kardex toDomain(KardexSaleDtoRequest kardexSaleDtoRequest);

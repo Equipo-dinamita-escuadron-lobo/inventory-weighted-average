@@ -94,5 +94,16 @@ public class KardexQueryAdapter implements IKardexQueryRepositoryPort {
     public boolean existsByFactCodeAndProductIdAndType(String factCode, Long productId, MovementType type) {
         return kardexRepository.existsByFactCodeAndProductIdAndType(factCode, productId, type);
     }
+
+    /**
+     * @brief Gets the last kardex record for all products of an enterprise
+     * @param enterpriseId Enterprise identifier to filter products
+     * @return List of latest kardex records for each product
+     */
+    @Override
+    public List<Kardex> findLastKardexForAllProducts(String enterpriseId) {
+        List<KardexEntity> kardexEntities = kardexRepository.findLastKardexForAllProductsByEnterpriseId(enterpriseId);
+        return kardexEntityMapper.toDomainList(kardexEntities);
+    }
     
 }

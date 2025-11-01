@@ -1,6 +1,7 @@
 package com.kardex.application.service.kardex.query;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +41,17 @@ public class KardexQueryService implements IKardexQueryPort {
             return kardexQueryRepositoryPort.findProductIdAndDate(productId, pageable, startDate, endDate);
         }
         return kardexQueryRepositoryPort.findProductId(productId, pageable);
+    }
+
+    /**
+     * @brief Gets the last kardex record for all products of an enterprise
+     * @param enterpriseId Enterprise identifier to filter products
+     * @return List of latest kardex records for each product
+     */
+    @Override
+    public List<Kardex> findLastKardexForAllProducts(String enterpriseId) {
+        log.info("Fetching last kardex record for all products of enterprise: {}", enterpriseId);
+        return kardexQueryRepositoryPort.findLastKardexForAllProducts(enterpriseId);
     }
     
 }
