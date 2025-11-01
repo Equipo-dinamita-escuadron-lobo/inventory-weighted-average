@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.kardex.domain.model.Stock;
+import com.kardex.domain.port.common.IFormatterResultOutputPort;
 import com.kardex.domain.port.external.IStockClientPort;
 import com.kardex.infrastructure.adapters.input.rest.dto.ResponseDto;
 import com.kardex.infrastructure.adapters.output.remoteSync.config.IStockClient;
@@ -21,23 +22,24 @@ public class StockClientAdapter implements IStockClientPort {
 
     private final IStockClient stockClient;
     private final IStockClientMapper stockClientMapper;
+    private final IFormatterResultOutputPort formatterResultOutputPort;
 
     @Override
     public void buyStock(Stock stock) {
         try {
             ResponseEntity<ResponseDto<StockDtoResponse>> response = stockClient.buyStock(stockClientMapper.toDtoRequest(stock));
             if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new RuntimeException("Failed to buy stock");
+                formatterResultOutputPort.returnErrorGenericResponse(response.getStatusCode().value(), "Failed to buy stock");
             }
         } catch (WebClientResponseException.ServiceUnavailable e) {
             log.warn("Stock service is unavailable (503)");
-            throw new RuntimeException("Stock service is currently unavailable");
+            formatterResultOutputPort.returnErrorGenericResponse(503, "Stock service is currently unavailable");
         } catch (WebClientResponseException e) {
-            log.warn("Error calling stock service: {} - {}", e.getStatusCode(), e.getStatusText());
-            throw new RuntimeException("Error communicating with stock service: " + e.getStatusCode());
+            log.warn("Error calling stock service");
+            formatterResultOutputPort.returnErrorGenericResponse(500, "Error communicating with stock service");
         } catch (Exception e) {
-            log.warn("Unexpected error calling stock service: {}", e.getMessage());
-            throw new RuntimeException("Unexpected error communicating with stock service");
+            log.warn("Unexpected error calling stock service");
+            formatterResultOutputPort.returnErrorGenericResponse(500, "Unexpected error communicating with stock service");
         }
     }
 
@@ -46,17 +48,17 @@ public class StockClientAdapter implements IStockClientPort {
         try {
             ResponseEntity<ResponseDto<StockDtoResponse>> response = stockClient.sellStock(stockClientMapper.toSellDtoRequest(stock));
             if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new RuntimeException("Failed to sell stock");
+                formatterResultOutputPort.returnErrorGenericResponse(response.getStatusCode().value(), "Failed to sell stock");
             }
         } catch (WebClientResponseException.ServiceUnavailable e) {
             log.warn("Stock service is unavailable (503)");
-            throw new RuntimeException("Stock service is currently unavailable");
+            formatterResultOutputPort.returnErrorGenericResponse(503, "Stock service is currently unavailable");
         } catch (WebClientResponseException e) {
             log.warn("Error calling stock service: {} - {}", e.getStatusCode(), e.getStatusText());
-            throw new RuntimeException("Error communicating with stock service: " + e.getStatusCode());
+            formatterResultOutputPort.returnErrorGenericResponse(500, "Error communicating with stock service");
         } catch (Exception e) {
-            log.warn("Unexpected error calling stock service: {}", e.getMessage());
-            throw new RuntimeException("Unexpected error communicating with stock service");
+            log.warn("Unexpected error calling stock service");
+            formatterResultOutputPort.returnErrorGenericResponse(500, "Unexpected error communicating with stock service");
         }
     }
 }

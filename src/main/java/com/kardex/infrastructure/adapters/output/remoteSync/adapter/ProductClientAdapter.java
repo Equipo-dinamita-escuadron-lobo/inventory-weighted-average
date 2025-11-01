@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.kardex.domain.model.Product;
+import com.kardex.domain.port.common.IFormatterResultOutputPort;
 import com.kardex.domain.port.product.IProductClientPort;
 import com.kardex.infrastructure.adapters.output.remoteSync.config.IProductClient;
 import com.kardex.infrastructure.adapters.output.remoteSync.mapper.IProductClientMapper;
@@ -21,6 +22,7 @@ public class ProductClientAdapter implements IProductClientPort {
 
     private final IProductClientMapper productClientMapper;
     private final IProductClient productClient;
+    private final IFormatterResultOutputPort formatterResultOutputPort;
 
     @Override
     public List<Product> findAllProductsByEnterpriseId(String enterpriseId, Instant since) {
@@ -31,14 +33,15 @@ public class ProductClientAdapter implements IProductClientPort {
                     .toList();
         } catch (WebClientResponseException.ServiceUnavailable e) {
             log.warn("Product service is unavailable (503)");
-            throw new RuntimeException("Product service is currently unavailable");
+            formatterResultOutputPort.returnErrorGenericResponse(503, "Product service is currently unavailable");
         } catch (WebClientResponseException e) {
-            log.warn("Error calling product service: {} - {}", e.getStatusCode(), e.getStatusText());
-            throw new RuntimeException("Error communicating with product service: " + e.getStatusCode());
+            log.warn("Error calling product service");
+            formatterResultOutputPort.returnErrorGenericResponse(500, "Error communicating with product service");
         } catch (Exception e) {
-            log.warn("Unexpected error calling product service: {}", e.getMessage());
-            throw new RuntimeException("Unexpected error communicating with product service");
+            log.warn("Unexpected error calling product service");
+            formatterResultOutputPort.returnErrorGenericResponse(500, "Unexpected error communicating with product service");
         }
+        return List.of();
     }
     
 }
