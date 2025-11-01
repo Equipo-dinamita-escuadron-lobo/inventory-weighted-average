@@ -1,0 +1,82 @@
+package com.kardex.application.service.kardex.command;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+import org.springframework.stereotype.Service;
+
+import com.kardex.domain.model.Kardex;
+import com.kardex.domain.port.common.IFormatterResultOutputPort;
+import com.kardex.domain.port.common.IMessageServicePort;
+import com.kardex.domain.port.config.IConfigClientPort;
+import com.kardex.domain.port.kardex.IKardexQueryRepositoryPort;
+import com.kardex.infrastructure.adapters.config.i18n.MessageKeys;
+
+import lombok.RequiredArgsConstructor;
+
+/**
+ * @brief Service for validating and processing dates in kardex adjustments
+ * 
+ * Handles special date validation logic for adjustments:
+ * - Assigns current date if null
+ * - Validates date is not before last kardex record
+ * - Adds one second if date matches last record's date
+ * - Validates date is not in the future
+ * - Validates against accounting calendar
+ */
+@Service
+@RequiredArgsConstructor
+public class KardexAdjustmentDateValidationService {
+    
+    private final IConfigClientPort configClientPort;
+    private final IFormatterResultOutputPort formatterResultOutputPort;
+    private final IMessageServicePort messageService;
+    private final IKardexQueryRepositoryPort kardexQueryRepositoryPort;
+
+    /**
+     * @brief Validates and sets date for adjustment operations with special rules
+     * @param kardex Kardex object with optional date
+     * @param enterpriseId Enterprise identifier for calendar validation
+     */
+    public void validateAndSetDateForAdjustment(Kardex kardex, String enterpriseId) {
+        // 1. Si no viene fecha, asignar fecha actual
+        if (kardex.getDate() == null) {
+            kardex.addDate();
+        }
+        
+        ZonedDateTime adjustmentDate = kardex.getDate();
+        ZonedDateTime currentDate = ZonedDateTime.now(ZoneId.of("America/Bogota"));
+        
+        // 2. Validar que la fecha no sea mayor al día actual
+        if (adjustmentDate.isAfter(currentDate)) {
+            String errorMessage = messageService.getMessage(MessageKeys.DATE_CANNOT_BE_FUTURE);
+            formatterResultOutputPort.returnBusinessRuleErrorResponse(400, errorMessage);
+        }
+        
+        // 3. Obtener el último registro de kardex para el producto
+        Kardex lastKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
+        
+        if (lastKardex != null && lastKardex.getDate() != null) {
+            ZonedDateTime lastDate = lastKardex.getDate();
+            
+            // 4. Validar que la fecha no sea menor a la del último registro
+            if (adjustmentDate.isBefore(lastDate)) {
+                String errorMessage = messageService.getMessage(MessageKeys.DATE_CANNOT_BE_BEFORE_LAST_RECORD);
+                formatterResultOutputPort.returnBusinessRuleErrorResponse(400, errorMessage);
+            }
+            
+            // 5. Si la fecha es del mismo día que el último registro, sumar un segundo
+            if (adjustmentDate.toLocalDate().equals(lastDate.toLocalDate())) {
+                kardex.setDate(lastDate.plusSeconds(1));
+            }
+        }
+        
+        // 6. Validar la fecha contra el calendario contable
+        LocalDate kardexLocalDate = kardex.getDate().toLocalDate();
+        if (!configClientPort.isValidAccountingDate(enterpriseId, kardexLocalDate)) {
+            String errorMessage = messageService.getMessage(MessageKeys.INVALID_ACCOUNTING_DATE);
+            formatterResultOutputPort.returnBusinessRuleErrorResponse(400, errorMessage);
+        }
+    }
+}
