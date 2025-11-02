@@ -60,15 +60,15 @@ public class KardexAdjustmentDateValidationService {
         if (lastKardex != null && lastKardex.getDate() != null) {
             ZonedDateTime lastDate = lastKardex.getDate();
             
-            // 4. Validar que la fecha no sea menor a la del último registro
-            if (adjustmentDate.isBefore(lastDate)) {
-                String errorMessage = messageService.getMessage(MessageKeys.DATE_CANNOT_BE_BEFORE_LAST_RECORD);
-                formatterResultOutputPort.returnBusinessRuleErrorResponse(400, errorMessage);
-            }
-            
-            // 5. Si la fecha es del mismo día que el último registro, sumar un segundo
+            // 4. Si la fecha enviada es del mismo día que el último registro, usar la fecha del último registro + 1 segundo
             if (adjustmentDate.toLocalDate().equals(lastDate.toLocalDate())) {
                 kardex.setDate(lastDate.plusSeconds(1));
+            } else {
+                // 5. Solo validar que la fecha no sea menor si NO es del mismo día
+                if (adjustmentDate.isBefore(lastDate)) {
+                    String errorMessage = messageService.getMessage(MessageKeys.DATE_CANNOT_BE_BEFORE_LAST_RECORD);
+                    formatterResultOutputPort.returnBusinessRuleErrorResponse(400, errorMessage);
+                }
             }
         }
         
