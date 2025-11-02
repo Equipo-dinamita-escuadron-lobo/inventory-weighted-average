@@ -43,6 +43,9 @@ public class KardexBatchCommandService implements IKardexBatchCommandPort {
     @Transactional(rollbackFor = Exception.class)
     public KardexBatchProcessingResultDto processBatchFromExternalService(String enterpriseId) {
         log.info("Starting batch processing for enterprise: {}", enterpriseId);
+
+        // Clear kardex table before processing new batch
+        kardexCommandRepositoryPort.deleteAll();
         
         List<KardexBatchErrorDto> errors = new ArrayList<>();
         int processedCount = 0;

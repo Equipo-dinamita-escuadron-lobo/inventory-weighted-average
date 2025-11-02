@@ -17,6 +17,6 @@ public interface IKardexExternalClient {
      * @param enterpriseId The enterprise identifier
      * @return Response with list of kardex records
      */
-    @GetExchange("/api/kardex/peps/last-kardex-peps-all-products/{enterpriseId}")
+    @GetExchange("/api/kardex/peps/last-kardex-peps-all-products")
     KardexExternalResponseDto findKardexByEnterpriseId(@RequestParam String enterpriseId);
 }

@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/kardex/batch")
+@RequestMapping("/api/kardex/weighted-average/batch")
 @Validated
 public class KardexBatchCommandController {
 
