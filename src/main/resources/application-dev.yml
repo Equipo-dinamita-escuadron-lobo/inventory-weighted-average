@@ -78,4 +78,4 @@ services:
     config:
       base-url: ${CONFIG_SERVICE_URL:lb://CONFIG}
     kardex-external:
-      base-url: ${KARDEX_EXTERNAL_SERVICE_URL:lb://KARDEX-EXTERNAL}
+      base-url: ${KARDEX_EXTERNAL_SERVICE_URL:lb://INVENTORYPEPS}
