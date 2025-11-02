@@ -38,6 +38,20 @@ public interface IKardexCommandPort {
     Kardex registerReturnOnSale(Kardex kardex);
     
     /**
+     * @brief Registers an adjustment entry transaction with custom date validation
+     * @param kardex Adjustment entry details to register
+     * @return Processed kardex with updated balances
+     */
+    Kardex registerAdjustmentEntry(Kardex kardex);
+    
+    /**
+     * @brief Registers an adjustment exit transaction with custom date validation
+     * @param kardex Adjustment exit details to register
+     * @return Processed kardex with updated balances
+     */
+    Kardex registerAdjustmentExit(Kardex kardex);
+    
+    /**
      * @brief Deletes all kardex records
      */
     void deleteAll();

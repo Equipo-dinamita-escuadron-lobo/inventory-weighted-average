@@ -20,6 +20,8 @@ public final class MessageKeys {
     public static final String ERROR_OPERATION_NOT_ALLOWED = "kardex.error.operation.not.allowed";
     public static final String ERROR_INVALID_TYPE = "kardex.error.invalid.type";
     public static final String INVALID_ACCOUNTING_DATE = "kardex.error.invalid.accounting.date";
+    public static final String DATE_CANNOT_BE_FUTURE = "kardex.error.date.cannot.be.future";
+    public static final String DATE_CANNOT_BE_BEFORE_LAST_RECORD = "kardex.error.date.cannot.be.before.last.record";
 
     // Generic Validation Messages
     public static final String VALIDATION_FIELD_REQUIRED = "kardex.validation.field.required";

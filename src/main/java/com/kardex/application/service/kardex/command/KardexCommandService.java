@@ -42,6 +42,7 @@ public class KardexCommandService implements IKardexCommandPort{
     private final KardexReturnService returnService;
     private final StockIntegrationService stockIntegrationService;
     private final KardexDateValidationService kardexDateValidationService;
+    private final KardexAdjustmentDateValidationService kardexAdjustmentDateValidationService;
 
     /**
      * @brief Registers a purchase transaction with weighted average calculation
@@ -171,6 +172,76 @@ public class KardexCommandService implements IKardexCommandPort{
         } catch (Exception e) {
             log.error("Error deleting all kardex records: {}", e.getMessage());
         }
+    }
+
+    /**
+     * @brief Registers an adjustment entry transaction with custom date validation
+     * Handles special date logic: assigns current date if null, validates against last record,
+     * adds one second if same day, and validates it's not in the future
+     * @param kardex Adjustment entry details to process
+     * @return Processed kardex with updated inventory balances
+     */
+    @Override
+    public Kardex registerAdjustmentEntry(Kardex kardex) {
+        Product product = validationService.validateBusinessRulesAndGetProduct(
+            kardex.getFactCode(), kardex.getProductId(), kardex.getType());
+        
+        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
+        
+        // Validar fecha con lógica especial de ajustes
+        kardexAdjustmentDateValidationService.validateAndSetDateForAdjustment(kardex, product.getEnterpriseId());
+        
+        if (lastRegisteredKardex == null) {
+            kardex.setBalanceQuantity(kardex.getQuantity());
+            kardex.setBalanceUnitPrice(kardex.getUnitPrice());
+            kardex.setTotalBalance(kardex.getUnitPrice().multiply(BigDecimal.valueOf(kardex.getQuantity())));
+            kardex.generateAdjustmentFactCode();
+            kardex.updateDetailIfNotNull();
+        } else {
+            kardex.addPurchase(lastRegisteredKardex.getBalanceQuantity(), lastRegisteredKardex.getTotalBalance());
+        }
+        
+        if(kardex.getBalanceUnitPrice().compareTo(BigDecimal.ZERO) == 0) {
+            formatterResultOutputPort.returnBusinessRuleErrorResponse(400, 
+                messageService.getMessage(MessageKeys.ERROR_INVALID_VALUE, "balance unit price"));
+        }
+
+        Stock stock = stockIntegrationService.createStock(kardex);
+        stockIntegrationService.callApiStockService(stock, true);
+
+        Kardex savedKardex = kardexCommandRepositoryPort.registerPurchase(kardex);
+
+        log.info("Method registerAdjustmentEntry productId=" + savedKardex.getProductId());
+        return savedKardex;
+    }
+
+    /**
+     * @brief Registers an adjustment exit transaction with custom date validation
+     * Handles special date logic: assigns current date if null, validates against last record,
+     * adds one second if same day, and validates it's not in the future
+     * @param kardex Adjustment exit details to process
+     * @return Processed kardex with updated inventory balances
+     */
+    @Override
+    public Kardex registerAdjustmentExit(Kardex kardex) {
+        Product product = validationService.validateBusinessRulesAndGetProduct(
+            kardex.getFactCode(), kardex.getProductId(), MovementType.ADJUSTMENTEXIT);
+        
+        Kardex lastRegisteredKardex = kardexQueryRepositoryPort.getLatestKardexByProductId(kardex.getProductId());
+        validationService.validatePreviousKardexExists(lastRegisteredKardex, "adjustment exit");
+        
+        // Validar fecha con lógica especial de ajustes
+        kardexAdjustmentDateValidationService.validateAndSetDateForAdjustment(kardex, product.getEnterpriseId());
+        
+        kardex.addSale(lastRegisteredKardex.getBalanceQuantity(), lastRegisteredKardex.getBalanceUnitPrice(), lastRegisteredKardex.getTotalBalance());
+
+        Stock stock = stockIntegrationService.createStock(kardex);
+        stockIntegrationService.callApiStockService(stock, false);
+
+        Kardex savedKardex = kardexCommandRepositoryPort.registerSale(kardex);
+
+        log.info("Method registerAdjustmentExit productId=" + savedKardex.getProductId());
+        return savedKardex;
     }
 
 }

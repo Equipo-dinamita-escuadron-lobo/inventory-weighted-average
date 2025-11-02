@@ -20,8 +20,8 @@ import com.kardex.domain.model.Kardex;
 import com.kardex.domain.model.MovementType;
 import com.kardex.infrastructure.adapters.input.rest.controller.KardexCommandController;
 import com.kardex.infrastructure.adapters.input.rest.dto.ResponseDto;
-import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexPurchaseDtoRequest;
-import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexSaleDtoRequest;
+import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexAdjustmentEntryDtoRequest;
+import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexAdjustmentExitDtoRequest;
 import com.kardex.infrastructure.adapters.input.rest.dto.response.KardexDtoResponse;
 import com.kardex.infrastructure.adapters.input.rest.mapper.IKardexResponseMapper;
 import com.kardex.infrastructure.adapters.input.rest.mapper.IKardexRestMapper;
@@ -41,47 +41,47 @@ public class KardexCommandControllerUnitTest {
     @InjectMocks
     private KardexCommandController kardexCommandController;
     
-    private KardexPurchaseDtoRequest purchaseRequest;
-    private KardexSaleDtoRequest saleRequest;
-    private Kardex purchaseKardex;
-    private Kardex saleKardex;
+    private KardexAdjustmentEntryDtoRequest purchaseRequest;
+    private KardexAdjustmentExitDtoRequest saleRequest;
+    private Kardex adjustmentEntry;
+    private Kardex adjustmentExit;
     private KardexDtoResponse purchaseResponse;
     private KardexDtoResponse saleResponse;
     
     @BeforeEach
     void setUp() {
         // Setup purchase request
-        purchaseRequest = new KardexPurchaseDtoRequest();
+        purchaseRequest = new KardexAdjustmentEntryDtoRequest();
         purchaseRequest.setProductId(100L);
         purchaseRequest.setQuantity(50L);
         purchaseRequest.setUnitPrice(new BigDecimal("100.00"));
         purchaseRequest.setDetails("Purchase of office supplies");
         
         // Setup sale request
-        saleRequest = new KardexSaleDtoRequest();
+        saleRequest = new KardexAdjustmentExitDtoRequest();
         saleRequest.setProductId(100L);
         saleRequest.setQuantity(20L);
         saleRequest.setDetails("Sale to client ABC");
         
         // Setup purchase kardex domain
-        purchaseKardex = new Kardex();
-        purchaseKardex.setId(1L);
-        purchaseKardex.setProductId(100L);
-        purchaseKardex.setQuantity(50);
-        purchaseKardex.setUnitPrice(new BigDecimal("100.00"));
-        purchaseKardex.setType(MovementType.PURCHASE);
-        purchaseKardex.setDate(ZonedDateTime.now());
-        purchaseKardex.setDetails("Purchase of office supplies");
+        adjustmentEntry = new Kardex();
+        adjustmentEntry.setId(1L);
+        adjustmentEntry.setProductId(100L);
+        adjustmentEntry.setQuantity(50);
+        adjustmentEntry.setUnitPrice(new BigDecimal("100.00"));
+        adjustmentEntry.setType(MovementType.PURCHASE);
+        adjustmentEntry.setDate(ZonedDateTime.now());
+        adjustmentEntry.setDetails("Purchase of office supplies");
         
         // Setup sale kardex domain
-        saleKardex = new Kardex();
-        saleKardex.setId(2L);
-        saleKardex.setProductId(100L);
-        saleKardex.setQuantity(20);
-        saleKardex.setUnitPrice(new BigDecimal("100.00"));
-        saleKardex.setType(MovementType.SALE);
-        saleKardex.setDate(ZonedDateTime.now());
-        saleKardex.setDetails("Sale to client ABC");
+        adjustmentExit = new Kardex();
+        adjustmentExit.setId(2L);
+        adjustmentExit.setProductId(100L);
+        adjustmentExit.setQuantity(20);
+        adjustmentExit.setUnitPrice(new BigDecimal("100.00"));
+        adjustmentExit.setType(MovementType.SALE);
+        adjustmentExit.setDate(ZonedDateTime.now());
+        adjustmentExit.setDetails("Sale to client ABC");
         
         // Setup purchase response
         purchaseResponse = new KardexDtoResponse();
@@ -99,14 +99,14 @@ public class KardexCommandControllerUnitTest {
     @SuppressWarnings("null")
     @Test
     @DisplayName("Should register purchase successfully")
-    void testPurchaseKardex() {
+    void testadjustmentEntry() {
         // Arrange
-        when(kardexRestMapper.toDomain(purchaseRequest)).thenReturn(purchaseKardex);
-        when(kardexCommandPort.registerPurchase(purchaseKardex)).thenReturn(purchaseKardex);
-        when(kardexResponseMapper.toDtoResponse(purchaseKardex)).thenReturn(purchaseResponse);
+        when(kardexRestMapper.toDomain(purchaseRequest)).thenReturn(adjustmentEntry);
+        when(kardexCommandPort.registerPurchase(adjustmentEntry)).thenReturn(adjustmentEntry);
+        when(kardexResponseMapper.toDtoResponse(adjustmentEntry)).thenReturn(purchaseResponse);
         
         // Act
-        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.purchaseKardex(purchaseRequest);
+        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.adjustmentEntry(purchaseRequest);
         
         // Assert
         assertNotNull(response);
@@ -119,21 +119,21 @@ public class KardexCommandControllerUnitTest {
         assertEquals(MovementType.PURCHASE, response.getBody().getData().getType());
         
         verify(kardexRestMapper).toDomain(purchaseRequest);
-        verify(kardexCommandPort).registerPurchase(purchaseKardex);
-        verify(kardexResponseMapper).toDtoResponse(purchaseKardex);
+        verify(kardexCommandPort).registerPurchase(adjustmentEntry);
+        verify(kardexResponseMapper).toDtoResponse(adjustmentEntry);
     }
     
     @SuppressWarnings("null")
     @Test
     @DisplayName("Should register sale successfully")
-    void testSaleKardex() {
+    void testadjustmentExit() {
         // Arrange
-        when(kardexRestMapper.toDomain(saleRequest)).thenReturn(saleKardex);
-        when(kardexCommandPort.registerSale(saleKardex)).thenReturn(saleKardex);
-        when(kardexResponseMapper.toDtoResponse(saleKardex)).thenReturn(saleResponse);
+        when(kardexRestMapper.toDomain(saleRequest)).thenReturn(adjustmentExit);
+        when(kardexCommandPort.registerSale(adjustmentExit)).thenReturn(adjustmentExit);
+        when(kardexResponseMapper.toDtoResponse(adjustmentExit)).thenReturn(saleResponse);
         
         // Act
-        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.saleKardex(saleRequest);
+        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.adjustmentExit(saleRequest);
         
         // Assert
         assertNotNull(response);
@@ -146,8 +146,8 @@ public class KardexCommandControllerUnitTest {
         assertEquals(MovementType.SALE, response.getBody().getData().getType());
         
         verify(kardexRestMapper).toDomain(saleRequest);
-        verify(kardexCommandPort).registerSale(saleKardex);
-        verify(kardexResponseMapper).toDtoResponse(saleKardex);
+        verify(kardexCommandPort).registerSale(adjustmentExit);
+        verify(kardexResponseMapper).toDtoResponse(adjustmentExit);
     }
     
     @SuppressWarnings("null")
@@ -173,9 +173,9 @@ public class KardexCommandControllerUnitTest {
     @SuppressWarnings("null")
     @Test
     @DisplayName("Should handle purchase with minimum valid values")
-    void testPurchaseKardexWithMinimumValues() {
+    void testadjustmentEntryWithMinimumValues() {
         // Arrange
-        KardexPurchaseDtoRequest minRequest = new KardexPurchaseDtoRequest();
+        KardexAdjustmentEntryDtoRequest minRequest = new KardexAdjustmentEntryDtoRequest();
         minRequest.setProductId(1L);
         minRequest.setQuantity(1L);
         minRequest.setUnitPrice(new BigDecimal("0.01"));
@@ -196,7 +196,7 @@ public class KardexCommandControllerUnitTest {
         when(kardexResponseMapper.toDtoResponse(minKardex)).thenReturn(minResponse);
         
         // Act
-        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.purchaseKardex(minRequest);
+        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.adjustmentEntry(minRequest);
         
         // Assert
         assertNotNull(response);
@@ -209,9 +209,9 @@ public class KardexCommandControllerUnitTest {
     @SuppressWarnings("null")
     @Test
     @DisplayName("Should handle sale with minimum valid values")
-    void testSaleKardexWithMinimumValues() {
+    void testadjustmentExitWithMinimumValues() {
         // Arrange
-        KardexSaleDtoRequest minRequest = new KardexSaleDtoRequest();
+        KardexAdjustmentExitDtoRequest minRequest = new KardexAdjustmentExitDtoRequest();
         minRequest.setProductId(1L);
         minRequest.setQuantity(1L);
         
@@ -230,7 +230,7 @@ public class KardexCommandControllerUnitTest {
         when(kardexResponseMapper.toDtoResponse(minKardex)).thenReturn(minResponse);
         
         // Act
-        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.saleKardex(minRequest);
+        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.adjustmentExit(minRequest);
         
         // Assert
         assertNotNull(response);
@@ -243,9 +243,9 @@ public class KardexCommandControllerUnitTest {
     @SuppressWarnings("null")
     @Test
     @DisplayName("Should handle purchase with large quantities")
-    void testPurchaseKardexWithLargeQuantity() {
+    void testadjustmentEntryWithLargeQuantity() {
         // Arrange
-        KardexPurchaseDtoRequest largeRequest = new KardexPurchaseDtoRequest();
+        KardexAdjustmentEntryDtoRequest largeRequest = new KardexAdjustmentEntryDtoRequest();
         largeRequest.setProductId(100L);
         largeRequest.setQuantity(10000L);
         largeRequest.setUnitPrice(new BigDecimal("999.99"));
@@ -264,7 +264,7 @@ public class KardexCommandControllerUnitTest {
         when(kardexResponseMapper.toDtoResponse(largeKardex)).thenReturn(largeResponse);
         
         // Act
-        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.purchaseKardex(largeRequest);
+        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.adjustmentEntry(largeRequest);
         
         // Assert
         assertNotNull(response);
@@ -276,14 +276,14 @@ public class KardexCommandControllerUnitTest {
     @SuppressWarnings("null")
     @Test
     @DisplayName("Should verify purchase response structure")
-    void testPurchaseKardexResponseStructure() {
+    void testadjustmentEntryResponseStructure() {
         // Arrange
-        when(kardexRestMapper.toDomain(purchaseRequest)).thenReturn(purchaseKardex);
-        when(kardexCommandPort.registerPurchase(purchaseKardex)).thenReturn(purchaseKardex);
-        when(kardexResponseMapper.toDtoResponse(purchaseKardex)).thenReturn(purchaseResponse);
+        when(kardexRestMapper.toDomain(purchaseRequest)).thenReturn(adjustmentEntry);
+        when(kardexCommandPort.registerPurchase(adjustmentEntry)).thenReturn(adjustmentEntry);
+        when(kardexResponseMapper.toDtoResponse(adjustmentEntry)).thenReturn(purchaseResponse);
         
         // Act
-        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.purchaseKardex(purchaseRequest);
+        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.adjustmentEntry(purchaseRequest);
         
         // Assert
         assertNotNull(response.getBody());
@@ -296,14 +296,14 @@ public class KardexCommandControllerUnitTest {
     @SuppressWarnings("null")
     @Test
     @DisplayName("Should verify sale response structure")
-    void testSaleKardexResponseStructure() {
+    void testadjustmentExitResponseStructure() {
         // Arrange
-        when(kardexRestMapper.toDomain(saleRequest)).thenReturn(saleKardex);
-        when(kardexCommandPort.registerSale(saleKardex)).thenReturn(saleKardex);
-        when(kardexResponseMapper.toDtoResponse(saleKardex)).thenReturn(saleResponse);
+        when(kardexRestMapper.toDomain(saleRequest)).thenReturn(adjustmentExit);
+        when(kardexCommandPort.registerSale(adjustmentExit)).thenReturn(adjustmentExit);
+        when(kardexResponseMapper.toDtoResponse(adjustmentExit)).thenReturn(saleResponse);
         
         // Act
-        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.saleKardex(saleRequest);
+        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.adjustmentExit(saleRequest);
         
         // Assert
         assertNotNull(response.getBody());
@@ -316,78 +316,78 @@ public class KardexCommandControllerUnitTest {
     @SuppressWarnings("null")
     @Test
     @DisplayName("Should handle purchase with details")
-    void testPurchaseKardexWithDetails() {
+    void testadjustmentEntryWithDetails() {
         // Arrange
         purchaseRequest.setDetails("Urgent purchase for project X");
         
-        when(kardexRestMapper.toDomain(purchaseRequest)).thenReturn(purchaseKardex);
-        when(kardexCommandPort.registerPurchase(purchaseKardex)).thenReturn(purchaseKardex);
-        when(kardexResponseMapper.toDtoResponse(purchaseKardex)).thenReturn(purchaseResponse);
+        when(kardexRestMapper.toDomain(purchaseRequest)).thenReturn(adjustmentEntry);
+        when(kardexCommandPort.registerPurchase(adjustmentEntry)).thenReturn(adjustmentEntry);
+        when(kardexResponseMapper.toDtoResponse(adjustmentEntry)).thenReturn(purchaseResponse);
         
         // Act
-        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.purchaseKardex(purchaseRequest);
+        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.adjustmentEntry(purchaseRequest);
         
         // Assert
         assertNotNull(response);
         assertEquals(200, response.getBody().getStatus());
         
         verify(kardexRestMapper).toDomain(purchaseRequest);
-        verify(kardexCommandPort).registerPurchase(purchaseKardex);
+        verify(kardexCommandPort).registerPurchase(adjustmentEntry);
     }
     
     @SuppressWarnings("null")
     @Test
     @DisplayName("Should handle sale with details")
-    void testSaleKardexWithDetails() {
+    void testadjustmentExitWithDetails() {
         // Arrange
         saleRequest.setDetails("Sale with 10% discount");
         
-        when(kardexRestMapper.toDomain(saleRequest)).thenReturn(saleKardex);
-        when(kardexCommandPort.registerSale(saleKardex)).thenReturn(saleKardex);
-        when(kardexResponseMapper.toDtoResponse(saleKardex)).thenReturn(saleResponse);
+        when(kardexRestMapper.toDomain(saleRequest)).thenReturn(adjustmentExit);
+        when(kardexCommandPort.registerSale(adjustmentExit)).thenReturn(adjustmentExit);
+        when(kardexResponseMapper.toDtoResponse(adjustmentExit)).thenReturn(saleResponse);
         
         // Act
-        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.saleKardex(saleRequest);
+        ResponseEntity<ResponseDto<KardexDtoResponse>> response = kardexCommandController.adjustmentExit(saleRequest);
         
         // Assert
         assertNotNull(response);
         assertEquals(200, response.getBody().getStatus());
         
         verify(kardexRestMapper).toDomain(saleRequest);
-        verify(kardexCommandPort).registerSale(saleKardex);
+        verify(kardexCommandPort).registerSale(adjustmentExit);
     }
     
     @Test
     @DisplayName("Should verify mapper interactions for purchase")
-    void testPurchaseKardexMapperInteractions() {
+    void testadjustmentEntryMapperInteractions() {
         // Arrange
-        when(kardexRestMapper.toDomain(purchaseRequest)).thenReturn(purchaseKardex);
-        when(kardexCommandPort.registerPurchase(purchaseKardex)).thenReturn(purchaseKardex);
-        when(kardexResponseMapper.toDtoResponse(purchaseKardex)).thenReturn(purchaseResponse);
+        when(kardexRestMapper.toDomain(purchaseRequest)).thenReturn(adjustmentEntry);
+        when(kardexCommandPort.registerPurchase(adjustmentEntry)).thenReturn(adjustmentEntry);
+        when(kardexResponseMapper.toDtoResponse(adjustmentEntry)).thenReturn(purchaseResponse);
         
         // Act
-        kardexCommandController.purchaseKardex(purchaseRequest);
+        kardexCommandController.adjustmentEntry(purchaseRequest);
         
         // Assert
         verify(kardexRestMapper, times(1)).toDomain(purchaseRequest);
-        verify(kardexResponseMapper, times(1)).toDtoResponse(purchaseKardex);
+        verify(kardexResponseMapper, times(1)).toDtoResponse(adjustmentEntry);
         verifyNoMoreInteractions(kardexRestMapper, kardexResponseMapper);
     }
     
     @Test
     @DisplayName("Should verify mapper interactions for sale")
-    void testSaleKardexMapperInteractions() {
+    void testadjustmentExitMapperInteractions() {
         // Arrange
-        when(kardexRestMapper.toDomain(saleRequest)).thenReturn(saleKardex);
-        when(kardexCommandPort.registerSale(saleKardex)).thenReturn(saleKardex);
-        when(kardexResponseMapper.toDtoResponse(saleKardex)).thenReturn(saleResponse);
+        when(kardexRestMapper.toDomain(saleRequest)).thenReturn(adjustmentExit);
+        when(kardexCommandPort.registerSale(adjustmentExit)).thenReturn(adjustmentExit);
+        when(kardexResponseMapper.toDtoResponse(adjustmentExit)).thenReturn(saleResponse);
         
         // Act
-        kardexCommandController.saleKardex(saleRequest);
+        kardexCommandController.adjustmentExit(saleRequest);
         
         // Assert
         verify(kardexRestMapper, times(1)).toDomain(saleRequest);
-        verify(kardexResponseMapper, times(1)).toDtoResponse(saleKardex);
+        verify(kardexResponseMapper, times(1)).toDtoResponse(adjustmentExit);
         verifyNoMoreInteractions(kardexRestMapper, kardexResponseMapper);
     }
     
