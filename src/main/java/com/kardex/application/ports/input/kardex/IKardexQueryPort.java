@@ -31,4 +31,11 @@ public interface IKardexQueryPort {
      * @return List of latest kardex records for each product
      */
     List<Kardex> findLastKardexForAllProducts(String enterpriseId);
+    
+    /**
+     * @brief Gets the most recent kardex record for a specific product
+     * @param productId Product identifier
+     * @return Latest kardex record or null if none exists
+     */
+    Kardex getLatestKardexByProductId(Long productId);
 }

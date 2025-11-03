@@ -40,14 +40,17 @@ public class KardexValidationService {
      * @return Product The validated product with enterprise information
      */
     public Product validateBusinessRulesAndGetProduct(String factCode, Long productId, MovementType movementType) { 
-        // Check for duplicate movements based on factCode, productId, and type
-        boolean exists = kardexQueryRepositoryPort.existsByFactCodeAndProductIdAndType(factCode, productId, movementType);
-        
-        if (exists) {
-            String movementDescription = movementType.getDescription();
-            String errorMessage = messageService.getMessage(MessageKeys.ERROR_DUPLICATE_RECORD, 
-                "factCode=" + factCode + ", productId=" + productId + ", type=" + movementDescription);
-            throw new BusinessRuleException(400, errorMessage);
+        // Check for duplicate movements ONLY for non-return types
+        // Returns (PURCHASERETURN, SALESRETURN) can have multiple entries for the same factCode and productId
+        if (!isReturnType(movementType)) {
+            boolean exists = kardexQueryRepositoryPort.existsByFactCodeAndProductIdAndType(factCode, productId, movementType);
+            
+            if (exists) {
+                String movementDescription = movementType.getDescription();
+                String errorMessage = messageService.getMessage(MessageKeys.ERROR_DUPLICATE_RECORD, 
+                    "factCode=" + factCode + ", productId=" + productId + ", type=" + movementDescription);
+                throw new BusinessRuleException(400, errorMessage);
+            }
         }
 
         // Get and validate product exists
@@ -65,6 +68,15 @@ public class KardexValidationService {
         }
 
         return product;
+    }
+
+    /**
+     * @brief Checks if the movement type is a return operation
+     * @param movementType Type of inventory movement to check
+     * @return true if the movement is a return type (PURCHASERETURN or SALESRETURN)
+     */
+    private boolean isReturnType(MovementType movementType) {
+        return movementType == MovementType.PURCHASERETURN || movementType == MovementType.SALESRETURN;
     }
 
     /**
