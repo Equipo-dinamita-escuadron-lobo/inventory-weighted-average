@@ -75,4 +75,21 @@ public class KardexQueryController {
                 .message("Last kardex records for all products retrieved successfully")
                 .build();
     }
+
+    /**
+     * @brief Retrieves the most recent kardex record for a specific product
+     * @param productId Product identifier
+     * @return Response with the latest kardex record
+     */
+    @GetMapping("/latest-kardex-by-product")
+    public ResponseDto<KardexDtoResponse> getLatestKardexByProductId(
+            @RequestParam @NotNull(message = "The product ID is required.") Long productId) {
+        Kardex kardex = kardexQueryPort.getLatestKardexByProductId(productId);
+        KardexDtoResponse response = kardexResponseMapper.toDtoResponse(kardex);
+        return ResponseDto.<KardexDtoResponse>builder()
+                .data(response)
+                .status(200)
+                .message("Latest kardex record retrieved successfully")
+                .build();
+    }
 }

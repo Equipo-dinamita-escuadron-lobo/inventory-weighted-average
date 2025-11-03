@@ -54,4 +54,15 @@ public class KardexQueryService implements IKardexQueryPort {
         return kardexQueryRepositoryPort.findLastKardexForAllProducts(enterpriseId);
     }
     
+    /**
+     * @brief Gets the most recent kardex record for a specific product
+     * @param productId Product identifier
+     * @return Latest kardex record or null if none exists
+     */
+    @Override
+    public Kardex getLatestKardexByProductId(Long productId) {
+        log.info("Fetching latest kardex record for product: {}", productId);
+        return kardexQueryRepositoryPort.getLatestKardexByProductId(productId);
+    }
+    
 }
