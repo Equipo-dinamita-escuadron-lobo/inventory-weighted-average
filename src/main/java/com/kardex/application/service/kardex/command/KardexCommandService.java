@@ -14,6 +14,7 @@ import com.kardex.domain.port.common.IFormatterResultOutputPort;
 import com.kardex.domain.port.common.IMessageServicePort;
 import com.kardex.domain.port.kardex.IKardexCommandRepositoryPort;
 import com.kardex.domain.port.kardex.IKardexQueryRepositoryPort;
+import com.kardex.domain.port.product.IProductEventPort;
 import com.kardex.infrastructure.adapters.config.i18n.MessageKeys;
 
 import jakarta.transaction.Transactional;
@@ -36,6 +37,7 @@ public class KardexCommandService implements IKardexCommandPort{
     private final IKardexQueryRepositoryPort kardexQueryRepositoryPort;
     private final IFormatterResultOutputPort formatterResultOutputPort;
     private final IMessageServicePort messageService;
+    private final IProductEventPort productEventPort;
     
     // Servicios auxiliares
     private final KardexValidationService validationService;
@@ -197,6 +199,7 @@ public class KardexCommandService implements IKardexCommandPort{
             kardex.setTotalBalance(kardex.getUnitPrice().multiply(BigDecimal.valueOf(kardex.getQuantity())));
             kardex.generateAdjustmentFactCode();
             kardex.updateDetailIfNotNull();
+            productEventPort.publishCreatedProductEvent(true);
         } else {
             kardex.addPurchase(lastRegisteredKardex.getBalanceQuantity(), lastRegisteredKardex.getTotalBalance());
         }
