@@ -153,9 +153,9 @@ public class ProductCommandService implements IProductSyncCommandPort, IProductC
     }
 
      @Override
-     public String deleteById(Long productId, String enterpriseId) {
-        log.info("Deleting product with ID {} for enterprise {}", productId, enterpriseId);
-        return productCommandRepositoryPort.deleteById(productId, enterpriseId);   
+     public String deleteById(Long productId) {
+        log.info("Deleting product with ID {}", productId);
+        return productCommandRepositoryPort.delete(productId);   
      }
 
      @Override

@@ -133,13 +133,13 @@ class ProductListenerUnitTest {
     void testHandleDeletedEvent_Success() throws IOException {
         // Arrange
         event.setType(EventProductType.DELETED);
-        when(productCommandPort.deleteById(anyLong(), anyString())).thenReturn("Product deleted successfully");
+        when(productCommandPort.delete(anyLong())).thenReturn("Product deleted successfully");
 
         // Act
         productListener.handleProductEvent(event, message, channel, deliveryTag);
 
         // Assert
-        verify(productCommandPort, times(1)).deleteById(productAsyncDto.getProductId(), productAsyncDto.getEnterpriseId());
+        verify(productCommandPort, times(1)).delete(productAsyncDto.getProductId());
         verify(channel, times(1)).basicAck(deliveryTag, false);
         verify(productBrokerMapper, never()).toDomain(any()); // DELETE doesn't need mapping
     }
@@ -531,7 +531,7 @@ class ProductListenerUnitTest {
         when(productBrokerMapper.toDomain(any(ProductAsyncDto.class))).thenReturn(product);
         when(productCommandPort.save(any(Product.class))).thenReturn("Saved");
         when(productCommandPort.update(any(Product.class))).thenReturn("Updated");
-        when(productCommandPort.deleteById(anyLong(), anyString())).thenReturn("Deleted");
+        when(productCommandPort.delete(anyLong())).thenReturn("Deleted");
 
         // Act & Assert - CREATED
         event.setType(EventProductType.CREATED);
@@ -546,7 +546,7 @@ class ProductListenerUnitTest {
         // Act & Assert - DELETED
         event.setType(EventProductType.DELETED);
         productListener.handleProductEvent(event, message, channel, 3L);
-        verify(productCommandPort, times(1)).deleteById(productAsyncDto.getProductId(), productAsyncDto.getEnterpriseId());
+        verify(productCommandPort, times(1)).delete(productAsyncDto.getProductId());
 
         verify(channel, times(1)).basicAck(1L, false);
         verify(channel, times(1)).basicAck(2L, false);
@@ -631,14 +631,14 @@ class ProductListenerUnitTest {
     void testValidateAllRequiredFieldsForDeleted() throws IOException {
         // Test that required fields for delete must be present
         event.setType(EventProductType.DELETED);
-        
-        when(productCommandPort.deleteById(anyLong(), anyString())).thenReturn("Deleted");
+
+        when(productCommandPort.delete(anyLong())).thenReturn("Deleted");
 
         // Act
         productListener.handleProductEvent(event, message, channel, deliveryTag);
 
         // Assert
-        verify(productCommandPort, times(1)).deleteById(1L, "ENT-123");
+        verify(productCommandPort, times(1)).delete(1L);
         verify(channel, times(1)).basicAck(deliveryTag, false);
     }
 }

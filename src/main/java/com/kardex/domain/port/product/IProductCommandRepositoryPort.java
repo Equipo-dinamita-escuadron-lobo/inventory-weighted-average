@@ -33,12 +33,11 @@ public interface IProductCommandRepositoryPort {
      String update(Product product);
      
      /**
-      * @brief Deletes a product by its ID and enterprise ID
+      * @brief Deletes a product by its ID
       * @param productId Product ID to delete
-      * @param enterpriseId Enterprise ID for context
       * @return Status message indicating operation result
       */
-     String deleteById(Long productId, String enterpriseId);
+     String delete(Long productId);
      
      /**
       * @brief Deletes all products for a specific enterprise
