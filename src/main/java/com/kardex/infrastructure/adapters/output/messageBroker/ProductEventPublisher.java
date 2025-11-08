@@ -6,7 +6,8 @@ import org.springframework.stereotype.Component;
 import com.kardex.domain.port.product.IProductEventPort;
 import com.kardex.infrastructure.adapters.config.rabbitConfig.RabbitProductUsedConfig;
 import com.kardex.infrastructure.adapters.output.messageBroker.dto.EventDto;
-import com.kardex.infrastructure.adapters.output.messageBroker.enums.EventProductType;
+import com.kardex.infrastructure.adapters.output.messageBroker.dto.ProductUsageEventDto;
+import com.kardex.infrastructure.adapters.output.messageBroker.enums.EventUsageType;
 import com.kardex.infrastructure.adapters.output.security.IJwtUtils;
 
 
@@ -22,18 +23,18 @@ public class ProductEventPublisher implements IProductEventPort{
     private final RabbitTemplate rabbitTemplate;
     private final IJwtUtils jwtUtils;
 
-
     @Override
-    public void publishCreatedProductEvent(boolean isItBeingUsed) {
-        EventDto<Boolean,EventProductType> event = new EventDto<>(EventProductType.USED, isItBeingUsed);
-        log.info("Publishing product created event, isItBeingUsed: {}", isItBeingUsed);
+    public void publishUsedProductEvent(Long productId, Integer quantityUsed) {
+        ProductUsageEventDto event = new ProductUsageEventDto();
+        event.setProductId(productId);
+        event.setQuantityUsed(quantityUsed);
 
-        rabbitTemplate.convertAndSend(RabbitProductUsedConfig.PRODUCT_USED_EXCHANGE, "", event, message -> {
+        EventDto<ProductUsageEventDto, EventUsageType> eventDto = new EventDto<>(event, EventUsageType.USED);
+        log.info("Publishing product created event, productId: {}, quantityUsed: {}", productId, quantityUsed);
+
+        rabbitTemplate.convertAndSend(RabbitProductUsedConfig.PRODUCT_USED_EXCHANGE, "", eventDto, message -> {
             message.getMessageProperties().setHeader("x-jwt-token", jwtUtils.getToken());
             return message;
         });
     }
-
-
-    
 }

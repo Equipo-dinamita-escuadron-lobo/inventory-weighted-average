@@ -1,6 +1,6 @@
 package com.kardex.domain.port.product;
 
 public interface IProductEventPort {
-    void publishCreatedProductEvent(boolean isItBeingUsed);
+    void publishUsedProductEvent(Long productId, Integer quantityUsed);
 
 }

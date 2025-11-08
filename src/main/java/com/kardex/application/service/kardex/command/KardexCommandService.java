@@ -199,7 +199,7 @@ public class KardexCommandService implements IKardexCommandPort{
             kardex.setTotalBalance(kardex.getUnitPrice().multiply(BigDecimal.valueOf(kardex.getQuantity())));
             kardex.generateAdjustmentFactCode();
             kardex.updateDetailIfNotNull();
-            productEventPort.publishCreatedProductEvent(true);
+            productEventPort.publishUsedProductEvent(kardex.getProductId(),1);
         } else {
             kardex.addPurchase(lastRegisteredKardex.getBalanceQuantity(), lastRegisteredKardex.getTotalBalance());
         }
