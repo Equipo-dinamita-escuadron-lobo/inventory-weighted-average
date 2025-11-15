@@ -131,25 +131,24 @@ public class ProductCommandAdapter implements IProductCommandRepositoryPort {
     }
 
     /**
-     * @brief Deletes a product by its ID and enterprise ID
+     * @brief Deletes a product by its ID
      * @param productId Product ID to delete
-     * @param enterpriseId Enterprise ID for context
      * @return Result message
      */
     @Override
     @Transactional
-    public String deleteById(Long productId, String enterpriseId) {
+    public String delete(Long productId) {
         try {
-            int deletedCount = productRepository.deleteByProductIdAndEnterpriseId(productId, enterpriseId);
+            int deletedCount = productRepository.deleteByProductId(productId);
             if (deletedCount > 0) {
-                log.info("Product with ID {} deleted successfully for enterprise {}", productId, enterpriseId);
+                log.info("Product with ID {} deleted successfully", productId);
                 return "Product deleted successfully.";
             } else {
-                log.warn("Product with ID {} not found for enterprise {}", productId, enterpriseId);
+                log.warn("Product with ID {} not found", productId);
                 return "Product not found.";
             }
         } catch (Exception e) {
-            log.error("Error deleting product with ID {} for enterprise {}: {}", productId, enterpriseId, e.getMessage());
+            log.error("Error deleting product with ID {}: {}", productId, e.getMessage());
             return "An error occurred while deleting the product: " + e.getMessage();
         }
     }

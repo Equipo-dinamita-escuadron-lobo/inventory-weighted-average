@@ -32,13 +32,12 @@ public class ProductCommandController {
      * @param enterpriseId Enterprise identifier
      * @return Response indicating deletion result
      */
-    @DeleteMapping("/products/{enterpriseId}/{productId}")
+    @DeleteMapping("/products/{productId}")
     public ResponseEntity<ResponseDto<String>> deleteProduct(
-            @PathVariable Long productId, 
-            @PathVariable String enterpriseId) {
+            @PathVariable Long productId) {
 
-            log.info("Deleting product with ID {} for enterprise {}", productId, enterpriseId);
-            String result = productCommandPort.deleteById(productId, enterpriseId);
+            log.info("Deleting product with ID {} for enterprise {}", productId);
+            String result = productCommandPort.deleteById(productId);
             
             return ResponseEntity.ok(ResponseDto.<String>builder()
                 .data(result)

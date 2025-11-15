@@ -226,16 +226,16 @@ public class ProductCommandServiceUnitTest {
         // Arrange
         Long productId = 101L;
         String expectedMessage = "Product deleted successfully";
-        when(productCommandRepositoryPort.deleteById(productId, enterpriseId))
+        when(productCommandRepositoryPort.delete(productId))
             .thenReturn(expectedMessage);
         
         // Act
-        String result = productCommandService.deleteById(productId, enterpriseId);
+        String result = productCommandService.deleteById(productId);
         
         // Assert
         assertNotNull(result);
         assertEquals(expectedMessage, result);
-        verify(productCommandRepositoryPort).deleteById(productId, enterpriseId);
+        verify(productCommandRepositoryPort).delete(productId);
     }
     
     @Test

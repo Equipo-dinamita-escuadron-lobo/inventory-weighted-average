@@ -172,41 +172,41 @@ class ProductCommandAdapterUnitTest {
 
     @Test
     @DisplayName("Should delete product by ID successfully")
-    void testDeleteById_Success() {
+    void testdelete_Success() {
         // Arrange
-        when(productRepository.deleteByProductIdAndEnterpriseId(100L, "ENT-001")).thenReturn(1);
+        when(productRepository.deleteByProductId(100L)).thenReturn(1);
 
         // Act
-        String result = productCommandAdapter.deleteById(100L, "ENT-001");
+        String result = productCommandAdapter.delete(100L);
 
         // Assert
         assertEquals("Product deleted successfully.", result);
-        verify(productRepository).deleteByProductIdAndEnterpriseId(100L, "ENT-001");
+        verify(productRepository).deleteByProductId(100L);
     }
 
     @Test
     @DisplayName("Should return not found when deleting non-existent product")
-    void testDeleteById_NotFound() {
+    void testdelete_NotFound() {
         // Arrange
-        when(productRepository.deleteByProductIdAndEnterpriseId(999L, "ENT-001")).thenReturn(0);
+        when(productRepository.deleteByProductId(999L)).thenReturn(0);
 
         // Act
-        String result = productCommandAdapter.deleteById(999L, "ENT-001");
+        String result = productCommandAdapter.delete(999L);
 
         // Assert
         assertEquals("Product not found.", result);
-        verify(productRepository).deleteByProductIdAndEnterpriseId(999L, "ENT-001");
+        verify(productRepository).deleteByProductId(999L);
     }
 
     @Test
     @DisplayName("Should handle exception when deleting product")
-    void testDeleteById_Exception() {
+    void testdelete_Exception() {
         // Arrange
-        when(productRepository.deleteByProductIdAndEnterpriseId(100L, "ENT-001"))
+        when(productRepository.deleteByProductId(100L))
                 .thenThrow(new RuntimeException("Database error"));
 
         // Act
-        String result = productCommandAdapter.deleteById(100L, "ENT-001");
+        String result = productCommandAdapter.delete(100L);
 
         // Assert
         assertTrue(result.contains("An error occurred while deleting the product"));

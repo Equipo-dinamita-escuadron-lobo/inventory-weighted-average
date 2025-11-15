@@ -28,7 +28,7 @@ public interface IProductRepository extends JpaRepository<ProductEntity, Long> {
 
     // Delete methods
     @Modifying
-    int deleteByProductIdAndEnterpriseId(Long productId, String enterpriseId);
+    int deleteByProductId(Long productId);
     
     @Modifying
     int deleteByEnterpriseId(String enterpriseId);

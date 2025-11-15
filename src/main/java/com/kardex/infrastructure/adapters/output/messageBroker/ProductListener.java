@@ -90,7 +90,7 @@ public class ProductListener extends AbstractMessageListener<EventDto<ProductAsy
                     
                 case DELETED:
                     log.info("Deleting product: {}", productName);
-                    String deleteResult = productCommandPort.deleteById(data.getProductId(), data.getEnterpriseId());
+                    String deleteResult = productCommandPort.delete(data.getProductId());
                     log.info("Product deletion result: {}", deleteResult);
                     break;
                     
