@@ -159,7 +159,7 @@ public class FactureListener extends AbstractMessageListener<EventDto<KardexRabb
         }
         
         // For purchase operations, unitPrice is required
-        if ((event.getType() == EventFactureType.PURCHASE) 
+        if ((event.getType() == EventFactureType.PURCHASE || event.getType() == EventFactureType.NONCOMMERCIALENTRY)
             && (data.getUnitPrice() == null || data.getUnitPrice().compareTo(java.math.BigDecimal.ZERO) <= 0)) {
             validationErrorMessage = "Missing or invalid required field for purchase operation: unitPrice";
             log.warn("UnitPrice is null or invalid for purchase operation - required field");
