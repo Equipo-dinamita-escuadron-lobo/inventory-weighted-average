@@ -12,7 +12,8 @@ on:
 
 jobs:
   unit-tests:
-    if: ! endsWith(github.head_ref, 'integration')
+    if: >
+      !endsWith(github.head_ref, 'integration')
     uses:
       Equipo-dinamita-escuadron-lobo/workflows/.github/workflows/backend-on-pull-request.yaml@main
     with:
