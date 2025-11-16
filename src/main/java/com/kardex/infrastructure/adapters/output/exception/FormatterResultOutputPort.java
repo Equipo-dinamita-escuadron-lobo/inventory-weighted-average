@@ -2,7 +2,7 @@ package com.kardex.infrastructure.adapters.output.exception;
 
 import org.springframework.stereotype.Service;
 
-import com.kardex.domain.port.IFormatterResultOutputPort;
+import com.kardex.domain.port.common.IFormatterResultOutputPort;
 import com.kardex.infrastructure.adapters.output.exception.customized.BusinessRuleException;
 import com.kardex.infrastructure.adapters.output.exception.customized.EntityAlreadyExists;
 import com.kardex.infrastructure.adapters.output.exception.customized.EntityDoesNotExistException;

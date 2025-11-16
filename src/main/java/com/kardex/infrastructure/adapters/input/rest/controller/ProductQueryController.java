@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kardex.application.ports.input.IProductQueryPort;
+import com.kardex.application.ports.input.product.IProductQueryPort;
 import com.kardex.infrastructure.adapters.input.rest.dto.ResponseDto;
 import com.kardex.infrastructure.adapters.input.rest.dto.response.ProductDtoResponse;
 import com.kardex.infrastructure.adapters.input.rest.mapper.IProductResponseMapper;

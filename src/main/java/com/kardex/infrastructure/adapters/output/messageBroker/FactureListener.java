@@ -6,9 +6,10 @@ import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
-import com.kardex.application.ports.input.IKardexCommandPort;
+import com.kardex.application.ports.input.kardex.IKardexCommandPort;
 import com.kardex.domain.model.Kardex;
-import com.kardex.domain.port.IMessageErrorHandlingPort;
+import com.kardex.domain.model.MovementType;
+import com.kardex.domain.port.messageProcessingError.IMessageErrorHandlingPort;
 import com.kardex.infrastructure.adapters.config.rabbitConfig.RabbitWeightedAverageConfig;
 import com.kardex.infrastructure.adapters.output.messageBroker.base.AbstractMessageListener;
 import com.kardex.infrastructure.adapters.output.messageBroker.dto.EventDto;
@@ -35,6 +36,8 @@ public class FactureListener extends AbstractMessageListener<EventDto<KardexRabb
     private final IKardexCommandPort kardexCommandPort;
     private final IKardexRabbitMQMapper kardexRabbitMQRestMapper;
     private final IMessageErrorHandlingPort messageErrorHandlingPortImpl;
+
+    private String validationErrorMessage = null;
     
     @PostConstruct
     private void init() {
@@ -65,35 +68,45 @@ public class FactureListener extends AbstractMessageListener<EventDto<KardexRabb
      */
     @Override
     protected void processEvent(EventDto<KardexRabbitDto, EventFactureType> event) {
-        try {
-            switch (event.getType()) {
-                case PURCHASE:
-                    Kardex kardex = kardexRabbitMQRestMapper.toDomain(event.getData());
-                    kardexCommandPort.registerPurchase(kardex);
-                    log.info("Registering purchase in Kardex for product ID: {}", kardex.getProductId());
-                    break;
-                case SALE:
-                    Kardex kardexSale = kardexRabbitMQRestMapper.toDomain(event.getData());
-                    kardexCommandPort.registerSale(kardexSale);
-                    log.info("Registering sale in Kardex for product ID: {}", kardexSale.getProductId());
-                    break;
-                case RETURNONSALE:
-                    Kardex kardexReturnOnSale = kardexRabbitMQRestMapper.toDomain(event.getData());
-                    kardexCommandPort.registerReturnOnSale(kardexReturnOnSale);
-                    log.info("Registering return on sale in Kardex for product ID: {}", kardexReturnOnSale.getProductId());
-                    break;
-                case RETURNONPURCHASE:
-                    Kardex kardexReturnOnPurchase = kardexRabbitMQRestMapper.toDomain(event.getData());
-                    kardexCommandPort.registerReturnOnPurchase(kardexReturnOnPurchase);
-                    log.info("Registering return on purchase in Kardex for product ID: {}", kardexReturnOnPurchase.getProductId());
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unsupported event type: " + event.getType());
-            }
-        } catch (Exception e) {
-            // Re-throw to be handled by the parent class if persistence fails
-            log.error("Database operation failed for kardex operation: {}", e.getMessage());
-            throw e;
+        switch (event.getType()) {
+            case PURCHASE:
+                Kardex kardex = kardexRabbitMQRestMapper.toDomain(event.getData());
+                kardex.setType(MovementType.PURCHASE);
+                kardexCommandPort.registerPurchase(kardex);
+                log.info("Registering purchase in Kardex for product ID: {}", kardex.getProductId());
+                break;
+            case SALE:
+                Kardex kardexSale = kardexRabbitMQRestMapper.toDomain(event.getData());
+                kardexSale.setType(MovementType.SALE);
+                kardexCommandPort.registerSale(kardexSale);
+                log.info("Registering sale in Kardex for product ID: {}", kardexSale.getProductId());
+                break;
+            case RETURNONSALE:
+                Kardex kardexReturnOnSale = kardexRabbitMQRestMapper.toDomain(event.getData());
+                kardexReturnOnSale.setType(MovementType.SALESRETURN);
+                kardexCommandPort.registerReturnOnSale(kardexReturnOnSale);
+                log.info("Registering return on sale in Kardex for product ID: {}", kardexReturnOnSale.getProductId());
+                break;
+            case RETURNONPURCHASE:
+                Kardex kardexReturnOnPurchase = kardexRabbitMQRestMapper.toDomain(event.getData());
+                kardexReturnOnPurchase.setType(MovementType.PURCHASERETURN);
+                kardexCommandPort.registerReturnOnPurchase(kardexReturnOnPurchase);
+                log.info("Registering return on purchase in Kardex for product ID: {}", kardexReturnOnPurchase.getProductId());
+                break;
+            case NONCOMMERCIALEXIT:
+                Kardex kardexNonCommercialExit = kardexRabbitMQRestMapper.toDomain(event.getData());
+                kardexNonCommercialExit.setType(MovementType.NONCOMMERCIALEXIT);
+                kardexCommandPort.registerSale(kardexNonCommercialExit);
+                log.info("Registering non-commercial exit in Kardex for product ID: {}", kardexNonCommercialExit.getProductId());
+                break;
+            case NONCOMMERCIALENTRY:
+                Kardex kardexNonCommercialEntry = kardexRabbitMQRestMapper.toDomain(event.getData());
+                kardexNonCommercialEntry.setType(MovementType.NONCOMMERCIALENTRY);
+                kardexCommandPort.registerPurchase(kardexNonCommercialEntry);
+                log.info("Registering non-commercial entry in Kardex for product ID: {}", kardexNonCommercialEntry.getProductId());
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported event type: " + event.getType());
         }
     }
 
@@ -104,13 +117,23 @@ public class FactureListener extends AbstractMessageListener<EventDto<KardexRabb
      */
     @Override
     protected boolean isValidEvent(EventDto<KardexRabbitDto, EventFactureType> event) {
+        validationErrorMessage = null; // Reset error message
+        
         if (event == null) {
-            log.warn("Event is null");
+            validationErrorMessage = "Event is null";
+            log.warn(validationErrorMessage);
+            return false;
+        }
+
+        if (event.getType() == null) {
+            validationErrorMessage = "Event type is null";
+            log.warn(validationErrorMessage);
             return false;
         }
         
         if (event.getData() == null) {
-            log.warn("Event data is null");
+            validationErrorMessage = "Event data is null";
+            log.warn(validationErrorMessage);
             return false;
         }
         
@@ -118,23 +141,27 @@ public class FactureListener extends AbstractMessageListener<EventDto<KardexRabb
         
         // Validate required fields
         if (data.getQuantity() == null || data.getQuantity() <= 0) {
+            validationErrorMessage = "Missing or invalid required field: quantity";
             log.warn("Quantity is null or invalid - required field");
             return false;
         }
         
         if (data.getFactCode() == null) {
+            validationErrorMessage = "Missing required field: factCode";
             log.warn("FactCode is null - required field");
             return false;
         }
         
         if (data.getProductId() == null) {
+            validationErrorMessage = "Missing required field: productId";
             log.warn("ProductId is null - required field");
             return false;
         }
         
         // For purchase operations, unitPrice is required
-        if ((event.getType() == EventFactureType.PURCHASE) 
+        if ((event.getType() == EventFactureType.PURCHASE || event.getType() == EventFactureType.NONCOMMERCIALENTRY)
             && (data.getUnitPrice() == null || data.getUnitPrice().compareTo(java.math.BigDecimal.ZERO) <= 0)) {
+            validationErrorMessage = "Missing or invalid required field for purchase operation: unitPrice";
             log.warn("UnitPrice is null or invalid for purchase operation - required field");
             return false;
         }
@@ -168,5 +195,10 @@ public class FactureListener extends AbstractMessageListener<EventDto<KardexRabb
         }
         
         return JsonUtils.toJsonWithNullHandling(event.getData());
+    }
+
+    @Override
+    protected String getValidationErrorMessage() {
+        return validationErrorMessage;
     }
 }

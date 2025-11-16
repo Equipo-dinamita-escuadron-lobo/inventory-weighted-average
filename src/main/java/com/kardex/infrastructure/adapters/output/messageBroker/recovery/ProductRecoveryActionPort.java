@@ -2,8 +2,8 @@ package com.kardex.infrastructure.adapters.output.messageBroker.recovery;
 
 import org.springframework.stereotype.Component;
 
-import com.kardex.application.ports.input.IProductSyncCommandPort;
-import com.kardex.domain.port.IEventRecoveryActionPort;
+import com.kardex.application.ports.input.product.IProductSyncCommandPort;
+import com.kardex.domain.port.messageProcessingError.IEventRecoveryActionPort;
 import com.kardex.infrastructure.adapters.output.messageBroker.dto.EventDto;
 import com.kardex.infrastructure.adapters.output.messageBroker.dto.ProductAsyncDto;
 import com.kardex.infrastructure.adapters.output.messageBroker.enums.EventProductType;
@@ -32,8 +32,18 @@ public class ProductRecoveryActionPort implements IEventRecoveryActionPort<Event
     @Override
     public boolean executeRecoveryAction(EventDto<ProductAsyncDto, EventProductType> event) {
         try {
+            if (event == null || event.getData() == null) {
+                log.error("Cannot execute recovery: event or event data is null");
+                return false;
+            }
+            
             ProductAsyncDto productData = event.getData();
             String enterpriseId = productData.getEnterpriseId();
+            
+            if (enterpriseId == null || enterpriseId.trim().isEmpty()) {
+                log.error("Cannot execute recovery: enterpriseId is null or empty");
+                return false;
+            }
             
             log.info("Executing product sync recovery for enterpriseId: {}", enterpriseId);
             

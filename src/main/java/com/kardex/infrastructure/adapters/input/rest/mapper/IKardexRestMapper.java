@@ -4,8 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.kardex.domain.model.Kardex;
-import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexPurchaseDtoRequest;
-import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexSaleDtoRequest;
+import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexAdjustmentEntryDtoRequest;
+import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexAdjustmentExitDtoRequest;
 
 @Mapper(componentModel = "spring")
 public interface IKardexRestMapper {
@@ -13,20 +13,16 @@ public interface IKardexRestMapper {
     @Mapping(target = "balanceQuantity", ignore = true)
     @Mapping(target = "balanceUnitPrice", ignore = true)
     @Mapping(target = "totalBalance", ignore = true)
-    @Mapping(target = "date", ignore = true)
-    @Mapping(target = "type", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "factCode", ignore = true)
-    Kardex toDomain(KardexPurchaseDtoRequest kardexPurchaseDtoRequest);
+    Kardex toDomain(KardexAdjustmentEntryDtoRequest kardexAdjustmentEntryDtoRequest);
 
     @Mapping(target = "balanceQuantity", ignore = true)
     @Mapping(target = "balanceUnitPrice", ignore = true)
     @Mapping(target = "totalBalance", ignore = true)
     @Mapping(target = "unitPrice", ignore = true)
-    @Mapping(target = "date", ignore = true)
-    @Mapping(target = "type", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "factCode", ignore = true)
-    Kardex toDomain(KardexSaleDtoRequest kardexSaleDtoRequest);
+    Kardex toDomain(KardexAdjustmentExitDtoRequest kardexAdjustmentExitDtoRequest);
 
 }

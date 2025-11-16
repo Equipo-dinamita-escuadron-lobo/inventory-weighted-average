@@ -1,9 +1,10 @@
 package com.kardex.infrastructure.adapters.output.messageBroker.base;
 
-import org.springframework.amqp.core.Message;
+import com.kardex.domain.port.messageProcessingError.IEventRecoveryActionPort;
+import com.kardex.domain.port.messageProcessingError.IMessageErrorHandlingPort;
+import com.kardex.infrastructure.adapters.output.exception.customized.BaseException;
 import com.rabbitmq.client.Channel;
-import com.kardex.domain.port.IMessageErrorHandlingPort;
-import com.kardex.domain.port.IEventRecoveryActionPort;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -71,7 +72,14 @@ public abstract class AbstractMessageListener<T> {
      */
     private void handleProcessingError(Exception e, T event, Channel channel, long deliveryTag) {
         try {
-            log.error("Error processing {} message: {}", getEntityType(), e.getMessage(), e);
+            // Loggear de manera diferente según el tipo de excepción
+            if (e instanceof BaseException) {
+                // Para excepciones de negocio, solo mostrar el mensaje sin stack trace
+                log.error("Error processing {} message: {}", getEntityType(), e.getMessage());
+            } else {
+                // Para otras excepciones, mostrar el stack trace completo
+                log.error("Error processing {} message: {}", getEntityType(), e.getMessage(), e);
+            }
             
             // Intentar ejecutar acción de recuperación si está disponible
             boolean recoveryExecuted = attemptRecovery(event);
@@ -101,7 +109,10 @@ public abstract class AbstractMessageListener<T> {
             if (messageErrorHandlingPort != null) {
                 String eventType = extractEventType(event);
                 String messageData = convertEventToJson(event);
-                String errorDescription = "Validation failed: Required fields are missing or invalid";
+                String specificError = getValidationErrorMessage();
+                String errorDescription = specificError != null 
+                    ? "Validation failed: " + specificError
+                    : "Validation failed: Required fields are missing or invalid";
                 
                 messageErrorHandlingPort.saveProcessingError(eventType, errorDescription, messageData, getEntityType());
             }
@@ -156,19 +167,6 @@ public abstract class AbstractMessageListener<T> {
         }
     }
 
-
-    /**
-     * Método de utilidad para extraer contenido del mensaje como String.
-     */
-    protected String getMessageBodyAsString(Message message) {
-        try {
-            return new String(message.getBody());
-        } catch (Exception e) {
-            log.warn("Error converting message body to string: {}", e.getMessage());
-            return "unavailable";
-        }
-    }
-
     /**
      * Extrae el tipo de evento del mensaje. Debe ser implementado por cada listener.
      * @param event El evento del cual extraer el tipo
@@ -182,4 +180,12 @@ public abstract class AbstractMessageListener<T> {
      * @return String en formato JSON con los datos del evento
      */
     protected abstract String convertEventToJson(T event);
+
+    /**
+     * Obtiene el mensaje de error específico de validación si está disponible.
+     * @return String con el mensaje de error específico, o null si no hay mensaje específico
+     */
+    protected String getValidationErrorMessage() {
+        return null; // Implementación por defecto
+    }
 }

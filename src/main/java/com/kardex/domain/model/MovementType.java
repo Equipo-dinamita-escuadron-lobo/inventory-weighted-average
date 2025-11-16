@@ -8,7 +8,12 @@ public enum MovementType {
     PURCHASE("Compra"),
     SALE("Venta"),
     SALESRETURN("Devolución de venta"),
-    PURCHASERETURN("Devolución de compra");
+    PURCHASERETURN("Devolución de compra"),
+    NONCOMMERCIALEXIT("Salida no comercial"),
+    NONCOMMERCIALENTRY("Entrada no comercial"),
+
+    ADJUSTMENTEXIT("Ajuste de inventario salida"),
+    ADJUSTMENTENTRY("Ajuste de inventario entrada");
 
     private final String description;
 

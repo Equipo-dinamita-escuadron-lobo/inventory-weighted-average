@@ -16,7 +16,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
+import org.springframework.lang.NonNull;
 /**
  * @brief JWT authentication converter for Spring Security
  * 
@@ -42,7 +42,7 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
      * @return The corresponding AbstractAuthenticationToken
      */
     @Override
-    public AbstractAuthenticationToken convert(Jwt jwt) {
+    public AbstractAuthenticationToken convert(@NonNull Jwt jwt) {
 
         Collection<GrantedAuthority> authorities = Stream
                 .concat(jwtGrantedAuthoritiesConverter.convert(jwt).stream(), extractResourceRoles(jwt).stream())

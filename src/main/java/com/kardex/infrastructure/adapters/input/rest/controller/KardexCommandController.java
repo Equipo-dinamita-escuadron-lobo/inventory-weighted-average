@@ -2,16 +2,17 @@ package com.kardex.infrastructure.adapters.input.rest.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kardex.application.ports.input.IKardexCommandPort;
+import com.kardex.application.ports.input.kardex.IKardexCommandPort;
 import com.kardex.domain.model.Kardex;
 import com.kardex.infrastructure.adapters.input.rest.dto.ResponseDto;
-import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexPurchaseDtoRequest;
-import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexSaleDtoRequest;
+import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexAdjustmentEntryDtoRequest;
+import com.kardex.infrastructure.adapters.input.rest.dto.request.KardexAdjustmentExitDtoRequest;
 import com.kardex.infrastructure.adapters.input.rest.dto.response.KardexDtoResponse;
 import com.kardex.infrastructure.adapters.input.rest.mapper.IKardexResponseMapper;
 import com.kardex.infrastructure.adapters.input.rest.mapper.IKardexRestMapper;
@@ -36,34 +37,52 @@ public class KardexCommandController {
     private final IKardexResponseMapper kardexResponseMapper;
 
     /**
-     * @brief Registers a purchase transaction
-     * @param kardexPurchaseDtoRequest Purchase transaction data
+     * @brief Registers an adjustment entry transaction with custom date validation
+     * Accepts optional date field for special adjustment date handling
+     * @param kardexAdjustmentEntryDtoRequest Adjustment entry transaction data with optional date
      * @return Response with processed kardex information
      */
-    @PostMapping("/purchase-agreement")
-    public ResponseEntity<ResponseDto<KardexDtoResponse>> purchaseKardex(@Valid @RequestBody KardexPurchaseDtoRequest kardexPurchaseDtoRequest) {
-        Kardex response = kardexCommandPort.registerPurchase(kardexRestMapper.toDomain(kardexPurchaseDtoRequest));
+    @PostMapping("/purchase-adjustment")
+    public ResponseEntity<ResponseDto<KardexDtoResponse>> adjustmentEntry(@Valid @RequestBody KardexAdjustmentEntryDtoRequest kardexAdjustmentEntryDtoRequest) {
+        Kardex response = kardexCommandPort.registerAdjustmentEntry(kardexRestMapper.toDomain(kardexAdjustmentEntryDtoRequest));
         KardexDtoResponse kardexDtoResponse = kardexResponseMapper.toDtoResponse(response);
         ResponseDto<KardexDtoResponse> responseDto = ResponseDto.<KardexDtoResponse>builder()
                 .data(kardexDtoResponse)
                 .status(200)
-                .message("Kardex purchase registered successfully").build();
+                .message("Kardex adjustment entry registered successfully").build();
         return responseDto.of();
     }
 
     /**
-     * @brief Registers a sale transaction
-     * @param kardexSaleDtoRequest Sale transaction data
+     * @brief Registers an adjustment exit transaction with custom date validation
+     * Accepts optional date field for special adjustment date handling
+     * @param kardexAdjustmentExitDtoRequest Adjustment exit transaction data with optional date
      * @return Response with processed kardex information
      */
-    @PostMapping("/sale-agreement")
-    public ResponseEntity<ResponseDto<KardexDtoResponse>> saleKardex(@Valid @RequestBody KardexSaleDtoRequest kardexSaleDtoRequest) {
-        Kardex response = kardexCommandPort.registerSale(kardexRestMapper.toDomain(kardexSaleDtoRequest));
+    @PostMapping("/sale-adjustment")
+    public ResponseEntity<ResponseDto<KardexDtoResponse>> adjustmentExit(@Valid @RequestBody KardexAdjustmentExitDtoRequest kardexAdjustmentExitDtoRequest) {
+        Kardex response = kardexCommandPort.registerAdjustmentExit(kardexRestMapper.toDomain(kardexAdjustmentExitDtoRequest));
         KardexDtoResponse kardexDtoResponse = kardexResponseMapper.toDtoResponse(response);
         ResponseDto<KardexDtoResponse> responseDto = ResponseDto.<KardexDtoResponse>builder()
                 .data(kardexDtoResponse)
                 .status(200)
-                .message("Kardex sale registered successfully").build();
+                .message("Kardex adjustment exit registered successfully").build();
         return responseDto.of();    
+    }
+
+    /**
+     * @brief Deletes all kardex records
+     * @return Response confirming deletion
+     */
+    @DeleteMapping("/delete-all")
+    public ResponseEntity<ResponseDto<Void>> deleteAllKardex() {
+        kardexCommandPort.deleteAll();
+        
+        ResponseDto<Void> responseDto = ResponseDto.<Void>builder()
+                .data(null)
+                .status(200)
+                .message("All kardex records deleted successfully")
+                .build();
+        return responseDto.of();
     }
 }

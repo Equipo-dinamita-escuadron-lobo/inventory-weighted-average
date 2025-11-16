@@ -1,6 +1,8 @@
 package com.kardex.infrastructure.adapters.output.multitenancy.interceptor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.context.request.WebRequest;
@@ -27,7 +29,7 @@ public class TenantInterceptor implements WebRequestInterceptor {
      * @throws Exception If tenant context cannot be established from JWT
      */
     @Override
-    public void preHandle(WebRequest request) throws Exception {
+    public void preHandle(@NonNull WebRequest request) throws Exception {
         try {
             String tenantId = jwtTokenService.getTenantId();
             TenantContext.setTenantId(tenantId);
@@ -44,7 +46,7 @@ public class TenantInterceptor implements WebRequestInterceptor {
      * @param model Model map (unused)
      */
     @Override
-    public void postHandle(WebRequest request, ModelMap model) throws Exception {
+    public void postHandle(@NonNull WebRequest request, @Nullable ModelMap model) throws Exception {
         TenantContext.clear();
     }
 
@@ -54,7 +56,7 @@ public class TenantInterceptor implements WebRequestInterceptor {
      * @param ex Exception thrown by controller, if any
      */
     @Override
-    public void afterCompletion(WebRequest request, Exception ex) throws Exception {
+    public void afterCompletion(@NonNull WebRequest request, @Nullable Exception ex) throws Exception {
         // No additional cleanup required
     }
 }

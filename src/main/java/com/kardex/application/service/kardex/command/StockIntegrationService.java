@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.kardex.domain.model.Kardex;
 import com.kardex.domain.model.Stock;
-import com.kardex.domain.port.IStockClientPort;
+import com.kardex.domain.port.external.IStockClientPort;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,9 +47,11 @@ public class StockIntegrationService {
             } else {
                 stockClient.sellStock(stock);
             }
-            log.info("" + (isBuy ? "Purchase/Return" : "Sale") + " stock updated successfully for product: {}", stock.getProductId());
+            log.info("{} stock updated successfully for product: {}", (isBuy ? "Purchase/Return" : "Sale"), stock.getProductId());
         } catch (Exception e) {
-            log.error("Error during " + (isBuy ? "purchase" : "sale") + ": " + e.getMessage(), e);
+            // Log the error but don't throw exception - allows kardex to be saved even if stock service is unavailable
+            log.warn("Failed to update stock for {} - Kardex will be saved but stock service was not synchronized: {}", 
+                (isBuy ? "purchase" : "sale"), e.getMessage());
         }
     }
 }

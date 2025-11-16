@@ -4,10 +4,13 @@ import org.springframework.stereotype.Service;
 
 import com.kardex.domain.model.Kardex;
 import com.kardex.domain.model.MovementType;
-import com.kardex.domain.port.IFormatterResultOutputPort;
-import com.kardex.domain.port.IKardexQueryRepositoryPort;
-import com.kardex.domain.port.IMessageServicePort;
-import com.kardex.domain.port.IProductQueryRepositoryPort;
+import com.kardex.infrastructure.adapters.output.jpa.entity.ProductEntity;
+import com.kardex.infrastructure.adapters.output.jpa.mapper.ProductMapper;
+import com.kardex.infrastructure.adapters.output.jpa.repository.IProductRepository;
+import com.kardex.domain.model.Product;
+import com.kardex.infrastructure.adapters.output.exception.customized.BusinessRuleException;
+import com.kardex.domain.port.common.IMessageServicePort;
+import com.kardex.domain.port.kardex.IKardexQueryRepositoryPort;
 import com.kardex.infrastructure.adapters.config.i18n.MessageKeys;
 
 import lombok.RequiredArgsConstructor;
@@ -25,25 +28,55 @@ import lombok.extern.slf4j.Slf4j;
 public class KardexValidationService {
     
     private final IKardexQueryRepositoryPort kardexQueryRepositoryPort;
-    private final IFormatterResultOutputPort formatterResultOutputPort;
-    private final IProductQueryRepositoryPort productQueryRepositoryPort;
+    private final IProductRepository productRepository;
+    private final ProductMapper productMapper;
     private final IMessageServicePort messageService;
 
     /**
-     * @brief Validates business rules for a kardex movement
+     * @brief Validates business rules and returns the product
      * @param factCode Invoice/document code
      * @param productId Product identifier
      * @param movementType Type of inventory movement
+     * @return Product The validated product with enterprise information
      */
-    public void validateBusinessRules(String factCode, Long productId, MovementType movementType) { 
-        // Check for duplicate movements based on factCode, productId, and type
-        boolean exists = kardexQueryRepositoryPort.existsByFactCodeAndProductIdAndType(factCode, productId, movementType);
-        
-        if (exists) {
-            String movementDescription = movementType.getDescription();
-            formatterResultOutputPort.returnBusinessRuleErrorResponse(400, 
-                messageService.getMessage(MessageKeys.ERROR_DUPLICATE_RECORD, "factCode=" + factCode + ", productId=" + productId + ", type=" + movementDescription));
+    public Product validateBusinessRulesAndGetProduct(String factCode, Long productId, MovementType movementType) { 
+        // Check for duplicate movements ONLY for non-return types
+        // Returns (PURCHASERETURN, SALESRETURN) can have multiple entries for the same factCode and productId
+        if (!isReturnType(movementType)) {
+            boolean exists = kardexQueryRepositoryPort.existsByFactCodeAndProductIdAndType(factCode, productId, movementType);
+            
+            if (exists) {
+                String movementDescription = movementType.getDescription();
+                String errorMessage = messageService.getMessage(MessageKeys.ERROR_DUPLICATE_RECORD, 
+                    "factCode=" + factCode + ", productId=" + productId + ", type=" + movementDescription);
+                throw new BusinessRuleException(400, errorMessage);
+            }
         }
+
+        // Get and validate product exists
+        ProductEntity productEntity = productRepository.getReferenceByProductId(productId);
+        if (productEntity == null) {
+            String errorMessage = messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, productId, "Product");
+            throw new BusinessRuleException(404, errorMessage);
+        }
+
+        Product product = productMapper.toDomain(productEntity);
+        if (!product.isActive()) {
+            String errorMessage = messageService.getMessage(MessageKeys.ERROR_OPERATION_NOT_ALLOWED, 
+                "Product is not active: " + productId);
+            throw new BusinessRuleException(400, errorMessage);
+        }
+
+        return product;
+    }
+
+    /**
+     * @brief Checks if the movement type is a return operation
+     * @param movementType Type of inventory movement to check
+     * @return true if the movement is a return type (PURCHASERETURN or SALESRETURN)
+     */
+    private boolean isReturnType(MovementType movementType) {
+        return movementType == MovementType.PURCHASERETURN || movementType == MovementType.SALESRETURN;
     }
 
     /**
@@ -53,19 +86,8 @@ public class KardexValidationService {
      */
     public void validatePreviousKardexExists(Kardex lastRegisteredKardex, String operation) {
         if (lastRegisteredKardex == null) {
-            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
-                messageService.getMessage(MessageKeys.ERROR_MISSING_RECORD, operation));
-        }
-    }
-
-    /**
-     * @brief Validates that a product exists in the system
-     * @param productId Product identifier to validate
-     */
-    public void validateProductExists(Long productId) {       
-        if (!productQueryRepositoryPort.existsByProductId(productId)) {
-            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, 
-                messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, "productId=" + productId));
+            String errorMessage = messageService.getMessage(MessageKeys.ERROR_MISSING_RECORD, operation);
+            throw new BusinessRuleException(404, errorMessage);
         }
     }
 }

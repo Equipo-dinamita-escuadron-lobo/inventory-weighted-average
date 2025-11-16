@@ -42,16 +42,7 @@ public class Kardex {
 
     private BigDecimal totalBalance;
 
-    /**
-     * @brief Finalizes kardex entry with timestamp and details
-     */
-    public void finalizeKardexEntry() {
-        addDate();
-        generateAdjustmentFactCode();
-        updateDetailIfNotNull();
-    }
-
-    private void addDate(){
+    public void addDate(){
         this.date = ZonedDateTime.now(ZoneId.of("America/Bogota"));
     }
 
@@ -81,7 +72,9 @@ public class Kardex {
 
         // 5. Divide the total value by the total quantity for the weighted average
         this.balanceUnitPrice = this.totalBalance.divide(totalQuantityBigDecimal, 2, RoundingMode.HALF_UP);
-        finalizeKardexEntry();
+        
+        generateAdjustmentFactCode();
+        updateDetailIfNotNull();
     }
 
     /**
@@ -100,7 +93,9 @@ public class Kardex {
         }
         if (this.balanceQuantity == 0) {
             resetBalancesIfZero();
-            finalizeKardexEntry(); 
+            
+            generateAdjustmentFactCode();
+            updateDetailIfNotNull();
             return;
         }
         
@@ -112,7 +107,9 @@ public class Kardex {
 
         // 4. Calculate the total value
         this.totalBalance = lastTotalBalance.subtract(this.unitPrice.multiply(BigDecimal.valueOf(this.quantity)) );
-        finalizeKardexEntry();
+               
+        generateAdjustmentFactCode();
+        updateDetailIfNotNull();
     }
 
     /**
@@ -135,7 +132,9 @@ public class Kardex {
 
         // 3. The new unit price is calculated
         this.balanceUnitPrice = this.totalBalance.divide(BigDecimal.valueOf(this.balanceQuantity), 2, RoundingMode.HALF_UP);
-        finalizeKardexEntry();      
+         
+        generateAdjustmentFactCode();
+        updateDetailIfNotNull();
     }
 
     /**
@@ -165,7 +164,9 @@ public class Kardex {
 
         // 4. Divide the total value by the total quantity for the weighted average
         this.balanceUnitPrice = this.totalBalance.divide(totalQuantityBigDecimal, 2, RoundingMode.HALF_UP);
-        finalizeKardexEntry();
+             
+        generateAdjustmentFactCode();
+        updateDetailIfNotNull();
     }
 
 
@@ -179,7 +180,7 @@ public class Kardex {
             this.unitPrice = BigDecimal.ZERO;  
     }
 
-    private void updateDetailIfNotNull() {
+    public void updateDetailIfNotNull() {
         if (this.details == null || this.details.isEmpty()) {
             // Format the detail with the movement type and code.  Sale - Invoice: 500
             this.details = String.format("%s - Factura: %s", this.type.getDescription(), this.factCode);
@@ -193,7 +194,7 @@ public class Kardex {
      * Ensures no duplication by checking existing code
      * Format: AYYMMDDHHMMSSX (A + timestamp + random letter) 
      */
-    private void generateAdjustmentFactCode() {
+    public void generateAdjustmentFactCode() {
         if (this.factCode != null && !this.factCode.isEmpty()) {
             return; // Ya tiene un código de factura válido
         }

@@ -1,14 +1,15 @@
 package com.kardex.application.service.kardex.query;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.kardex.application.ports.input.IKardexQueryPort;
+import com.kardex.application.ports.input.kardex.IKardexQueryPort;
 import com.kardex.domain.model.Kardex;
-import com.kardex.domain.port.IKardexQueryRepositoryPort;
+import com.kardex.domain.port.kardex.IKardexQueryRepositoryPort;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +41,28 @@ public class KardexQueryService implements IKardexQueryPort {
             return kardexQueryRepositoryPort.findProductIdAndDate(productId, pageable, startDate, endDate);
         }
         return kardexQueryRepositoryPort.findProductId(productId, pageable);
+    }
+
+    /**
+     * @brief Gets the last kardex record for all products of an enterprise
+     * @param enterpriseId Enterprise identifier to filter products
+     * @return List of latest kardex records for each product
+     */
+    @Override
+    public List<Kardex> findLastKardexForAllProducts(String enterpriseId) {
+        log.info("Fetching last kardex record for all products of enterprise: {}", enterpriseId);
+        return kardexQueryRepositoryPort.findLastKardexForAllProducts(enterpriseId);
+    }
+    
+    /**
+     * @brief Gets the most recent kardex record for a specific product
+     * @param productId Product identifier
+     * @return Latest kardex record or null if none exists
+     */
+    @Override
+    public Kardex getLatestKardexByProductId(Long productId) {
+        log.info("Fetching latest kardex record for product: {}", productId);
+        return kardexQueryRepositoryPort.getLatestKardexByProductId(productId);
     }
     
 }

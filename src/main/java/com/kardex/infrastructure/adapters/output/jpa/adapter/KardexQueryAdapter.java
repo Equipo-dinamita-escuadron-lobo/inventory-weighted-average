@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import com.kardex.domain.model.Kardex;
 import com.kardex.domain.model.MovementType;
-import com.kardex.domain.port.IKardexQueryRepositoryPort;
+import com.kardex.domain.port.kardex.IKardexQueryRepositoryPort;
 import com.kardex.infrastructure.adapters.output.jpa.entity.KardexEntity;
 import com.kardex.infrastructure.adapters.output.jpa.mapper.IKardexEntityQueryMapper;
 import com.kardex.infrastructure.adapters.output.jpa.repository.IKardexRepository;
@@ -93,6 +93,17 @@ public class KardexQueryAdapter implements IKardexQueryRepositoryPort {
     @Override
     public boolean existsByFactCodeAndProductIdAndType(String factCode, Long productId, MovementType type) {
         return kardexRepository.existsByFactCodeAndProductIdAndType(factCode, productId, type);
+    }
+
+    /**
+     * @brief Gets the last kardex record for all products of an enterprise
+     * @param enterpriseId Enterprise identifier to filter products
+     * @return List of latest kardex records for each product
+     */
+    @Override
+    public List<Kardex> findLastKardexForAllProducts(String enterpriseId) {
+        List<KardexEntity> kardexEntities = kardexRepository.findLastKardexForAllProductsByEnterpriseId(enterpriseId);
+        return kardexEntityMapper.toDomainList(kardexEntities);
     }
     
 }

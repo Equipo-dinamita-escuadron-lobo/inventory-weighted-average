@@ -4,7 +4,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.kardex.domain.port.IMessageServicePort;
+import com.kardex.domain.port.common.IMessageServicePort;
 
 import lombok.RequiredArgsConstructor;
 

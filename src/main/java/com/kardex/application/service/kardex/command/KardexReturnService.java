@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 
 import com.kardex.domain.model.Kardex;
 import com.kardex.domain.model.MovementType;
-import com.kardex.domain.port.IFormatterResultOutputPort;
-import com.kardex.domain.port.IKardexQueryRepositoryPort;
-import com.kardex.domain.port.IMessageServicePort;
+import com.kardex.domain.port.common.IFormatterResultOutputPort;
+import com.kardex.domain.port.common.IMessageServicePort;
+import com.kardex.domain.port.kardex.IKardexQueryRepositoryPort;
 import com.kardex.infrastructure.adapters.config.i18n.MessageKeys;
 
 import lombok.RequiredArgsConstructor;

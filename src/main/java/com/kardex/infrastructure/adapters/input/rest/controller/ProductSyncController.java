@@ -6,9 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 
+import com.kardex.application.ports.input.product.IProductSyncCommandPort;
 import com.kardex.infrastructure.adapters.input.rest.dto.ResponseDto;
-
-import com.kardex.application.ports.input.IProductSyncCommandPort;
 
 import lombok.RequiredArgsConstructor;
 
