@@ -42,9 +42,9 @@ newman run collection.json --environment test-local.postman_environment.json --r
 
 ### Test de Carga y Estrés
 ```bash
-newman run collection.json \
-  --environment test-local.postman_environment.json \
-  --iterations 20 \
+newman run collection.json
+  --environment test-local.postman_environment.json
+  --iteration-count 20
   --delay-request 500 \
   --reporters json \
   --reporter-json-export load-test-results.json
