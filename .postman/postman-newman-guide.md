@@ -1,6 +1,6 @@
 # Ejecución con Newman - Automatización de Tests Postman
 
-## 🚀 Instalación de Newman
+## 🚀 Instalación de Newman 
 
 ### Requisitos Previos
 - Node.js v12 o superior
