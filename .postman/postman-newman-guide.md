@@ -21,18 +21,18 @@ npm install -g newman-reporter-htmlextra
 
 ### CLI
 ```bash
-newman run collection.json --environment test-local.postman_environment.json
+newman run collection.json --environment environment.json
 ```
 
 
 ### Con Reporters
 ```bash
 # CLI (consola)
-newman run collection.json --environment test-local.postman_environment.json --reporters cli
+newman run collection.json --environment environment.json --reporters cli
 
 
 # HTML (reporte visual)
-newman run collection.json --environment test-local.postman_environment.json --reporters cli,json,htmlextra --reporter-json-export results.json --reporter-htmlextra-export report.html
+newman run collection.json --environment environment.json --reporters cli,json,htmlextra --reporter-json-export results.json --reporter-htmlextra-export report.html
 
 
 ```
@@ -43,7 +43,7 @@ newman run collection.json --environment test-local.postman_environment.json --r
 ### Test de Carga y Estrés
 ```bash
 newman run collection.json
-  --environment test-local.postman_environment.json
+  --environment environment.json
   --iteration-count 20
   --delay-request 500 \
   --reporters json \
