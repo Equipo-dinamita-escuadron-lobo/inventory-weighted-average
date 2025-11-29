@@ -8,8 +8,8 @@ Esta colección contiene **86 tests de integración** para validar el sistema de
 - `baseUrlRabbit`: URL de RabbitMQ Management API
 - `baseUrl`: URL base del API de microservicios  
 - `enterpriseId`: ID de la empresa para pruebas
-- `Username`: Usuario para autenticación Basic Auth
-- `Password`: Contraseña para autenticación Basic Auth
+- `Username`: Usuario para autenticación Basic Auth (RabbitMQ)
+- `Password`: Contraseña para autenticación Basic Auth (RabbitMQ)
 - `keycloakUser`: Usuario resgitrado (editar json)
 - `keycloakPassword`: Contraseña para autenticación (editar json)
 - `productId`: ID del producto para pruebas
