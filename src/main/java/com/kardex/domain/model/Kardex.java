@@ -2,20 +2,29 @@ package com.kardex.domain.model;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Date;
+import java.util.Random;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @brief Domain model representing an inventory movement record
+ * 
+ */
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 public class Kardex {
     private Long id;
 
-    private Long quantity;
+    private String factCode;
+
+    private int quantity;
 
     private BigDecimal unitPrice;
 
@@ -23,59 +32,175 @@ public class Kardex {
 
     private MovementType type;
 
-    private Long balanceQuantity;
+    private int balanceQuantity;
 
     private BigDecimal balanceUnitPrice;
 
     private ZonedDateTime date;
 
-    private Product product;
+    private Long productId;
+
+    private BigDecimal totalBalance;
 
     public void addDate(){
         this.date = ZonedDateTime.now(ZoneId.of("America/Bogota"));
     }
 
-    public void addPurchaseBalance(Long lastQuantity, BigDecimal lastUnitPrice) {
-        // 1. Calcula la nueva cantidad total en el balance
+    /**
+     * @brief Processes a purchase transaction with weighted average calculation
+     * @param lastQuantity Previous inventory quantity
+     * @param lastTotalBalance Previous total inventory value
+     */
+    public void addPurchase(int lastQuantity, BigDecimal lastTotalBalance) {
+        // 1. Calculate the new total quantity in balance
         this.balanceQuantity = lastQuantity + this.quantity;
 
-        // Si no hay cantidad total, el precio es cero para evitar división por cero.
+        // If there is no total quantity, the price is zero to avoid division by zero.
         if (this.balanceQuantity == 0) {
             this.balanceUnitPrice = BigDecimal.ZERO;
             return;
         }
 
-        // 2. Calcula el valor total del inventario anterior
-        BigDecimal lastTotalValue = lastUnitPrice.multiply(BigDecimal.valueOf(lastQuantity));
-        
-        // 3. Calcula el valor total de la compra actual
+        // 2. Calculate the total value of the current purchase
         BigDecimal currentTotalValue = this.unitPrice.multiply(BigDecimal.valueOf(this.quantity));
 
-        // 4. Suma ambos valores para obtener el nuevo valor total del inventario
-        BigDecimal totalValue = lastTotalValue.add(currentTotalValue);
+        // 3. Sum both values to obtain the new total inventory value
+        this.totalBalance = lastTotalBalance.add(currentTotalValue);
 
-        // 5. Convierte la cantidad total a BigDecimal para la división
+        // 4. Convert the total quantity to BigDecimal for division
         BigDecimal totalQuantityBigDecimal = BigDecimal.valueOf(this.balanceQuantity);
 
-        // 6. Divide el valor total entre la cantidad total para el promedio ponderado
-        this.balanceUnitPrice = totalValue.divide(totalQuantityBigDecimal, 2, RoundingMode.HALF_UP);   
+        // 5. Divide the total value by the total quantity for the weighted average
+        this.balanceUnitPrice = this.totalBalance.divide(totalQuantityBigDecimal, 2, RoundingMode.HALF_UP);
+        
+        generateAdjustmentFactCode();
+        updateDetailIfNotNull();
     }
 
-    public void addSaleBalance(Long lastQuantity, BigDecimal lastUnitPrice) {
-        // 1. Calcula la nueva cantidad total en el balance
+    /**
+     * @brief Processes a sale transaction with current average price
+     * @param lastQuantity Previous inventory quantity
+     * @param lastUnitPrice Current average unit price
+     * @param lastTotalBalance Previous total inventory value
+     */
+    public void addSale(int lastQuantity, BigDecimal lastUnitPrice, BigDecimal lastTotalBalance) {
+        // 1. Calculate the new total quantity in balance
         this.balanceQuantity = lastQuantity - this.quantity;
+        
+        if (this.balanceQuantity < 0) {
+            this.balanceUnitPrice = BigDecimal.ZERO;
+            return;
+        }
+        if (this.balanceQuantity == 0) {
+            resetBalancesIfZero();
+            
+            generateAdjustmentFactCode();
+            updateDetailIfNotNull();
+            return;
+        }
+        
+        // 2. The last unit price is maintained for the balance
+        this.balanceUnitPrice = lastUnitPrice;
 
+        // 3. The unit price is the same as the last balance
+        this.unitPrice = lastUnitPrice;
+
+        // 4. Calculate the total value
+        this.totalBalance = lastTotalBalance.subtract(this.unitPrice.multiply(BigDecimal.valueOf(this.quantity)) );
+               
+        generateAdjustmentFactCode();
+        updateDetailIfNotNull();
+    }
+
+    /**
+     * @brief Processes a sale return with recalculated weighted average
+     * @param lastQuantity Previous inventory quantity
+     * @param lastUnitPrice Current average unit price
+     * @param lastTotalBalance Previous total inventory value
+     */
+    public void returnOnSale(int lastQuantity, BigDecimal lastUnitPrice, BigDecimal lastTotalBalance) {
+        // 1. Calculate the new total quantity in balance
+        this.balanceQuantity = lastQuantity + this.quantity;
+        
         if (this.balanceQuantity == 0) {
             this.balanceUnitPrice = BigDecimal.ZERO;
             return;
         }
 
-        // 2. se mantiene el último precio unitario para el balance
-        this.balanceUnitPrice = lastUnitPrice;
+        // 2. The total balance is increased
+        this.totalBalance = lastUnitPrice.multiply(BigDecimal.valueOf(this.quantity)).add(lastTotalBalance);
 
-        // 3. El precio unitario es el mismo que el del último balance
-        this.unitPrice = lastUnitPrice;
+        // 3. The new unit price is calculated
+        this.balanceUnitPrice = this.totalBalance.divide(BigDecimal.valueOf(this.balanceQuantity), 2, RoundingMode.HALF_UP);
+         
+        generateAdjustmentFactCode();
+        updateDetailIfNotNull();
+    }
 
+    /**
+     * @brief Processes a purchase return with recalculated weighted average
+     * @param lastQuantity Previous inventory quantity
+     * @param lastTotalBalance Previous total inventory value
+     */
+    public void returnOnPurchase(int lastQuantity, BigDecimal lastTotalBalance) {
+        // 1. Calculate the new total quantity in balance
+        this.balanceQuantity = lastQuantity - this.quantity;
+        
+        // 
+        if (this.balanceQuantity < 0) {
+            this.balanceUnitPrice = BigDecimal.ZERO;
+            return;
+        }
+        if (this.balanceQuantity == 0) {
+            resetBalancesIfZero();
+            return;
+        }
+
+        // 2. Calculate the total value
+        this.totalBalance = lastTotalBalance.subtract(this.unitPrice.multiply(BigDecimal.valueOf(this.quantity)));
+
+        // 3. Convert the total quantity to BigDecimal for division
+        BigDecimal totalQuantityBigDecimal = BigDecimal.valueOf(this.balanceQuantity);
+
+        // 4. Divide the total value by the total quantity for the weighted average
+        this.balanceUnitPrice = this.totalBalance.divide(totalQuantityBigDecimal, 2, RoundingMode.HALF_UP);
+             
+        generateAdjustmentFactCode();
+        updateDetailIfNotNull();
+    }
+
+
+    /**
+     * @brief Resets all balance fields when inventory reaches zero
+     */
+    public void resetBalancesIfZero(){
+            this.totalBalance = BigDecimal.ZERO;
+            this.balanceUnitPrice = BigDecimal.ZERO;
+            this.balanceQuantity = 0;   
+            this.unitPrice = BigDecimal.ZERO;  
+    }
+
+    public void updateDetailIfNotNull() {
+        if (this.details == null || this.details.isEmpty()) {
+            // Format the detail with the movement type and code.  Sale - Invoice: 500
+            this.details = String.format("%s - Factura: %s", this.type.getDescription(), this.factCode);
+        }else{
+            this.details = String.format("%s | %s - Factura: %s", this.details, this.type.getDescription(), this.factCode);
+        }
+    }
+
+    /**
+     * @brief Generates a unique fact code for inventory adjustments
+     * Ensures no duplication by checking existing code
+     * Format: AYYMMDDHHMMSSX (A + timestamp + random letter) 
+     */
+    public void generateAdjustmentFactCode() {
+        if (this.factCode != null && !this.factCode.isEmpty()) {
+            return; // Ya tiene un código de factura válido
+        }
+        String timestamp = new SimpleDateFormat("yyMMddHHmmss").format(new Date());
+        char randomLetter = (char) ('A' + new Random().nextInt(26));
+        this.factCode = String.format("A%s%c", timestamp, randomLetter);
     }
 
 }

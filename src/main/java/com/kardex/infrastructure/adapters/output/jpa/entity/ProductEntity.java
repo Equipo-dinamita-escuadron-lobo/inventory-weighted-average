@@ -1,42 +1,48 @@
 package com.kardex.infrastructure.adapters.output.jpa.entity;
 
-import java.util.List;
+import org.hibernate.annotations.TenantId;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @brief JPA entity for persisting product information
+ * 
+ */
 @Entity
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
+@Table(name = "products")
 public class ProductEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long idProduct;
-
-    @Column(nullable = false)
-    private String name;
+    @Column(nullable = false, unique = true)
+    private Long productId;
 
     @Column(nullable = false, unique = true)
     private String reference;
 
-    private String presentation;
+    @Column(nullable = false)
+    private String name;
 
-    private String manager;
+    private String presentation;
 
     @Column(name = "enterprise_id", nullable = false)
     private String enterpriseId;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<KardexEntity> kardexList;
+    @Column(nullable = false)
+    private boolean state;
+
+    @TenantId
+    String tenantId;
 }

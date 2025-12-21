@@ -10,15 +10,13 @@ import lombok.Setter;
 public class ProductDtoResponse {
     private Long id;
 
-    private Long idProduct;
+    private Long productId;
 
     private String reference;
 
     private String name;
 
     private String presentation;
-    
-    private String manager;
 
     private String enterpriseId;
 }

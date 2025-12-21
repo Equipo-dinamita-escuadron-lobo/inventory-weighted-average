@@ -3,6 +3,8 @@ package com.kardex.infrastructure.adapters.output.jpa.entity;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
+import org.hibernate.annotations.TenantId;
+
 import com.kardex.domain.model.MovementType;
 
 import jakarta.persistence.Column;
@@ -12,16 +14,20 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @brief JPA entity for persisting Kardex inventory movement records
+ * 
+ */
 @Entity
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
+@Table(name = "kardex")
 public class KardexEntity {
     
     @Id
@@ -29,7 +35,10 @@ public class KardexEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long quantity;
+    private String factCode;
+
+    @Column(nullable = false)
+    private int quantity;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
@@ -42,15 +51,20 @@ public class KardexEntity {
     private MovementType type;
 
     @Column(nullable = false)
-    private Long balanceQuantity;
+    private int balanceQuantity;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal balanceUnitPrice;
 
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalBalance;
+
     @Column(nullable = false)
     private ZonedDateTime date;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "idProduct", nullable = false)
-    private ProductEntity product;
+    @Column(name = "product_id", nullable = false)
+    private Long productId;
+
+    @TenantId
+    String tenantId;
 }

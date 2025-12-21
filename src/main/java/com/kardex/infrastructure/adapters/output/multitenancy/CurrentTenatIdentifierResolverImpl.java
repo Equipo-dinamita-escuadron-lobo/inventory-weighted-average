@@ -9,17 +9,19 @@ import org.springframework.util.ObjectUtils;
 
 import java.util.Map;
 
+/**
+ * @brief Hibernate tenant identifier resolver for multi-tenant database access
+ * 
+ * Resolves the current tenant identifier from TenantContext and configures
+ * Hibernate for multi-tenant operation.
+ */
 @SuppressWarnings("rawtypes")
 @Component
 class CurrentTenantIdentifierResolverImpl implements CurrentTenantIdentifierResolver, HibernatePropertiesCustomizer {
 
     /**
-     * Resuelve el identificador de inquilino actual.
-     * 
-     * @return el identificador de inquilino actual del TenantContext si está
-     *         disponible;
-     *         de lo contrario, devuelve "BOOTSTRAP" para permitir la inicialización
-     *         del EntityManagerFactory.
+     * @brief Resolves the current tenant identifier
+     * @return Current tenant ID from TenantContext, or "BOOTSTRAP" if none available
      */
     @Override
     public String resolveCurrentTenantIdentifier() {
@@ -33,12 +35,9 @@ class CurrentTenantIdentifierResolverImpl implements CurrentTenantIdentifierReso
         }
     }
 
-    
     /**
-     * Valida las sesiones actuales existentes.
-     * 
-     * @return true siempre, ya que las sesiones actuales son consideradas válidas
-     *         por defecto.
+     * @brief Validates existing current sessions
+     * @return Always true, as current sessions are considered valid by default
      */
     @Override
     public boolean validateExistingCurrentSessions() {
@@ -46,12 +45,8 @@ class CurrentTenantIdentifierResolverImpl implements CurrentTenantIdentifierReso
     }
 
     /**
-     * Personaliza las propiedades de Hibernate dadas agregando el resolutor de
-     * identificador
-     * de inquilino actual como el valor de la configuración
-     * {@link AvailableSettings#MULTI_TENANT_IDENTIFIER_RESOLVER}.
-     * 
-     * @param hibernateProperties las propiedades a personalizar
+     * @brief Customizes Hibernate properties for multi-tenant configuration
+     * @param hibernateProperties Properties map to customize
      */
     @Override
     public void customize(Map<String, Object> hibernateProperties) {

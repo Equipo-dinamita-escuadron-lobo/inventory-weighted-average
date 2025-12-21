@@ -17,6 +17,8 @@ public class KardexDtoResponse {
 
     private Long quantity;
 
+    private String factCode;
+
     private BigDecimal unitPrice;
 
     private String details;
@@ -26,6 +28,8 @@ public class KardexDtoResponse {
     private Long balanceQuantity;
 
     private BigDecimal balanceUnitPrice;
+
+    private BigDecimal totalBalance;
 
     private ZonedDateTime date;
     
