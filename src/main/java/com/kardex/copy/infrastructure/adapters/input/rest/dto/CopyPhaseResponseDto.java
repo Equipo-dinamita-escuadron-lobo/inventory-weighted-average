@@ -22,4 +22,12 @@ public class CopyPhaseResponseDto {
     private List<CopyEquivalenciaDto> equivalenciasGeneradas;
     private String mensaje;
     private List<String> advertencias;
+
+    /**
+     * Payload de exportación (modo BACKUP).
+     * Contiene los datos serializados para ser importados en otra instancia.
+     * Null en modo DUPLICATE.
+     */
+    @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+    private Object datosExportados;
 }

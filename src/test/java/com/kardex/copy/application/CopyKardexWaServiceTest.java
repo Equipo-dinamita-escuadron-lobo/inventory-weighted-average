@@ -86,7 +86,7 @@ class CopyKardexWaServiceTest {
         // Producto origen
         ProductEntity prodOrigen = new ProductEntity();
         prodOrigen.setId(1L);
-        prodOrigen.setIdProduct(100L);
+        prodOrigen.setProductId(100L);
         prodOrigen.setName("Producto X");
         prodOrigen.setReference("REF-001");
         prodOrigen.setEnterpriseId(origen);
@@ -94,7 +94,7 @@ class CopyKardexWaServiceTest {
         // Producto destino (guardado)
         ProductEntity prodDestino = new ProductEntity();
         prodDestino.setId(50L);
-        prodDestino.setIdProduct(200L); // remapeado
+        prodDestino.setProductId(200L); // remapeado
         prodDestino.setName("Producto X");
         prodDestino.setReference("REF-001");
         prodDestino.setEnterpriseId(destino);
@@ -102,25 +102,23 @@ class CopyKardexWaServiceTest {
         // Kardex entries
         KardexEntity k1 = new KardexEntity();
         k1.setId(10L);
-        k1.setQuantity(50L);
+        k1.setQuantity(50);
         k1.setUnitPrice(BigDecimal.valueOf(100));
         k1.setDetails("Compra");
         k1.setType(MovementType.PURCHASE);
-        k1.setBalanceQuantity(50L);
+        k1.setBalanceQuantity(50);
         k1.setBalanceUnitPrice(BigDecimal.valueOf(100));
         k1.setDate(ZonedDateTime.now());
-        k1.setProduct(prodOrigen);
 
         KardexEntity k2 = new KardexEntity();
         k2.setId(11L);
-        k2.setQuantity(10L);
+        k2.setQuantity(10);
         k2.setUnitPrice(BigDecimal.valueOf(100));
         k2.setDetails("Venta");
         k2.setType(MovementType.SALE);
-        k2.setBalanceQuantity(40L);
+        k2.setBalanceQuantity(40);
         k2.setBalanceUnitPrice(BigDecimal.valueOf(100));
         k2.setDate(ZonedDateTime.now());
-        k2.setProduct(prodOrigen);
 
         when(logRepo.buscarPorIdProcesoYFase(idProceso.toString(), 3)).thenReturn(Optional.empty());
         when(productSourceRepo.findByEnterpriseId(origen)).thenReturn(List.of(prodOrigen));
@@ -138,7 +136,7 @@ class CopyKardexWaServiceTest {
         assertThat(response.getEstado()).isEqualTo(CopyEstado.COMPLETADO.name());
         assertThat(response.getRegistrosProcesados()).isEqualTo(3); // 1 product + 2 kardex
         // Verificar que idProduct fue remapeado a 200 en el producto guardado
-        verify(productTargetRepo).guardar(argThat(p -> Long.valueOf(200L).equals(p.getIdProduct())));
+        verify(productTargetRepo).guardar(argThat(p -> Long.valueOf(200L).equals(p.getProductId())));
         // Verificar que los 2 movimientos fueron copiados con el nuevo ProductEntity
         verify(kardexTargetRepo, times(2)).guardar(any());
     }
@@ -159,14 +157,14 @@ class CopyKardexWaServiceTest {
 
         ProductEntity prodOrigen = new ProductEntity();
         prodOrigen.setId(1L);
-        prodOrigen.setIdProduct(100L);
+        prodOrigen.setProductId(100L);
         prodOrigen.setName("P");
         prodOrigen.setReference("R");
         prodOrigen.setEnterpriseId("A");
 
         ProductEntity prodGuardado = new ProductEntity();
         prodGuardado.setId(50L);
-        prodGuardado.setIdProduct(null); // sin equivalencia → null
+        prodGuardado.setProductId(null); // sin equivalencia → null
         prodGuardado.setName("P");
         prodGuardado.setReference("R");
         prodGuardado.setEnterpriseId("B");
