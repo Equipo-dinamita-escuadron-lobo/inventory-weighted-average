@@ -7,13 +7,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kardex.application.ports.input.IProductQueryPort;
+import com.kardex.application.ports.input.product.IProductQueryPort;
 import com.kardex.infrastructure.adapters.input.rest.dto.ResponseDto;
 import com.kardex.infrastructure.adapters.input.rest.dto.response.ProductDtoResponse;
 import com.kardex.infrastructure.adapters.input.rest.mapper.IProductResponseMapper;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * @brief REST controller for product query operations
+ * 
+ * Provides HTTP endpoints for retrieving product information
+ * within enterprise context with proper response formatting.
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/kardex/weighted-average")
@@ -21,6 +27,11 @@ public class ProductQueryController {
     private final IProductResponseMapper productResponseMapper;
     private final IProductQueryPort productQueryPort;
 
+    /**
+     * @brief Retrieves all products for a specific enterprise
+     * @param enterpriseId Enterprise identifier
+     * @return Response with list of products for the enterprise
+     */
     @GetMapping("/products/{enterpriseId}")
     public ResponseDto<List<ProductDtoResponse>> getAllProducts(@PathVariable String enterpriseId) {
         List<ProductDtoResponse> productDtoResponses = productQueryPort.findAll(enterpriseId)

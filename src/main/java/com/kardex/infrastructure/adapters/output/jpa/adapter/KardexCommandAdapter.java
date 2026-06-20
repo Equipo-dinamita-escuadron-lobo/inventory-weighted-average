@@ -1,47 +1,90 @@
 package com.kardex.infrastructure.adapters.output.jpa.adapter;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import com.kardex.domain.model.Kardex;
-import com.kardex.domain.port.IKardexCommandRepositoryPort;
+import com.kardex.domain.port.kardex.IKardexCommandRepositoryPort;
 import com.kardex.infrastructure.adapters.output.jpa.entity.KardexEntity;
-import com.kardex.infrastructure.adapters.output.jpa.entity.ProductEntity;
 import com.kardex.infrastructure.adapters.output.jpa.mapper.IKardexEntityCommandMapper;
 import com.kardex.infrastructure.adapters.output.jpa.repository.IKardexRepository;
-import com.kardex.infrastructure.adapters.output.jpa.repository.IProductRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-@Component
+/**
+ * @brief JPA adapter for Kardex write operations
+ * 
+ * Implements the output port for persisting inventory movement records
+ * using JPA repository and entity mapping.
+ */
+@Repository
 @RequiredArgsConstructor
+@Slf4j
 public class KardexCommandAdapter implements IKardexCommandRepositoryPort{
 
     private final IKardexEntityCommandMapper kardexEntityMapper;
     private final IKardexRepository kardexRepository;
-    private final IProductRepository productRepository;
 
+    /**
+     * @brief Persists a purchase transaction to database
+     * @param kardex Purchase record to save
+     * @return Saved kardex with generated database identifiers
+     */
     @Override
     public Kardex registerPurchase(Kardex kardex) {
-        ProductEntity productEntity = productRepository.getReferenceById(kardex.getProduct().getId());
         KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);
-        kardexEntity.setProduct(productEntity);
-
-        return kardexEntityMapper.toDomain(kardexRepository.save(kardexEntity));
+        KardexEntity savedEntity = kardexRepository.save(kardexEntity);
+        log.info("Registered purchase for product: {}", kardex.getProductId());
+        return kardexEntityMapper.toDomain(savedEntity);
     }
 
+    /**
+     * @brief Persists a sale transaction to database
+     * @param kardex Sale record to save
+     * @return Saved kardex with generated database identifiers
+     */
     @Override
     public Kardex registerSale(Kardex kardex) {
-        ProductEntity productEntity = productRepository.getReferenceById(kardex.getProduct().getId());
         KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);
-        kardexEntity.setProduct(productEntity);
-
-        return kardexEntityMapper.toDomain(kardexRepository.save(kardexEntity));
+        KardexEntity savedEntity = kardexRepository.save(kardexEntity);
+        log.info("Registered sale for product: {}", kardex.getProductId());
+        return kardexEntityMapper.toDomain(savedEntity);
     }
 
+    /**
+     * @brief Persists a purchase return transaction to database
+     * @param kardex Return record to save
+     * @return Saved kardex with generated database identifiers
+     */
     @Override
-    public Kardex getLatestKardexByProductId(Long productId) {
-        KardexEntity kardexEntity = kardexRepository.findTopByProductIdOrderByDateDesc(productId);
-        return kardexEntity != null ? kardexEntityMapper.toDomain(kardexEntity) : null;
+    public Kardex registerReturnOnPurchase(Kardex kardex) {
+        KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);
+        KardexEntity savedEntity = kardexRepository.save(kardexEntity);
+        log.info("Registered return on purchase for product: {}", kardex.getProductId());
+        return kardexEntityMapper.toDomain(savedEntity);
+    }
+
+    /**
+     * @brief Persists a sale return transaction to database
+     * @param kardex Return record to save
+     * @return Saved kardex with generated database identifiers
+     */
+    @Override
+    public Kardex registerReturnOnSale(Kardex kardex) {
+        KardexEntity kardexEntity = kardexEntityMapper.toEntity(kardex);
+        KardexEntity savedEntity = kardexRepository.save(kardexEntity);
+        log.info("Registered return on sale for product: {}", kardex.getProductId());
+        return kardexEntityMapper.toDomain(savedEntity);
+    }
+
+    /**
+     * @brief Deletes all kardex records from database
+     */
+    @Override
+    public void deleteAll() {
+        log.info("Deleting all kardex records from database");
+        kardexRepository.deleteAll();
+        log.info("All kardex records deleted from database");
     }
 
 }

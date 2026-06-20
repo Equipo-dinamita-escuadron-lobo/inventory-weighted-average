@@ -1,0 +1,19 @@
+package com.kardex.infrastructure.adapters.output.jpa.repository;
+
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.kardex.infrastructure.adapters.output.jpa.entity.MessageProcessingErrorEntity;
+
+/**
+ * Repositorio para gestionar los errores de procesamiento de mensajes.
+ */
+public interface IMessageProcessingErrorRepository extends JpaRepository<MessageProcessingErrorEntity, Long> {
+    
+    /**
+     * @brief Finds the most recent message processing error ordered by error timestamp
+     * @return Optional containing the latest error record if found
+     */
+    Optional<MessageProcessingErrorEntity> findFirstByOrderByErrorTimestampDesc();
+}

@@ -8,9 +8,8 @@ import com.kardex.infrastructure.adapters.output.jpa.entity.KardexEntity;
 
 @Mapper(componentModel = "spring")
 public interface IKardexEntityCommandMapper {
-    
+    @Mapping(target = "tenantId", ignore = true)
     KardexEntity toEntity(Kardex kardex);
-
-    @Mapping(target = "product", ignore = true)
+    
     Kardex toDomain(KardexEntity kardexEntity);
 }

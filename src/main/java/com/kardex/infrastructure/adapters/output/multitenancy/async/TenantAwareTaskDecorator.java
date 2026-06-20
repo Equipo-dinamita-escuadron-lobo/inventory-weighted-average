@@ -24,7 +24,7 @@ public class TenantAwareTaskDecorator implements TaskDecorator {
                 TenantContext.setTenantId(tenantId);
                 runnable.run();
             } finally {
-                TenantContext.setTenantId(null);
+                TenantContext.clear();
             }
         };
     }
